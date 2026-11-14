@@ -18,12 +18,15 @@ copiado en `docs/` para que este repo se lea solo.
 | Rol | Quién | Hace |
 |---|---|---|
 | Plan, orquestación, revisión | Opus (sesión principal) | Divide tareas, delega, revisa diffs e informes |
-| Implementar y corregir | Sonnet (subagente) | Código, unit tests (pytest, vitest) y e2e (Playwright) |
+| Implementar y testear | Sonnet (subagente `builder`) | Código, unit tests (pytest, vitest) y e2e (Playwright) |
+| Investigar y leer | Haiku (subagente `researcher`) | Lectura del código, APIs y fuentes de datos, unit tests puntuales |
+| Asesor | Fable (subagente `advisor`), hasta el 2026-11-17 | Segunda opinión solo en tareas o problemas complejos; no edita |
 | Corridas largas y datos grandes | sesión en la nube u opencode | Descargas, pipeline, entrenamientos, suites lentas |
 
-Plantillas de delegación: [docs/agents.md](docs/agents.md). Ciclo por tarea: se pasa por referencia
-(`plan/NN-*.md`, ID, archivos permitidos, criterio de "hecho"); el agente devuelve resultado y comandos con su
-salida resumida; Opus revisa `git status`, `git diff --stat` y un test enfocado.
+Los subagentes están definidos en `.claude/agents/`. Plantillas de delegación: [docs/agents.md](docs/agents.md).
+Ciclo por tarea: se pasa por referencia (`plan/NN-*.md`, ID, archivos permitidos, criterio de "hecho"); el agente
+devuelve resultado y comandos con su salida resumida; Opus revisa `git status`, `git diff --stat` y un test
+enfocado.
 
 ## Alcance
 
