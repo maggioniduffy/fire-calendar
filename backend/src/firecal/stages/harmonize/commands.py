@@ -37,7 +37,13 @@ def evaluate_cmd(
     cube = build_cube(build_monthly_region_table())
     folds = {}
     for pair in PAIRS:
-        folds[pair, "loyo"] = run_cv(cube, pair, "loyo", with_intervals=pair == "modis_to_viirs")
+        folds[pair, "loyo"] = run_cv(
+            cube,
+            pair,
+            "loyo",
+            with_intervals=pair == "modis_to_viirs",
+            with_conformal=pair in MAIN_PAIRS,
+        )
         if pair in MAIN_PAIRS:
             folds[pair, "rolling"] = run_cv(cube, pair, "rolling")
     all_folds = [f for fs in folds.values() for f in fs]

@@ -13,8 +13,12 @@ Todo es retrospectivo: cuenta focos ya detectados y no es un sistema de alerta.
 - VIIRS (S-NPP) -> MODIS-equivalente, origen móvil: WAPE bloque-mes SA2.2 18.7 % vs SA2.3 21.9 % (menor error: SA2.2 factor); WAPE bloque-año SA2.2 11.4 % vs SA2.3 13.8 % (menor error: SA2.2 factor); sesgo relativo SA2.2 +2.4 %, SA2.3 +8.0 %.
 - MODIS -> VIIRS-equivalente (serie inversa), año afuera: WAPE bloque-mes SA2.2 17.9 % vs SA2.3 19.4 % (menor error: SA2.2 factor); WAPE bloque-año SA2.2 10.6 % vs SA2.3 11.2 % (menor error: SA2.2 factor); sesgo relativo SA2.2 -0.9 %, SA2.3 -1.9 %.
 - MODIS -> VIIRS-equivalente (serie inversa), origen móvil: WAPE bloque-mes SA2.2 18.7 % vs SA2.3 20.3 % (menor error: SA2.2 factor); WAPE bloque-año SA2.2 11.5 % vs SA2.3 12.7 % (menor error: SA2.2 factor); sesgo relativo SA2.2 -2.1 %, SA2.3 -6.6 %.
-- Serie inversa, cobertura empírica del intervalo jackknife (factor) (nominal 80%, año afuera, bloque-mes con actividad): 26.0 %.
-- Serie inversa, cobertura empírica del intervalo dispersion interanual (nominal 80%, año afuera, bloque-mes con actividad): 53.9 %.
+- MODIS -> VIIRS-equivalente (serie inversa), cobertura empírica del intervalo jackknife (factor) (nominal 80%, año afuera, block-month con actividad, todos los años de test): 26.0 %, anchura relativa 0.30.
+- MODIS -> VIIRS-equivalente (serie inversa), cobertura empírica del intervalo dispersion interanual (nominal 80%, año afuera, block-month con actividad, todos los años de test): 53.9 %, anchura relativa 0.72.
+- MODIS -> VIIRS-equivalente (serie inversa), cobertura empírica del intervalo conformal (residuos relativos) (nominal 80%, año afuera, block-month con actividad, todos los años de test): 65.2 %, anchura relativa 0.63.
+- VIIRS (S-NPP) -> MODIS-equivalente, cobertura empírica del intervalo conformal (residuos relativos) (nominal 80%, año afuera, block-month con actividad, todos los años de test): 83.3 %, anchura relativa 0.63.
+- MODIS -> VIIRS-equivalente (serie inversa), cobertura empírica del intervalo conformal (residuos relativos) (nominal 80%, año afuera, block-year con actividad, todos los años de test): 75.4 %, anchura relativa 0.38.
+- VIIRS (S-NPP) -> MODIS-equivalente, cobertura empírica del intervalo conformal (residuos relativos) (nominal 80%, año afuera, block-year con actividad, todos los años de test): 82.3 %, anchura relativa 0.37.
 - Cociente MODIS/S-NPP nacional por período (media de los cocientes anuales): 2012-2017 0.315, 2018 0.302, 2019-2022 0.292, 2023 0.300, 2024-2025 0.316.
 - Mismo cociente sin filtro de `type`: 2012-2017 0.307, 2018 0.308, 2019-2022 0.292, 2023 0.296, 2024-2025 0.316; con el filtro por defecto desde las detecciones: 2012-2017 0.315, 2018 0.302, 2019-2022 0.292, 2023 0.300, 2024-2025 0.316.
 
@@ -132,30 +136,153 @@ Detalle por bloque (año afuera, años de test juntos): `baselines_by_block.csv`
 
 `k` es un pseudo-conteo en unidades del origen: `k = 0` es el cociente puro del bloque y `k = 10000` casi lo lleva al factor nacional.
 
-## Intervalos de la serie inversa
+## Intervalos
 
-Nivel nominal 80%. Cobertura empírica sobre bloque-mes con actividad (conteo de origen u observado mayor que cero), por año de test (año afuera). Anchura relativa = suma de anchuras / suma de predicciones.
+Nivel nominal 80%. Cobertura empírica sobre bloque-mes (o bloque-año) con actividad (conteo de origen u observado mayor que cero), por año de test (año afuera). Anchura relativa = suma de anchuras / suma de predicciones.
 
-- `jackknife (factor)`: factor +/- z * error estándar jackknife de los factores con un año afuera (z = 1,28). Solo refleja la incertidumbre del factor, no el ruido del conteo del mes de test.
-- `dispersion interanual`: cuantiles 10 % y 90 % de los factores de cada año de entrenamiento por separado (sin encogimiento), aplicados al conteo de origen. Incluye la variación año a año del cociente.
+- `jackknife (factor)` y `dispersion interanual` (solo serie inversa, bloque-mes): factor +/- z * error estándar jackknife (z = 1,28), y cuantiles 10 % y 90 % de los factores de cada año de entrenamiento. Solo describen la incertidumbre del factor, no el ruido del conteo del mes de test.
+- `conformal (residuos relativos)` (los dos sentidos, bloque-mes y bloque-año): dentro del entrenamiento de cada partición externa se corre el año afuera interno (6 meses de separación, con el `k` ya elegido para esa partición) y se juntan los residuos relativos `obs / pred` fuera de muestra sobre bloque-meses con `pred > 0` (`obs = 0` da residuo 0). Se estratifican en 5 clases de conteo predicho, con bordes por cuantiles de la predicción fuera de muestra de entrenamiento (clases con menos de 30 residuos se funden con la vecina). El intervalo es `pred * [q10, q90]` de la clase, con la corrección conformal de muestra finita (rangos ceil(0,9 (n+1)) y floor(0,1 (n+1))). Bloque-año no suma cotas de bloque-mes: se calibra con residuos de totales bloque-año de los mismos años internos, con sus propias clases. Nada se ajusta con los años de test externos. Los modelos internos usan un año menos de entrenamiento que el modelo externo, lo que tiende a ensanchar un poco.
 
-| Año | jackknife (factor) cobertura | jackknife (factor) anchura | dispersion interanual cobertura | dispersion interanual anchura |
-|---|---|---|---|---|
-| 2012 | 24.5 % | 0.29 | 56.1 % | 0.73 |
-| 2013 | 27.7 % | 0.31 | 58.3 % | 0.68 |
-| 2014 | 21.5 % | 0.29 | 49.8 % | 0.64 |
-| 2015 | 27.0 % | 0.29 | 52.4 % | 0.68 |
-| 2016 | 21.7 % | 0.29 | 50.2 % | 0.66 |
-| 2017 | 27.4 % | 0.30 | 57.8 % | 0.77 |
-| 2018 | 27.1 % | 0.27 | 57.2 % | 0.74 |
-| 2019 | 20.9 % | 0.26 | 54.8 % | 0.65 |
-| 2020 | 38.1 % | 0.34 | 62.3 % | 0.74 |
-| 2021 | 29.0 % | 0.33 | 52.6 % | 0.74 |
-| 2022 | 31.2 % | 0.37 | 54.9 % | 0.76 |
-| 2023 | 24.6 % | 0.26 | 50.7 % | 0.81 |
-| 2024 | 20.6 % | 0.25 | 48.8 % | 0.72 |
-| 2025 | 21.8 % | 0.28 | 48.5 % | 0.70 |
-| todos | 26.0 % | 0.30 | 53.9 % | 0.72 |
+### VIIRS (S-NPP) -> MODIS-equivalente, block-month
+
+| Año | conformal (residuos relativos) cobertura | conformal (residuos relativos) anchura |
+|---|---|---|
+| 2012 | 84.7 % | 0.63 |
+| 2013 | 84.5 % | 0.62 |
+| 2014 | 80.5 % | 0.68 |
+| 2015 | 80.6 % | 0.64 |
+| 2016 | 81.5 % | 0.62 |
+| 2017 | 83.1 % | 0.64 |
+| 2018 | 88.6 % | 0.65 |
+| 2019 | 86.4 % | 0.67 |
+| 2020 | 86.4 % | 0.60 |
+| 2021 | 85.3 % | 0.64 |
+| 2022 | 80.9 % | 0.58 |
+| 2023 | 81.4 % | 0.64 |
+| 2024 | 80.3 % | 0.66 |
+| 2025 | 81.4 % | 0.64 |
+| todos | 83.3 % | 0.63 |
+
+### VIIRS (S-NPP) -> MODIS-equivalente, block-year
+
+| Año | conformal (residuos relativos) cobertura | conformal (residuos relativos) anchura |
+|---|---|---|
+| 2012 | 85.1 % | 0.40 |
+| 2013 | 90.9 % | 0.38 |
+| 2014 | 72.7 % | 0.38 |
+| 2015 | 73.1 % | 0.39 |
+| 2016 | 83.3 % | 0.39 |
+| 2017 | 86.4 % | 0.37 |
+| 2018 | 89.1 % | 0.35 |
+| 2019 | 95.5 % | 0.39 |
+| 2020 | 77.6 % | 0.33 |
+| 2021 | 80.0 % | 0.35 |
+| 2022 | 77.6 % | 0.34 |
+| 2023 | 86.8 % | 0.37 |
+| 2024 | 84.8 % | 0.40 |
+| 2025 | 68.8 % | 0.38 |
+| todos | 82.3 % | 0.37 |
+
+### MODIS -> VIIRS-equivalente (serie inversa), block-month
+
+| Año | jackknife (factor) cobertura | jackknife (factor) anchura | dispersion interanual cobertura | dispersion interanual anchura | conformal (residuos relativos) cobertura | conformal (residuos relativos) anchura |
+|---|---|---|---|---|---|---|
+| 2012 | 24.5 % | 0.29 | 56.1 % | 0.73 | 68.7 % | 0.62 |
+| 2013 | 27.7 % | 0.31 | 58.3 % | 0.68 | 68.7 % | 0.63 |
+| 2014 | 21.5 % | 0.29 | 49.8 % | 0.64 | 65.3 % | 0.69 |
+| 2015 | 27.0 % | 0.29 | 52.4 % | 0.68 | 61.9 % | 0.66 |
+| 2016 | 21.7 % | 0.29 | 50.2 % | 0.66 | 60.9 % | 0.63 |
+| 2017 | 27.4 % | 0.30 | 57.8 % | 0.77 | 66.8 % | 0.64 |
+| 2018 | 27.1 % | 0.27 | 57.2 % | 0.74 | 68.4 % | 0.66 |
+| 2019 | 20.9 % | 0.26 | 54.8 % | 0.65 | 66.9 % | 0.68 |
+| 2020 | 38.1 % | 0.34 | 62.3 % | 0.74 | 68.5 % | 0.59 |
+| 2021 | 29.0 % | 0.33 | 52.6 % | 0.74 | 63.6 % | 0.63 |
+| 2022 | 31.2 % | 0.37 | 54.9 % | 0.76 | 65.7 % | 0.59 |
+| 2023 | 24.6 % | 0.26 | 50.7 % | 0.81 | 63.8 % | 0.63 |
+| 2024 | 20.6 % | 0.25 | 48.8 % | 0.72 | 62.4 % | 0.64 |
+| 2025 | 21.8 % | 0.28 | 48.5 % | 0.70 | 61.1 % | 0.63 |
+| todos | 26.0 % | 0.30 | 53.9 % | 0.72 | 65.2 % | 0.63 |
+
+### MODIS -> VIIRS-equivalente (serie inversa), block-year
+
+| Año | conformal (residuos relativos) cobertura | conformal (residuos relativos) anchura |
+|---|---|---|
+| 2012 | 71.6 % | 0.37 |
+| 2013 | 84.8 % | 0.39 |
+| 2014 | 69.7 % | 0.42 |
+| 2015 | 70.1 % | 0.39 |
+| 2016 | 78.8 % | 0.41 |
+| 2017 | 80.3 % | 0.40 |
+| 2018 | 85.9 % | 0.40 |
+| 2019 | 83.3 % | 0.42 |
+| 2020 | 77.6 % | 0.35 |
+| 2021 | 73.8 % | 0.36 |
+| 2022 | 67.2 % | 0.33 |
+| 2023 | 72.1 % | 0.39 |
+| 2024 | 74.2 % | 0.39 |
+| 2025 | 65.6 % | 0.37 |
+| todos | 75.4 % | 0.38 |
+
+### Cobertura conformal por tamaño predicho (año afuera, años de test juntos)
+
+Clases fijas de la predicción (solo para informar, no se ajusta nada con ellas); `n` = bloque-meses (o bloque-años) con actividad.
+
+VIIRS (S-NPP) -> MODIS-equivalente, block-month:
+
+| Predicción | n | Cobertura | Anchura |
+|---|---|---|---|
+| = 0 | 100 | 0.0 % | - |
+| (0, 1] | 1529 | 89.5 % | 3.21 |
+| (1, 5] | 1815 | 90.3 % | 2.40 |
+| (5, 20] | 2250 | 81.2 % | 1.59 |
+| (20, 100] | 2058 | 79.3 % | 0.83 |
+| (100, 500] | 1085 | 79.0 % | 0.55 |
+| > 500 | 392 | 92.6 % | 0.55 |
+
+VIIRS (S-NPP) -> MODIS-equivalente, block-year:
+
+| Predicción | n | Cobertura | Anchura |
+|---|---|---|---|
+| = 0 | 1 | 0.0 % | - |
+| (0, 10] | 197 | 88.3 % | 1.89 |
+| (10, 50] | 147 | 83.0 % | 1.17 |
+| (50, 200] | 138 | 79.7 % | 1.00 |
+| (200, 1000] | 240 | 80.0 % | 0.48 |
+| (1000, 5000] | 175 | 78.9 % | 0.32 |
+| > 5000 | 27 | 92.6 % | 0.32 |
+
+MODIS -> VIIRS-equivalente (serie inversa), block-month:
+
+| Predicción | n | Cobertura | Anchura |
+|---|---|---|---|
+| = 0 | 1702 | 0.0 % | - |
+| (0, 1] | 1 | 100.0 % | 4.19 |
+| (1, 5] | 675 | 75.1 % | 4.09 |
+| (5, 20] | 1541 | 79.2 % | 2.68 |
+| (20, 100] | 2289 | 81.1 % | 1.43 |
+| (100, 500] | 1891 | 78.5 % | 0.75 |
+| > 500 | 1130 | 83.6 % | 0.53 |
+
+MODIS -> VIIRS-equivalente (serie inversa), block-year:
+
+| Predicción | n | Cobertura | Anchura |
+|---|---|---|---|
+| = 0 | 66 | 0.0 % | - |
+| (0, 10] | 69 | 71.0 % | 5.41 |
+| (10, 50] | 136 | 82.4 % | 3.58 |
+| (50, 200] | 89 | 84.3 % | 1.12 |
+| (200, 1000] | 192 | 83.3 % | 0.82 |
+| (1000, 5000] | 215 | 79.1 % | 0.42 |
+| > 5000 | 158 | 82.9 % | 0.33 |
+
+### Lectura
+
+- MODIS -> VIIRS-equivalente (serie inversa), block-month: cobertura 65.2 % (FUERA de 75-85 %); con predicción mayor que cero 79.9 %; filas activas con predicción 0: 1702 de 9229.
+- VIIRS (S-NPP) -> MODIS-equivalente, block-month: cobertura 83.3 % (dentro de 75-85 %); con predicción mayor que cero 84.2 %; filas activas con predicción 0: 100 de 9229.
+- MODIS -> VIIRS-equivalente (serie inversa), block-year: cobertura 75.4 % (dentro de 75-85 %); con predicción mayor que cero 81.1 %; filas activas con predicción 0: 66 de 925.
+- VIIRS (S-NPP) -> MODIS-equivalente, block-year: cobertura 82.3 % (dentro de 75-85 %); con predicción mayor que cero 82.4 %; filas activas con predicción 0: 1 de 925.
+
+Causa probable de las brechas, sin verificar con un análisis aparte: el intervalo es multiplicativo (`pred * [q10, q90]`), así que con predicción 0 queda en [0, 0] y no puede cubrir un observado mayor que cero. Eso pasa sobre todo en la serie inversa, cuando MODIS no marcó ningún foco en un bloque-mes (o bloque-año) y VIIRS sí, por su resolución más fina. Esas filas entran en la cobertura porque la fila activa se define también con el observado (observado > 0 o origen > 0), que es una selección que favorece los fallos; la cobertura con predicción mayor que cero y la tabla por tamaño separan ambos casos. Además, en bloque-año hay pocas filas por año de test y la cobertura por año oscila más. Los residuos de entrenamiento se tratan como intercambiables con los del año de test: si la relación cambia con el tiempo (por ejemplo la deriva de Terra, sin verificar), la cobertura de un año puede quedar por debajo. Para publicar la serie 2000-2011 hay que resolver el caso de origen 0 con un límite aditivo (abierto, no hecho aquí).
 
 ## Variantes: Terra solo y NOAA-20 -> S-NPP (año afuera)
 

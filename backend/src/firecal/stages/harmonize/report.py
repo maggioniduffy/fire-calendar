@@ -15,9 +15,11 @@ from firecal.stages.harmonize.evaluate import (
     NOMINAL,
     PAIRS,
     FoldOut,
+    coverage_by_size,
     coverage_table,
     score_table,
 )
+from firecal.stages.harmonize.intervals import MIN_PER_BIN
 from firecal.stages.harmonize.regions import Cube
 from firecal.stages.harmonize.stability import step_summary
 
@@ -135,15 +137,13 @@ def build_report(inp: ReportInput) -> str:
                 f"SA2.3 {pct(by['wape'])} (menor error: {_lower(scores, pair, scheme, 'block-year')}); "
                 f"sesgo relativo SA2.2 {pct(a['bias'], True)}, SA2.3 {pct(b['bias'], True)}."
             )
-    c = cov[
-        (cov["pair"] == "modis_to_viirs")
-        & (cov["scheme"] == "loyo")
-        & (cov["test_year"].astype(str) == "all")
-    ]
-    for _, r in c.iterrows():
+    for _, r in cov[(cov["scheme"] == "loyo") & (cov["test_year"].astype(str) == "all")].iterrows():
+        if r["pair"] == "viirs_to_modis" and r["interval"] != "conformal":
+            continue
         L.append(
-            f"- Serie inversa, cobertura empírica del intervalo {INTERVALS[r['interval']]} (nominal "
-            f"{NOMINAL:.0%}, año afuera, bloque-mes con actividad): {pct(r['coverage'])}."
+            f"- {DIRECTION[r['pair']]}, cobertura empírica del intervalo {INTERVALS[r['interval']]} (nominal "
+            f"{NOMINAL:.0%}, año afuera, {r['level']} con actividad, todos los años de test): "
+            f"{pct(r['coverage'])}, anchura relativa {num(r['rel_width'], 2)}."
         )
     mod = inp.grid_tables["modis_snpp"]
     steps = step_summary(mod, "ratio", STEP_GROUPS)
@@ -315,31 +315,98 @@ def build_report(inp: ReportInput) -> str:
     ]
 
     # --- Intervalos ---
-    L += ["## Intervalos de la serie inversa", ""]
+    L += ["## Intervalos", ""]
     L += [
-        f"Nivel nominal {NOMINAL:.0%}. Cobertura empírica sobre bloque-mes con actividad (conteo de origen u "
-        "observado mayor que cero), por año de test (año afuera). Anchura relativa = suma de anchuras / suma de "
-        "predicciones.",
+        f"Nivel nominal {NOMINAL:.0%}. Cobertura empírica sobre bloque-mes (o bloque-año) con actividad (conteo de "
+        "origen u observado mayor que cero), por año de test (año afuera). Anchura relativa = suma de anchuras / "
+        "suma de predicciones.",
         "",
-        "- `jackknife (factor)`: factor +/- z * error estándar jackknife de los factores con un año afuera "
-        "(z = 1,28). Solo refleja la incertidumbre del factor, no el ruido del conteo del mes de test.",
-        "- `dispersion interanual`: cuantiles 10 % y 90 % de los factores de cada año de entrenamiento por "
-        "separado (sin encogimiento), aplicados al conteo de origen. Incluye la variación año a año del cociente.",
+        "- `jackknife (factor)` y `dispersion interanual` (solo serie inversa, bloque-mes): factor +/- z * error "
+        "estándar jackknife (z = 1,28), y cuantiles 10 % y 90 % de los factores de cada año de entrenamiento. "
+        "Solo describen la incertidumbre del factor, no el ruido del conteo del mes de test.",
+        "- `conformal (residuos relativos)` (los dos sentidos, bloque-mes y bloque-año): dentro del entrenamiento "
+        "de cada partición externa se corre el año afuera interno (6 meses de separación, con el `k` ya elegido "
+        "para esa partición) y se juntan los residuos relativos `obs / pred` fuera de muestra sobre bloque-meses "
+        "con `pred > 0` (`obs = 0` da residuo 0). Se estratifican en 5 clases de conteo predicho, con bordes por "
+        f"cuantiles de la predicción fuera de muestra de entrenamiento (clases con menos de {MIN_PER_BIN} "
+        "residuos se funden con la vecina). El intervalo es `pred * [q10, q90]` de la clase, con la "
+        "corrección conformal de muestra finita (rangos ceil(0,9 (n+1)) y floor(0,1 (n+1))). Bloque-año no suma "
+        "cotas de bloque-mes: se calibra con residuos de totales bloque-año de los mismos años internos, con sus "
+        "propias clases. Nada se ajusta con los años de test externos. Los modelos internos usan un año menos de "
+        "entrenamiento que el modelo externo, lo que tiende a ensanchar un poco.",
         "",
     ]
-    cc = cov[(cov["pair"] == "modis_to_viirs") & (cov["scheme"] == "loyo")]
-    years = sorted({int(y) for y in cc["test_year"] if str(y) != "all"})
-    rows = []
-    for y in years + ["all"]:
-        cells = ["todos" if y == "all" else y]
-        for name in INTERVALS:
-            r = cc[(cc["interval"] == name) & (cc["test_year"].astype(str) == str(y))].iloc[0]
-            cells += [pct(r["coverage"]), num(r["rel_width"], 2)]
-        rows.append(cells)
-    L += md_table(
-        ["Año"] + [f"{INTERVALS[n]} {h}" for n in INTERVALS for h in ("cobertura", "anchura")], rows
-    )
-    L.append("")
+    cc_all = cov[cov["scheme"] == "loyo"]
+    for pair in MAIN_PAIRS:
+        for level in ("block-month", "block-year"):
+            cc = cc_all[(cc_all["pair"] == pair) & (cc_all["level"] == level)]
+            names = [n for n in INTERVALS if n in set(cc["interval"])]
+            if not names:
+                continue
+            L += [f"### {DIRECTION[pair]}, {level}", ""]
+            years = sorted({int(y) for y in cc["test_year"] if str(y) != "all"})
+            rows = []
+            for y in years + ["all"]:
+                cells = ["todos" if y == "all" else y]
+                for name in names:
+                    r = cc[(cc["interval"] == name) & (cc["test_year"].astype(str) == str(y))].iloc[0]
+                    cells += [pct(r["coverage"]), num(r["rel_width"], 2)]
+                rows.append(cells)
+            L += md_table(
+                ["Año"] + [f"{INTERVALS[n]} {h}" for n in names for h in ("cobertura", "anchura")], rows
+            )
+            L.append("")
+    L += ["### Cobertura conformal por tamaño predicho (año afuera, años de test juntos)", ""]
+    L += [
+        "Clases fijas de la predicción (solo para informar, no se ajusta nada con ellas); `n` = bloque-meses (o "
+        "bloque-años) con actividad.",
+        "",
+    ]
+    sz = coverage_by_size(folds)
+    for pair in MAIN_PAIRS:
+        for level in ("block-month", "block-year"):
+            t = sz[(sz["pair"] == pair) & (sz["level"] == level)]
+            if t.empty:
+                continue
+            L += [f"{DIRECTION[pair]}, {level}:", ""]
+            rows = [
+                [
+                    "= 0"
+                    if r["hi"] == 0
+                    else f"({r['lo']:g}, {r['hi']:g}]"
+                    if np.isfinite(r["hi"])
+                    else f"> {r['lo']:g}",
+                    int(r["n"]),
+                    pct(r["coverage"]),
+                    num(r["rel_width"], 2),
+                ]
+                for _, r in t.iterrows()
+            ]
+            L += md_table(["Predicción", "n", "Cobertura", "Anchura"], rows)
+            L.append("")
+    L += ["### Lectura", ""]
+    conf = cc_all[(cc_all["interval"] == "conformal") & (cc_all["test_year"].astype(str) == "all")]
+    for _, r in conf.iterrows():
+        ok = 0.75 <= r["coverage"] <= 0.85
+        L.append(
+            f"- {DIRECTION[r['pair']]}, {r['level']}: cobertura {pct(r['coverage'])} "
+            f"({'dentro' if ok else 'FUERA'} de 75-85 %); con predicción mayor que cero {pct(r['coverage_pos'])}; "
+            f"filas activas con predicción 0: {int(r['n_pred0'])} de {int(r['n'])}."
+        )
+    L += [
+        "",
+        "Causa probable de las brechas, sin verificar con un análisis aparte: el intervalo es multiplicativo "
+        "(`pred * [q10, q90]`), así que con predicción 0 queda en [0, 0] y no puede cubrir un observado mayor que "
+        "cero. Eso pasa sobre todo en la serie inversa, cuando MODIS no marcó ningún foco en un bloque-mes (o "
+        "bloque-año) y VIIRS sí, por su resolución más fina. Esas filas entran en la cobertura porque la fila "
+        "activa se define también con el observado (observado > 0 o origen > 0), que es una selección que "
+        "favorece los fallos; la cobertura con predicción mayor que cero y la tabla por tamaño separan ambos "
+        "casos. Además, en bloque-año hay pocas filas por año de test y la cobertura por año oscila más. Los "
+        "residuos de entrenamiento se tratan como intercambiables con los del año de test: si la relación cambia "
+        "con el tiempo (por ejemplo la deriva de Terra, sin verificar), la cobertura de un año puede quedar por "
+        "debajo. Para publicar la serie 2000-2011 hay que resolver el caso de origen 0 con un límite aditivo (abierto, no hecho aquí).",
+        "",
+    ]
 
     # --- Variantes ---
     L += ["## Variantes: Terra solo y NOAA-20 -> S-NPP (año afuera)", ""]
