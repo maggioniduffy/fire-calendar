@@ -58,11 +58,11 @@ Todo lo de abajo es diseño; los supuestos sobre los datos quedan "sin verificar
 
 | ID | Tarea | Agente | Hecho cuando |
 |---|---|---|---|
-| SA2.1 | VIIRS reagrupado a celdas de 1 km por día (una detección por celda), pares de pasos similares (Aqua ~ S-NPP) | Sonnet | Unit: N detecciones en una celda cuentan como 1 |
+| SA2.1 | VIIRS reagrupado a celdas de 1 km por día (una detección por celda), pares de pasos similares (Aqua ~ S-NPP) | Sonnet | Unit: N detecciones en una celda cuentan como 1. Hecho ✅ (2026-11-14; en 2020, de 71.819 celdas-día de Aqua solo 29.937 tienen S-NPP en la misma celda de 0,01°: la coincidencia exacta a 1 km es baja y SA2.4/SA2.7 van a necesitar vecindad) |
 | SA2.2 | Baseline: factor de escala MODIS/VIIRS por región y mes del año, en los dos sentidos | Sonnet | Unit con datos sintéticos de factor conocido |
 | SA2.3 | Ajuste de cuantiles por región | Sonnet | Unit: recupera la distribución objetivo en sintético |
 | SA2.4 | LightGBM hacia MODIS: conteo MODIS-equivalente desde conteos VIIRS por confianza, FRP, día/noche, mes, latitud, cobertura del suelo | Sonnet implementa, opencode entrena | Error por año de test vs. SA2.2 y SA2.3 |
-| SA2.5 | Validación año afuera con separación y selección anidada (`docs/validation.md`) | Sonnet | Unit: ningún día de test en entrenamiento |
+| SA2.5 | Validación año afuera con separación y selección anidada (`docs/validation.md`) | Sonnet | Unit: ningún día de test en entrenamiento. Hecho ✅ (2026-11-14; año afuera con separación y origen móvil) |
 | SA2.6 | (postergado) Efecto de la deriva orbital de Terra y Aqua en los años recientes (sin verificar magnitud) | opencode | `reports/02/SA2.6.md` con cifras |
 | SA2.7 | Serie inversa: LightGBM con objetivo Poisson o Tweedie que estima conteos VIIRS por celda y día desde conteo y FRP de MODIS, (sin ángulo de escaneo: el archivo standard no trae `scan`), día/noche, mes, cobertura del suelo y focos de días vecinos; intervalos por regresión cuantílica | Sonnet implementa, opencode entrena | Error y cobertura de intervalos por año de test vs. SA2.2 inverso |
 | SA2.8 | (postergado) Validación hacia atrás: entrenar con 2016 en adelante y evaluar en 2012–2015, para simular estimar el pasado y ver si la relación cambia con el tiempo | Sonnet | Tabla de error por región y año; unit: ningún año de test en entrenamiento |
