@@ -40,3 +40,6 @@ de fase ENSO), LightGBM (queda el factor de escala), NRT.
   tests sin red. La sesión en la nube no llega a FIRMS ni a CPC (proxy 403), así que la descarga real y SA1.7
   quedan para una corrida local: `make install`, `cd backend && uv run firecal enso build`,
   `uv run firecal firms download`, `ingest`, `grid`, `profile`.
+- 2026-11-14: web de la fase 0: SA0.4 y SA0.5 hechos; mitad web de SA0.2 y lado web de SA0.7 (capa falsa desde
+  fixture, solo en builds dev/e2e). Faltan los targets `web*` del `Makefile` y el job web de CI. Rampa del
+  calendario queda para SA4.3. Capturas en `docs/screenshots/`.
