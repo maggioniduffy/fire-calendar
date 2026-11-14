@@ -35,5 +35,8 @@ de fase ENSO), LightGBM (queda el factor de escala), NRT.
 
 - 2026-11-14: repo separado de clima-ideas (antes `space-apps/` en la rama `claude/space-apps-fire-calendar-plan`).
   Fuentes FIRMS verificadas. SA0.1 hecho (reglas del evento, ya sin efecto).
-- 2026-11-14: web de la fase 0: SA0.4 y SA0.5 hechos; mitad web de SA0.2 y lado web de SA0.7 (capa falsa desde
-  fixture, solo en builds dev/e2e). Rampa del calendario queda para SA4.3. Capturas en `docs/screenshots/`.
+- 2026-11-14: backend `firecal` (uv, Python 3.12), Makefile, CI backend, manifiesto + API (SA0.2 backend, SA0.3
+  backend, SA0.6), ONI y fase ENSO (SA0.9), descarga, ingesta, filtros y grilla FIRMS (SA1.1–SA1.4), todo con unit
+  tests sin red. La sesión en la nube no llega a FIRMS ni a CPC (proxy 403), así que la descarga real y SA1.7
+  quedan para una corrida local: `make install`, `cd backend && uv run firecal enso build`,
+  `uv run firecal firms download`, `ingest`, `grid`, `profile`.

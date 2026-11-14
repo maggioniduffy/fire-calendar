@@ -1,0 +1,85 @@
+"""SA1.7 data profile of FIRMS detections as markdown."""
+
+import json
+from collections import defaultdict
+from pathlib import Path
+
+import pandas as pd
+import pyarrow.parquet as pq
+
+from firecal.paths import interim_dir, raw_dir
+from firecal.stages.grid.filters import FilterConfig, apply_filters
+
+
+def profile(
+    detections: Path | None = None,
+    downloads: Path | None = None,
+    cfg: FilterConfig | None = None,
+) -> str:
+    cfg = cfg or FilterConfig()
+    detections = detections or interim_dir() / "firms" / "detections"
+    downloads = downloads or raw_dir() / "firms" / "downloads.json"
+
+    raw_n: dict[tuple[str, int], int] = {}
+    kept_n: dict[tuple[str, int], int] = {}
+    drops: dict[str, defaultdict] = {}
+    months: dict[str, set[pd.Period]] = defaultdict(set)
+    for f in sorted(detections.glob("product=*/year=*/part-0.parquet")):
+        product = f.parent.parent.name.split("=")[1]
+        year = int(f.parent.name.split("=")[1])
+        df = pq.read_table(f).to_pandas()
+        kept, d = apply_filters(df, cfg)
+        raw_n[product, year] = len(df)
+        kept_n[product, year] = len(kept)
+        acc = drops.setdefault(product, defaultdict(int))
+        for k, v in d.items():
+            acc[k] += v
+        months[product] |= set(pd.to_datetime(df["acq_date"]).dt.to_period("M").unique())
+
+    lines = ["# SA1.7 FIRMS data profile", ""]
+    lines += [
+        "Retrospective counts of detections; not an alert system.",
+        f"Filters: type in {list(cfg.types)}, MODIS confidence >= {cfg.modis_min_confidence}, "
+        f"VIIRS class in {list(cfg.viirs_classes)}.",
+        "",
+        "## Detections per year and product (raw / after filters)",
+        "",
+    ]
+    products = sorted({p for p, _ in raw_n})
+    years = sorted({y for _, y in raw_n})
+    lines += ["| Year | " + " | ".join(products) + " |", "|---|" + "---|" * len(products)]
+    for y in years:
+        cells = [f"{raw_n[p, y]} / {kept_n[p, y]}" if (p, y) in raw_n else "-" for p in products]
+        lines.append(f"| {y} | " + " | ".join(cells) + " |")
+
+    lines += [
+        "",
+        "## Dropped per filter reason",
+        "",
+        "| Product | type | modis_confidence | viirs_confidence |",
+        "|---|---|---|---|",
+    ]
+    for p in products:
+        d = drops[p]
+        lines.append(f"| {p} | {d['type']} | {d['modis_confidence']} | {d['viirs_confidence']} |")
+
+    lines += ["", "## Missing years (HTTP 404)", ""]
+    missing = []
+    if downloads.exists():
+        recs = json.loads(downloads.read_text()).get("records", [])
+        missing = sorted((r["product"], r["year"]) for r in recs if r["status"] == "missing")
+    lines += [f"- {p} {y}" for p, y in missing] or ["- none"]
+
+    lines += ["", "## Gaps (months with zero detections within each product's coverage)", ""]
+    any_gap = False
+    for p in products:
+        if not months[p]:
+            continue
+        full = pd.period_range(min(months[p]), max(months[p]), freq="M")
+        gaps = [str(m) for m in full if m not in months[p]]
+        if gaps:
+            any_gap = True
+            lines.append(f"- {p}: {', '.join(gaps)}")
+    if not any_gap:
+        lines.append("- none")
+    return "\n".join(lines) + "\n"
