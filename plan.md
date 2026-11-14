@@ -50,7 +50,8 @@ de fase ENSO), LightGBM (queda el factor de escala), NRT.
   C6 y C6.1; desde 2018 más focos tipo 2. Fase 2: diseño de baselines decidido, SA2.1, SA2.2, SA2.3 y SA2.5
   hechos ([reports/02/baselines.md](reports/02/baselines.md)): gana el factor de escala. Siguiente: intervalos
   de la serie inversa con cobertura real, después SA2.4 y SA2.7 (LightGBM) contra ese baseline.
-- 2026-11-14 (WIP): intervalos conformales anidados para SA2.2 (cobertura 75–85 % salvo la serie inversa
-  bloque-mes, 65 %, por predicciones 0); en curso una cota aditiva para predicciones 0 y la selección de filas
-  por la fuente. Diseño de LightGBM y criterio de publicación fijados en `plan/02-harmonization.md`; SA2.4 y
-  SA2.7 sin empezar.
+- 2026-11-14: intervalos conformales anidados para SA2.2, con cota aditiva para predicciones chicas y filas
+  definidas por la fuente: cobertura 80 % (nominal 80 %) en los dos sentidos, bloque-mes y bloque-año; el peor
+  año bloque-año baja a 67–72 %. Solo 0,3 % de las detecciones VIIRS caen donde MODIS no vio nada. Diseño de
+  LightGBM y criterio de publicación fijados en `plan/02-harmonization.md`; siguiente: SA2.4 y SA2.7.
+
