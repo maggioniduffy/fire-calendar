@@ -29,9 +29,9 @@ def outer_cover(dates, month_idx, src, tgt, k=20.0, **kw):
         tr, te = fold.train, fold.test
         fac = fit_factors(src, tgt, month_idx, tr, k)
         pred = predict_total(fac, src[te], month_idx[te])
-        out = conformal_intervals(src, tgt, dates, month_idx, tr, k, pred, **kw)
+        out = conformal_intervals(src, tgt, dates, month_idx, tr, k, pred, src[te].sum(axis=-1), **kw)
         obs = tgt[te].sum(axis=-1)
-        active = (obs > 0) | (src[te].sum(axis=-1) > 0)
+        active = src[te].sum(axis=-1) > 0  # rows defined by the source, known at prediction time
         lo, hi = out.month
         cov += int(((obs >= lo - 1e-9) & (obs <= hi + 1e-9) & active).sum())
         tot += int(active.sum())
@@ -111,3 +111,31 @@ def test_block_year_calibrated_separately():
     assert lo_y.shape == hi_y.shape == (pred.shape[1],)
     assert (lo_y <= hi_y).all()
     assert out.calib_year.n.sum() != out.calib_month.n.sum()  # its own residual set, not the month bounds
+
+
+def test_zero_prediction_gets_positive_upper_bound_when_inner_rows_had_observed():
+    rng = np.random.default_rng(3)
+    pred = np.concatenate([np.zeros(80), rng.uniform(20, 200, 300)])
+    obs = np.concatenate([rng.poisson(2.0, 80).astype(float), pred[80:] * rng.uniform(0.7, 1.3, 300)])
+    cal = fit_binned(pred, obs, small=5.0)
+    assert cal.n_small == 80 and cal.add_hi > 0
+    lo, hi = cal.apply(np.array([0.0, 100.0]))
+    assert lo[0] == 0.0 and hi[0] > 0
+    assert lo[1] > 0 and hi[1] > lo[1]  # multiplicative bin above the threshold
+    lo, hi = cal.apply(np.array([0.0]), active=np.array([False]))  # no source count: out of reach, [0, 0]
+    assert (lo[0], hi[0]) == (0.0, 0.0)
+
+
+def test_inner_rows_without_source_are_not_calibration_data():
+    dates, month_idx, src, tgt = poisson_data()
+    src = src.copy()
+    src[::3] = 0.0  # every third month has no source count anywhere
+    fold = leave_one_year_out(dates, 6)[2]
+    res = inner_residuals(src, tgt, dates, month_idx, fold.train, 20.0)
+    n_active = int(((src.sum(axis=-1) > 0) & res.used[:, None]).sum())
+    assert len(res.pred_month) == n_active
+    fac = fit_factors(src, tgt, month_idx, fold.train, 20.0)
+    pred = predict_total(fac, src[fold.test], month_idx[fold.test])
+    ts = src[fold.test].sum(axis=-1)
+    out = conformal_intervals(src, tgt, dates, month_idx, fold.train, 20.0, pred, ts)
+    assert (out.month[0][ts == 0] == 0).all() and (out.month[1][ts == 0] == 0).all()

@@ -19,7 +19,7 @@ from firecal.stages.harmonize.evaluate import (
     coverage_table,
     score_table,
 )
-from firecal.stages.harmonize.intervals import MIN_PER_BIN
+from firecal.stages.harmonize.intervals import MIN_PER_BIN, SMALL_MONTH, SMALL_YEAR
 from firecal.stages.harmonize.regions import Cube
 from firecal.stages.harmonize.stability import step_summary
 
@@ -142,8 +142,9 @@ def build_report(inp: ReportInput) -> str:
             continue
         L.append(
             f"- {DIRECTION[r['pair']]}, cobertura empírica del intervalo {INTERVALS[r['interval']]} (nominal "
-            f"{NOMINAL:.0%}, año afuera, {r['level']} con actividad, todos los años de test): "
-            f"{pct(r['coverage'])}, anchura relativa {num(r['rel_width'], 2)}."
+            f"{NOMINAL:.0%}, año afuera, {r['level']} con origen > 0, todos los años de test): "
+            f"{pct(r['coverage'])}, anchura relativa {num(r['rel_width'], 2)}; con origen u observado > 0 "
+            f"(definición anterior) {pct(r['coverage_any'])}."
         )
     mod = inp.grid_tables["modis_snpp"]
     steps = step_summary(mod, "ratio", STEP_GROUPS)
@@ -317,9 +318,10 @@ def build_report(inp: ReportInput) -> str:
     # --- Intervalos ---
     L += ["## Intervalos", ""]
     L += [
-        f"Nivel nominal {NOMINAL:.0%}. Cobertura empírica sobre bloque-mes (o bloque-año) con actividad (conteo de "
-        "origen u observado mayor que cero), por año de test (año afuera). Anchura relativa = suma de anchuras / "
-        "suma de predicciones.",
+        f"Nivel nominal {NOMINAL:.0%}. Cobertura empírica sobre bloque-mes (o bloque-año) con conteo de origen mayor "
+        "que cero (lo que se conoce al predecir), por año de test (año afuera). `coverage_any` en la sección "
+        "Lectura usa la definición anterior (origen u observado > 0). Anchura relativa = suma de anchuras / suma "
+        "de predicciones.",
         "",
         "- `jackknife (factor)` y `dispersion interanual` (solo serie inversa, bloque-mes): factor +/- z * error "
         "estándar jackknife (z = 1,28), y cuantiles 10 % y 90 % de los factores de cada año de entrenamiento. "
@@ -327,7 +329,10 @@ def build_report(inp: ReportInput) -> str:
         "- `conformal (residuos relativos)` (los dos sentidos, bloque-mes y bloque-año): dentro del entrenamiento "
         "de cada partición externa se corre el año afuera interno (6 meses de separación, con el `k` ya elegido "
         "para esa partición) y se juntan los residuos relativos `obs / pred` fuera de muestra sobre bloque-meses "
-        "con `pred > 0` (`obs = 0` da residuo 0). Se estratifican en 5 clases de conteo predicho, con bordes por "
+        "con origen > 0 (`obs = 0` da residuo 0). Las predicciones de hasta "
+        f"{SMALL_MONTH:g} focos (bloque-mes) o {SMALL_YEAR:g} (bloque-año), 0 incluido, usan un intervalo "
+        "aditivo: cuantiles conformales de `obs - pred` de esas filas internas (umbral fijo de antemano, no "
+        f"ajustado con ningún año de test). El resto se estratifica en 5 clases de conteo predicho, con bordes por "
         f"cuantiles de la predicción fuera de muestra de entrenamiento (clases con menos de {MIN_PER_BIN} "
         "residuos se funden con la vecina). El intervalo es `pred * [q10, q90]` de la clase, con la "
         "corrección conformal de muestra finita (rangos ceil(0,9 (n+1)) y floor(0,1 (n+1))). Bloque-año no suma "
@@ -359,7 +364,7 @@ def build_report(inp: ReportInput) -> str:
     L += ["### Cobertura conformal por tamaño predicho (año afuera, años de test juntos)", ""]
     L += [
         "Clases fijas de la predicción (solo para informar, no se ajusta nada con ellas); `n` = bloque-meses (o "
-        "bloque-años) con actividad.",
+        "bloque-años) con origen > 0.",
         "",
     ]
     sz = coverage_by_size(folds)
@@ -386,25 +391,29 @@ def build_report(inp: ReportInput) -> str:
             L.append("")
     L += ["### Lectura", ""]
     conf = cc_all[(cc_all["interval"] == "conformal") & (cc_all["test_year"].astype(str) == "all")]
+    inside = []
     for _, r in conf.iterrows():
         ok = 0.75 <= r["coverage"] <= 0.85
+        inside.append(ok)
         L.append(
             f"- {DIRECTION[r['pair']]}, {r['level']}: cobertura {pct(r['coverage'])} "
-            f"({'dentro' if ok else 'FUERA'} de 75-85 %); con predicción mayor que cero {pct(r['coverage_pos'])}; "
-            f"filas activas con predicción 0: {int(r['n_pred0'])} de {int(r['n'])}."
+            f"({'dentro' if ok else 'FUERA'} de 75-85 %), anchura {num(r['rel_width'], 2)}; con origen u observado "
+            f"> 0 (definición anterior): {pct(r['coverage_any'])}. Fuera del alcance del factor (origen = 0 y "
+            f"observado > 0): {int(r['n_out'])} filas, {pct(r['out_share'])} de las detecciones del objetivo; "
+            "factor e intervalo predicen 0 ahí."
         )
     L += [
         "",
-        "Causa probable de las brechas, sin verificar con un análisis aparte: el intervalo es multiplicativo "
-        "(`pred * [q10, q90]`), así que con predicción 0 queda en [0, 0] y no puede cubrir un observado mayor que "
-        "cero. Eso pasa sobre todo en la serie inversa, cuando MODIS no marcó ningún foco en un bloque-mes (o "
-        "bloque-año) y VIIRS sí, por su resolución más fina. Esas filas entran en la cobertura porque la fila "
-        "activa se define también con el observado (observado > 0 o origen > 0), que es una selección que "
-        "favorece los fallos; la cobertura con predicción mayor que cero y la tabla por tamaño separan ambos "
-        "casos. Además, en bloque-año hay pocas filas por año de test y la cobertura por año oscila más. Los "
-        "residuos de entrenamiento se tratan como intercambiables con los del año de test: si la relación cambia "
-        "con el tiempo (por ejemplo la deriva de Terra, sin verificar), la cobertura de un año puede quedar por "
-        "debajo. Para publicar la serie 2000-2011 hay que resolver el caso de origen 0 con un límite aditivo (abierto, no hecho aquí).",
+        "Todas las combinaciones sentido x nivel caen en 75-85 %: "
+        + ("sí." if all(inside) else "no (ver las marcadas FUERA)."),
+        "",
+        "Las filas con origen = 0 y observado > 0 no se cubren por construcción (el factor no tiene qué "
+        "multiplicar): el otro sensor ve focos donde este no marcó ninguno. Su conteo y su parte de las "
+        "detecciones se informan arriba y no entran en la cobertura de cabecera, que usa solo filas definidas "
+        "por el origen, conocido al predecir. La cobertura por año varía más en bloque-año (pocas filas por año "
+        "de test). Los residuos de entrenamiento se tratan como intercambiables con los del año de test: si la "
+        "relación cambia con el tiempo (por ejemplo la deriva de Terra, sin verificar), la cobertura de un año "
+        "puede quedar por debajo.",
         "",
     ]
 
