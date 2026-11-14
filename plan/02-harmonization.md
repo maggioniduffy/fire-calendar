@@ -22,6 +22,34 @@ Solapamiento 2012–hoy: los dos sensores miden lo mismo. VIIRS ve más focos ch
 Supervisado, no aprendizaje por refuerzo: hay pares observados (MODIS y VIIRS, misma celda y día) y no hay
 agente, entorno ni recompensa.
 
+## Diseño de los baselines (decidido 2026-11-14, con consulta al asesor)
+
+Todo lo de abajo es diseño; los supuestos sobre los datos quedan "sin verificar" hasta la primera corrida real.
+
+- **Escalas:** MODIS = Terra + Aqua; VIIRS = S-NPP solo. NOAA-20 nunca se suma a S-NPP: entra por un factor de
+  transferencia NOAA-20→S-NPP ajustado desde 2018-05, que se encadena para la continuidad. Se excluyen los meses
+  parciales 2012-01 y 2018-04. Día y noche se ajustan por separado y se suman. Los meses con solo Terra (antes
+  de Aqua) necesitan un factor Terra-solo.
+- **Conteo:** el que muestra el calendario: detecciones tras `FilterConfig`, tal como salen de la grilla de 0,1°.
+  La tabla de celdas de 1 km por día (SA2.1, par Aqua ~ S-NPP) queda para LightGBM y como diagnóstico. Todos
+  los métodos se evalúan sobre el mismo conteo.
+- **Región:** bloques de 2,5° lat/lon (origen −90/−180, anidan con las dos grillas, sin datos nuevos).
+- **Unidad:** se ajusta sobre sumas por región × mes del año × día/noche; se evalúa por región-mes de cada año
+  de test y por total región-año.
+- **Estimador (SA2.2):** cociente de sumas, con encogimiento hacia el factor nacional del mismo mes y día/noche:
+  `f = (M + k·f_nacional) / (V + k)`, con `k` elegido dentro del entrenamiento. Intervalos a partir de la
+  dispersión de los factores año afuera, no de la varianza de Poisson.
+- **Métricas** (las mismas para ML después), por año de test, región y sentido: sesgo relativo (Σpred/Σobs − 1),
+  WAPE, MAE, devianza de Poisson media y, en la serie inversa, cobertura del intervalo.
+- **Ajuste de cuantiles (SA2.3):** sobre totales región-mes, juntando los meses del año; cero va a cero y se
+  ajustan solo los positivos; por encima del máximo de entrenamiento, cociente constante. No es aditivo, así que
+  no se aplica celda por celda: sirve para ver si el cociente depende del nivel de actividad.
+- **Estabilidad (versión MODIS y deriva orbital):** año y `version` no entran al baseline. Con la primera corrida
+  se publica una tabla: factor por año (nacional y por bloque, por día/noche y por Terra y Aqua), NOAA-20/S-NPP
+  por año como control sin MODIS, Terra/Aqua por año, hora media de adquisición por satélite y año, y el control
+  de origen móvil. Si aparece un escalón en 2018 o 2023 con el control VIIRS plano, se ajusta por época y la
+  serie inversa se calibra solo con 2012–2017 (misma `version` que 2000–2011), y se retoma SA2.8.
+
 ## Tareas
 
 | ID | Tarea | Agente | Hecho cuando |
