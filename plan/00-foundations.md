@@ -18,7 +18,7 @@ Repo listo para sumar capas y acceso a datos resuelto.
 | SA0.6 | FastAPI (`/health`, `/layers`, `/layers/{id}`) y manifiesto validado con pydantic según `docs/architecture.md`, con `source`, `period`, `license` y campo opcional `experimental` | Sonnet | Unit de manifiesto válido e inválido. Hecho ✅ |
 | SA0.7 | Capa de prueba de punta a punta con focos falsos | Sonnet | e2e: la capa aparece y se inspecciona |
 | SA0.8 | Acceso a datos (lista abajo) → `docs/research/data-sources.md` | Opus | FIRMS verificado el 2026-11-14; el resto pendiente (postergado salvo lo que pida la fase activa) |
-| SA0.9 | ONI mensual (NOAA CPC) y fase ENSO por mes, portando `docs/reference/enso.py` (clima-ideas F0.10) a `firecal.io.enso` | Sonnet | Parquet + unit de umbrales sobre serie sintética. Código y unit hechos ✅ (regla CPC de 5 estaciones); corrida real pendiente: `www.cpc.ncep.noaa.gov` bloqueado en la sesión en la nube |
+| SA0.9 | ONI mensual (NOAA CPC) y fase ENSO por mes, portando `docs/reference/enso.py` (clima-ideas F0.10) a `firecal.io.enso` | Sonnet | Parquet + unit de umbrales sobre serie sintética. Código y unit hechos ✅ (regla CPC de 5 estaciones); corrida 2026-11-14: 921 meses, 1950-01 a 2026-09 |
 
 ## SA0.8: qué investigar
 

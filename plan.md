@@ -40,3 +40,7 @@ de fase ENSO), LightGBM (queda el factor de escala), NRT.
   tests sin red. La sesión en la nube no llega a FIRMS ni a CPC (proxy 403), así que la descarga real y SA1.7
   quedan para una corrida local: `make install`, `cd backend && uv run firecal enso build`,
   `uv run firecal firms download`, `ingest`, `grid`, `profile`.
+- 2026-11-14: se habilitaron FIRMS y CPC en el entorno de la nube y se corrió todo. ONI: 921 meses (1950-01 a
+  2026-09). FIRMS: 48 archivos 2000–2025; sin archivo standard 2026 todavía. SA1.1–SA1.4 y SA1.7 hechos
+  ([reports/01/SA1.7.md](reports/01/SA1.7.md)). Abierto para la fase 2: el código `version` de MODIS cambia en 2018
+  y 2023 (sin verificar qué implica).

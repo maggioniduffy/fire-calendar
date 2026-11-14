@@ -7,12 +7,16 @@ Verificado el 2026-11-14 salvo donde dice "sin verificar".
 - CSV anual por país y sensor, **sin login**:
   `https://firms.modaps.eosdis.nasa.gov/data/country/{modis|viirs-snpp|viirs-jpss1}/{YEAR}/{sensor}_{YEAR}_Argentina.csv`
 - Tamaños (HEAD, 2023): MODIS 3,9 MB, VIIRS S-NPP 13,8 MB, VIIRS NOAA-20 (`viirs-jpss1`) 13,5 MB. MODIS 2001:
-  2,6 MB. Total Argentina estimado ≈ 400 MB.
+  2,6 MB. Total Argentina medido el 2026-11-14: 487 MB (48 archivos, 2000–2025).
 - Página: https://firms.modaps.eosdis.nasa.gov/country/ (instrumentos listados: MODIS, VIIRS NOAA-20; S-NPP sigue
   respondiendo por URL).
 - Rangos según el FAQ de FIRMS: MODIS Terra desde 2000-11-01, Aqua desde 2002-07; VIIRS S-NPP 2012-01-20 a
   2026-11-02; NOAA-20 desde 2018-04-01; NOAA-21 desde 2024-01-17. NOAA-21 por país: sin verificar.
-- El standard processing tiene 2–3 meses de demora.
+- El standard processing tiene 2–3 meses de demora. El 2026-11-14 ningún sensor tenía archivo 2026 (404): la
+  serie standard termina el 2025-12-31.
+- Columnas y códigos vistos en los archivos (2026-11-14): `satellite` MODIS `Terra`/`Aqua`, VIIRS `N` (S-NPP) y
+  `N20` (NOAA-20); `confidence` VIIRS `l`/`n`/`h`; `type` presente. `version` MODIS: `6.2` (2000–2017), `6.03`
+  (2018–2022), `61.03` (2023–2025); VIIRS `2`. Significado de esos códigos de versión: sin verificar.
 
 ## FIRMS area API (meses recientes)
 
