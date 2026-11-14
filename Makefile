@@ -2,6 +2,7 @@
 
 install:
 	cd backend && uv sync
+	cd web && pnpm install --frozen-lockfile
 
 dev:
 	$(MAKE) -j2 dev-api web
@@ -22,12 +23,11 @@ backend-lint:
 format:
 	cd backend && uv run ruff check --fix . && uv run ruff format .
 
-# Placeholders: the web session replaces these three targets when web/ lands.
 web:
-	@echo "web/: placeholder, owned by the web session (SA0.4/SA0.5)"
+	cd web && pnpm dev
 
 web-test:
-	@echo "web/: placeholder, owned by the web session (SA0.4/SA0.5)"
+	cd web && pnpm test
 
 web-lint:
-	@echo "web/: placeholder, owned by the web session (SA0.4/SA0.5)"
+	cd web && pnpm typecheck && pnpm lint
