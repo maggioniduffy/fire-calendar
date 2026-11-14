@@ -54,13 +54,23 @@ Todo lo de abajo es diseño; los supuestos sobre los datos quedan "sin verificar
   (fuente fija), así que el filtro `type == 0` saca 3–4 puntos más que antes. La tabla de estabilidad se calcula
   con y sin el filtro de `type` para medir cuánto del escalón viene de ahí.
 
+- **Primera corrida (2026-11-14, [reports/02/baselines.md](../reports/02/baselines.md)):** el factor de escala
+  (SA2.2) le gana al ajuste de cuantiles (SA2.3) en los dos sentidos: WAPE bloque-mes con año afuera 17,2 % vs.
+  19,4 % (VIIRS→MODIS) y 17,9 % vs. 19,4 % (MODIS→VIIRS); el control de origen móvil coincide. Factor nacional
+  VIIRS→MODIS 0,302 (día 0,360, noche 0,147). Sin escalón claro en 2018 ni en 2023: el filtro de `type` mueve el
+  cociente 2018 de 0,308 a 0,302. Abierto: (1) los intervalos de la serie inversa cubren 26 % (jackknife) y 54 %
+  (dispersión interanual) contra un nominal de 80 %; hacen falta intervalos que incluyan el ruido del conteo
+  antes de SA2.11; (2) en 2024–2025 el cociente Terra/Aqua cae (0,59 → 0,41) y la hora media de paso de Terra se
+  adelanta (13:55 → 13:15 UTC de día) mientras S-NPP y NOAA-20 quedan fijos: compatible con deriva orbital de
+  Terra, sin verificar la causa. La serie MODIS total (Terra + Aqua) no muestra escalón en esos años.
+
 ## Tareas
 
 | ID | Tarea | Agente | Hecho cuando |
 |---|---|---|---|
 | SA2.1 | VIIRS reagrupado a celdas de 1 km por día (una detección por celda), pares de pasos similares (Aqua ~ S-NPP) | Sonnet | Unit: N detecciones en una celda cuentan como 1. Hecho ✅ (2026-11-14; en 2020, de 71.819 celdas-día de Aqua solo 29.937 tienen S-NPP en la misma celda de 0,01°: la coincidencia exacta a 1 km es baja y SA2.4/SA2.7 van a necesitar vecindad) |
-| SA2.2 | Baseline: factor de escala MODIS/VIIRS por región y mes del año, en los dos sentidos | Sonnet | Unit con datos sintéticos de factor conocido |
-| SA2.3 | Ajuste de cuantiles por región | Sonnet | Unit: recupera la distribución objetivo en sintético |
+| SA2.2 | Baseline: factor de escala MODIS/VIIRS por región y mes del año, en los dos sentidos | Sonnet | Unit con datos sintéticos de factor conocido. Hecho ✅ (2026-11-14; [reports/02/baselines.md](../reports/02/baselines.md)) |
+| SA2.3 | Ajuste de cuantiles por región | Sonnet | Unit: recupera la distribución objetivo en sintético. Hecho ✅ (2026-11-14; pierde contra SA2.2 en los dos sentidos) |
 | SA2.4 | LightGBM hacia MODIS: conteo MODIS-equivalente desde conteos VIIRS por confianza, FRP, día/noche, mes, latitud, cobertura del suelo | Sonnet implementa, opencode entrena | Error por año de test vs. SA2.2 y SA2.3 |
 | SA2.5 | Validación año afuera con separación y selección anidada (`docs/validation.md`) | Sonnet | Unit: ningún día de test en entrenamiento. Hecho ✅ (2026-11-14; año afuera con separación y origen móvil) |
 | SA2.6 | (postergado) Efecto de la deriva orbital de Terra y Aqua en los años recientes (sin verificar magnitud) | opencode | `reports/02/SA2.6.md` con cifras |

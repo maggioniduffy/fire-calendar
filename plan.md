@@ -44,3 +44,9 @@ de fase ENSO), LightGBM (queda el factor de escala), NRT.
   2026-09). FIRMS: 48 archivos 2000–2025; sin archivo standard 2026 todavía. SA1.1–SA1.4 y SA1.7 hechos
   ([reports/01/SA1.7.md](reports/01/SA1.7.md)). Abierto para la fase 2: el código `version` de MODIS cambia en 2018
   y 2023 (sin verificar qué implica).
+- 2026-11-14: flujo de agentes en `.claude/agents/` (Opus orquesta, Sonnet construye, Haiku investiga, Fable
+  asesora hasta el 2026-11-17). Web en Makefile y CI con eslint (SA0.2, SA0.4, SA0.5, SA0.7 hechos; SA0.3 espera
+  un PR). Códigos `version` de MODIS revisados en `docs/research/data-sources.md`: sin cambio de algoritmo entre
+  C6 y C6.1; desde 2018 más focos tipo 2. Fase 2: diseño de baselines decidido, SA2.1, SA2.2, SA2.3 y SA2.5
+  hechos ([reports/02/baselines.md](reports/02/baselines.md)): gana el factor de escala. Siguiente: intervalos
+  de la serie inversa con cobertura real, después SA2.4 y SA2.7 (LightGBM) contra ese baseline.
