@@ -1,0 +1,110 @@
+[
+ {
+  "id": "fake-01",
+  "lon": -64.52,
+  "lat": -31.42,
+  "date": "2026-08-03",
+  "sensor": "VIIRS",
+  "frp": 12.4,
+  "confidence": "n"
+ },
+ {
+  "id": "fake-02",
+  "lon": -64.71,
+  "lat": -31.1,
+  "date": "2026-08-05",
+  "sensor": "MODIS",
+  "frp": 35.1,
+  "confidence": "85"
+ },
+ {
+  "id": "fake-03",
+  "lon": -64.4,
+  "lat": -31.85,
+  "date": "2026-08-09",
+  "sensor": "VIIRS",
+  "frp": 4.8,
+  "confidence": "l"
+ },
+ {
+  "id": "fake-04",
+  "lon": -64.9,
+  "lat": -30.95,
+  "date": "2026-08-12",
+  "sensor": "VIIRS",
+  "frp": 21.0,
+  "confidence": "h"
+ },
+ {
+  "id": "fake-05",
+  "lon": -65.1,
+  "lat": -31.6,
+  "date": "2026-08-15",
+  "sensor": "MODIS",
+  "frp": 18.7,
+  "confidence": "62"
+ },
+ {
+  "id": "fake-06",
+  "lon": -64.25,
+  "lat": -32.2,
+  "date": "2026-08-21",
+  "sensor": "VIIRS",
+  "frp": 7.3,
+  "confidence": "n"
+ },
+ {
+  "id": "fake-07",
+  "lon": -63.6,
+  "lat": -30.7,
+  "date": "2026-08-28",
+  "sensor": "MODIS",
+  "frp": 9.9,
+  "confidence": "48"
+ },
+ {
+  "id": "fake-08",
+  "lon": -62.9,
+  "lat": -33.1,
+  "date": "2026-09-02",
+  "sensor": "VIIRS",
+  "frp": 3.1,
+  "confidence": "l"
+ },
+ {
+  "id": "fake-09",
+  "lon": -64.6,
+  "lat": -33.6,
+  "date": "2026-09-07",
+  "sensor": "VIIRS",
+  "frp": 15.6,
+  "confidence": "n"
+ },
+ {
+  "id": "fake-10",
+  "lon": -63.2,
+  "lat": -32.4,
+  "date": "2026-09-11",
+  "sensor": "MODIS",
+  "frp": 27.2,
+  "confidence": "91"
+ },
+ {
+  "id": "fake-11",
+  "lon": -64.8,
+  "lat": -32.7,
+  "date": "2026-09-18",
+  "sensor": "VIIRS",
+  "frp": 11.0,
+  "confidence": "h"
+ },
+ {
+  "id": "fake-12",
+  "lon": -65.3,
+  "lat": -30.3,
+  "date": "2026-09-24",
+  "sensor": "MODIS",
+  "frp": 40.5,
+  "confidence": "77"
+ }
+]
