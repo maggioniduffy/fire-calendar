@@ -3,10 +3,12 @@
 import typer
 
 from firecal.io.enso import enso_app
+from firecal.io.firms import firms_app
 
 app = typer.Typer(no_args_is_help=True, help="Harmonized MODIS + VIIRS fire calendar.")
 
 app.add_typer(enso_app, name="enso", help="ONI and ENSO phase per month (SA0.9).")
+app.add_typer(firms_app, name="firms", help="FIRMS download, ingest, grid and profile (phase 1).")
 
 
 @app.callback()
