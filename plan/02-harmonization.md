@@ -64,6 +64,33 @@ Todo lo de abajo es diseño; los supuestos sobre los datos quedan "sin verificar
   adelanta (13:55 → 13:15 UTC de día) mientras S-NPP y NOAA-20 quedan fijos: compatible con deriva orbital de
   Terra, sin verificar la causa. La serie MODIS total (Terra + Aqua) no muestra escalón en esos años.
 
+## Diseño de LightGBM (SA2.4 y SA2.7, decidido 2026-11-14 antes de correr, con consulta al asesor)
+
+- **Unidad:** celda de 0,1° × mes × día/noche, solo filas con algún sensor activo; las predicciones se suman a
+  bloque-mes para evaluar igual que SA2.2. Segundo candidato barato: LightGBM directo sobre bloque-mes, muy
+  regularizado, para separar cuánto aporta la resolución y cuánto las variables. Celda-día descartada (horarios
+  de paso distintos y poca coincidencia a 1 km). Medido en 2020: 52.316 filas activas; 17 % de las detecciones
+  S-NPP caen en filas sin MODIS.
+- **Base:** el baseline entra como offset, `init_score = log(f_bloque × fuente + ε)`, con la fuente suavizada en
+  3×3 para las filas sin fuente. Con cero árboles el modelo reproduce SA2.2; se verifica que los totales por
+  bloque coincidan con SA2.2 dentro de ~1 %. El factor usado en las filas de entrenamiento sale de un año afuera
+  interno (fuera de muestra), nunca ajustado sobre esas mismas filas.
+- **Variables:** conteos y FRP de la fuente por satélite y día/noche, FRP por detección, proporción día/noche,
+  conteo de la fuente en 3×3, total de la fuente en el bloque, mes del año. Con y sin proporción Terra/Aqua
+  (Terra cambia en 2024–2025 y Aqua no existe antes de 2002-07). Lat/lon solo en una ablación. Fuera: año,
+  `version`, mes anterior. Toda variable de SA2.7 tiene que existir en 2000–2011 (solo MODIS). Sin cobertura del
+  suelo (SA0.8 pendiente) ni ángulo de escaneo (no hay `scan`).
+- **Hiperparámetros:** grilla chica elegida dentro de cada entrenamiento externo por WAPE bloque-mes con año
+  afuera interno; pocos hilos, menos de 4 GB.
+- **Intervalos:** el mismo esquema conformal anidado del baseline aplicado a la predicción puntual, para comparar
+  cobertura y ancho con SA2.2. LightGBM por cuantiles solo como diagnóstico a nivel bloque-mes.
+- **Criterio de publicación (fijado antes de la corrida), por sentido; LightGBM se publica solo si cumple todo:**
+  WAPE bloque-mes con año afuera al menos 1 punto menor que SA2.2 y bloque-año no mayor; menor WAPE bloque-mes
+  en al menos 10 de 14 años de test; mejora del mismo signo con origen móvil; |sesgo| total no peor que el de
+  SA2.2 + 0,5 puntos y el peor año no peor; devianza de Poisson bloque-mes no peor; en SA2.7, cobertura
+  80 ± 5 % y ancho no mayor; el intervalo bootstrap pareado (por año y bloque) de la diferencia de WAPE excluye
+  cero. Si no, el informe dice "no supera al factor" y se publica SA2.2.
+
 ## Tareas
 
 | ID | Tarea | Agente | Hecho cuando |
