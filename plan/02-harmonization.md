@@ -50,6 +50,10 @@ Todo lo de abajo es diseño; los supuestos sobre los datos quedan "sin verificar
   de origen móvil. Si aparece un escalón en 2018 o 2023 con el control VIIRS plano, se ajusta por época y la
   serie inversa se calibra solo con 2012–2017 (misma `version` que 2000–2011), y se retoma SA2.8.
 
+- **Hallazgo 2026-11-14 (`docs/research/data-sources.md`):** desde 2018 MODIS marca más focos como `type` 2
+  (fuente fija), así que el filtro `type == 0` saca 3–4 puntos más que antes. La tabla de estabilidad se calcula
+  con y sin el filtro de `type` para medir cuánto del escalón viene de ahí.
+
 ## Tareas
 
 | ID | Tarea | Agente | Hecho cuando |
@@ -60,7 +64,7 @@ Todo lo de abajo es diseño; los supuestos sobre los datos quedan "sin verificar
 | SA2.4 | LightGBM hacia MODIS: conteo MODIS-equivalente desde conteos VIIRS por confianza, FRP, día/noche, mes, latitud, cobertura del suelo | Sonnet implementa, opencode entrena | Error por año de test vs. SA2.2 y SA2.3 |
 | SA2.5 | Validación año afuera con separación y selección anidada (`docs/validation.md`) | Sonnet | Unit: ningún día de test en entrenamiento |
 | SA2.6 | (postergado) Efecto de la deriva orbital de Terra y Aqua en los años recientes (sin verificar magnitud) | opencode | `reports/02/SA2.6.md` con cifras |
-| SA2.7 | Serie inversa: LightGBM con objetivo Poisson o Tweedie que estima conteos VIIRS por celda y día desde conteo y FRP de MODIS, ángulo de escaneo, día/noche, mes, cobertura del suelo y focos de días vecinos; intervalos por regresión cuantílica | Sonnet implementa, opencode entrena | Error y cobertura de intervalos por año de test vs. SA2.2 inverso |
+| SA2.7 | Serie inversa: LightGBM con objetivo Poisson o Tweedie que estima conteos VIIRS por celda y día desde conteo y FRP de MODIS, (sin ángulo de escaneo: el archivo standard no trae `scan`), día/noche, mes, cobertura del suelo y focos de días vecinos; intervalos por regresión cuantílica | Sonnet implementa, opencode entrena | Error y cobertura de intervalos por año de test vs. SA2.2 inverso |
 | SA2.8 | (postergado) Validación hacia atrás: entrenar con 2016 en adelante y evaluar en 2012–2015, para simular estimar el pasado y ver si la relación cambia con el tiempo | Sonnet | Tabla de error por región y año; unit: ningún año de test en entrenamiento |
 | SA2.9 | (postergado) Áreas quemadas MCD64A1 (2000–) como variable de SA2.7 para fuegos que MODIS no marcó como foco; Landsat solo si SA0.8 confirma acceso y cobertura | Sonnet escribe, opencode corre | Error de SA2.7 con y sin la variable |
 | SA2.10 | (postergado) Continuidad post-MODIS: calibración congelada con versión y fecha; ingesta de un año VIIRS nuevo actualiza las dos series sin recalibrar | Sonnet | Unit: agregar un año no cambia los valores previos |

@@ -16,7 +16,31 @@ Verificado el 2026-11-14 salvo donde dice "sin verificar".
   serie standard termina el 2025-12-31.
 - Columnas y códigos vistos en los archivos (2026-11-14): `satellite` MODIS `Terra`/`Aqua`, VIIRS `N` (S-NPP) y
   `N20` (NOAA-20); `confidence` VIIRS `l`/`n`/`h`; `type` presente. `version` MODIS: `6.2` (2000–2017), `6.03`
-  (2018–2022), `61.03` (2023–2025); VIIRS `2`. Significado de esos códigos de versión: sin verificar.
+  (2018–2022), `61.03` (2023–2025); VIIRS `2`. Ver "Códigos de versión de MODIS" abajo.
+
+### Códigos de versión de MODIS (revisado el 2026-11-14)
+
+Fuentes leídas: [atributos FIRMS](https://www.earthdata.nasa.gov/data/tools/firms/active-fire-data-attributes-modis-viirs),
+[FAQ de FIRMS](https://www.earthdata.nasa.gov/data/tools/firms/faq) y la
+[guía de usuario MODIS C6/C6.1](https://earthdata.nasa.gov/s3fs-public/2023-09/MODIS_C6_C6.1_Fire_User_Guide_1.0.pdf).
+
+- Verificado: `version` es colección más un sufijo de origen (URT, RT, NRT); sin sufijo es standard processing.
+  Ningún año de Argentina trae sufijo, así que no hay filas NRT mezcladas.
+- Verificado (guía, sec. 2.1): entre Colección 6 y 6.1 no hubo cambios de algoritmo ni de producto de fuego activo;
+  la guía dice que se pueden mezclar libremente y que el FRP no cambia.
+- Verificado (guía, sec. 5.5): en MCD14ML la versión 3 del producto mantiene el formato pero trae una tipificación
+  de focos ("typing of hot spots") muy mejorada.
+- Sin verificar: que `6.03` sea Colección 6 versión 03 y `61.03` Colección 6.1 versión 03 (se infiere del patrón
+  `VV`); qué es exactamente `6.2`; qué años se reprocesaron en C6.1.
+- Medido en nuestros archivos (MODIS Argentina, detecciones crudas): la proporción de `type` 2 (otra fuente fija
+  en tierra) pasa de 0,3–1,9 % por año en 2000–2017 (`6.2`) a 2,6–5,8 % en 2018–2025 (`6.03` y `61.03`). Es
+  compatible con el cambio de tipificación, sin verificar la causa. Consecuencia: el filtro `type == 0` (SA1.3)
+  descarta unos 3–4 puntos porcentuales más de focos MODIS desde 2018, un escalón artificial chico en la serie
+  filtrada que la fase 2 tiene que medir (tabla de estabilidad). En 2023 no se ve otro cambio en `type`.
+- La proporción de focos de Aqua en MODIS sube a 67–69 % en 2024–2025 (60–65 % en 2003–2023). Solo se describe;
+  la relación con la deriva orbital de Terra queda sin verificar.
+- El archivo standard de MODIS (MCD14ML) no trae `scan` ni `track` (guía, tabla 10); `scan` solo existe en NRT.
+  El ángulo de escaneo no está disponible como variable para SA2.7 con estos archivos.
 
 ## FIRMS area API (meses recientes)
 
@@ -31,7 +55,11 @@ Verificado el 2026-11-14 salvo donde dice "sin verificar".
 ## Continuidad
 
 - Suomi NPP dejó de producir en FIRMS el 2026-11-02 15:40 UTC. La continuidad post-MODIS usa NOAA-20 y NOAA-21.
-- Fin de misión de Terra y Aqua y efecto de la deriva orbital: sin verificar.
+- Terra y Aqua: según el aviso de Earthdata
+  ([transición de MODIS a VIIRS](https://www.earthdata.nasa.gov/data/alerts-outages/transition-from-modis-viirs)),
+  empiezan a apagar operaciones a fines de 2026 o principios de 2027. Fecha exacta y efecto de la deriva orbital:
+  sin verificar.
+- S-NPP en FIRMS: disponible del 2012-01-20 al 2026-11-02 (FAQ de FIRMS).
 
 ## ENSO
 
