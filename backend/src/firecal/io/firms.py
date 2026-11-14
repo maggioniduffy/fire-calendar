@@ -172,7 +172,8 @@ def _write_manifest(dest: Path, results: list[DownloadResult]) -> None:
 
 # ---------------------------------------------------------------- SA1.2 ingest
 
-# sin verificar: satellite codes in FIRMS country CSVs
+# Verified 2026-11-14 on the Argentina files: MODIS `Terra`/`Aqua`; VIIRS `N` (S-NPP), `N20` (NOAA-20).
+# VIIRS satellite is still taken from the product, which is unambiguous.
 _MODIS_SATELLITE = {"terra": "terra", "t": "terra", "aqua": "aqua", "a": "aqua"}
 _VIIRS_SATELLITE = {"viirs-snpp": "snpp", "viirs-jpss1": "noaa20"}
 _VIIRS_CLASS = {"l": "low", "low": "low", "n": "nominal", "nominal": "nominal", "h": "high", "high": "high"}

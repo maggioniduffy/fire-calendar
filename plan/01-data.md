@@ -16,14 +16,14 @@ NRT por API de área para los meses que el standard todavía no cubre, solo si h
 
 | ID | Tarea | Agente | Hecho cuando |
 |---|---|---|---|
-| SA1.1 | Descarga idempotente de los CSV anuales de Argentina (MODIS, VIIRS S-NPP, VIIRS NOAA-20) | Sonnet escribe, opencode corre | Archivos con checksum + unit de idempotencia. Código y unit hechos ✅; corrida pendiente |
-| SA1.2 | Ingesta a Parquet con esquema único (sensor, satélite, fecha/hora, día/noche, lat, lon, confianza, FRP, tipo) | Sonnet | Unit sobre filas sintéticas de cada sensor. Hecho ✅ (códigos de `satellite` MODIS sin verificar) |
+| SA1.1 | Descarga idempotente de los CSV anuales de Argentina (MODIS, VIIRS S-NPP, VIIRS NOAA-20) | Sonnet escribe, opencode corre | Archivos con checksum + unit de idempotencia. Hecho ✅ (corrida 2026-11-14: 48 archivos, 487 MB) |
+| SA1.2 | Ingesta a Parquet con esquema único (sensor, satélite, fecha/hora, día/noche, lat, lon, confianza, FRP, tipo) | Sonnet | Unit sobre filas sintéticas de cada sensor. Hecho ✅ (códigos de `satellite` verificados en los archivos reales) |
 | SA1.3 | Filtros: solo `type` vegetación (sin fuentes fijas ni mar adentro); confianza MODIS ≥ umbral, VIIRS nominal o alta; umbral configurable | Sonnet | Unit: cada filtro descarta lo esperado. Hecho ✅ |
-| SA1.4 | Grilla de Argentina: conteo por celda (0,1° y 0,25°) × día × sensor × día/noche | Sonnet escribe, opencode corre | Parquet particionado por año + unit de agregación. Código y unit hechos ✅ (0,1° y 0,25°); corrida pendiente |
+| SA1.4 | Grilla de Argentina: conteo por celda (0,1° y 0,25°) × día × sensor × día/noche | Sonnet escribe, opencode corre | Parquet particionado por año + unit de agregación. Hecho ✅ (0,1° y 0,25°, corrida 2026-11-14) |
 | SA1.5 | Detecciones crudas de Argentina en DuckDB para consultas y CSV (postergado: el CSV sale del Parquet) | Sonnet | Consulta por polígono < 2 s en Córdoba |
 | SA1.6 | Ingesta NRT de los meses sin standard por API de área (solo con `FIRMS_MAP_KEY`) | Sonnet | Una corrida trae el último día disponible |
-| SA1.7 | Perfil de datos: focos por año, sensor y región; huecos | opencode | `reports/01/SA1.7.md`. Generador listo (`firecal firms profile`); falta correr: `firms.modaps.eosdis.nasa.gov` bloqueado en la sesión en la nube |
+| SA1.7 | Perfil de datos: focos por año, sensor y región; huecos | opencode | `reports/01/SA1.7.md`. Hecho ✅ (sin 2026 en standard; `version` MODIS cambia en 2018 y 2023, a revisar en fase 2) |
 
 ## Abierto
 
-- Resuelto el 2026-11-14: cobertura Argentina (≈ 400 MB). Otros países, más adelante, con el mismo descargador.
+- Resuelto el 2026-11-14: cobertura Argentina (487 MB medidos). Otros países, más adelante, con el mismo descargador.
