@@ -35,3 +35,5 @@ de fase ENSO), LightGBM (queda el factor de escala), NRT.
 
 - 2026-11-14: repo separado de clima-ideas (antes `space-apps/` en la rama `claude/space-apps-fire-calendar-plan`).
   Fuentes FIRMS verificadas. SA0.1 hecho (reglas del evento, ya sin efecto).
+- 2026-11-14: web de la fase 0: SA0.4 y SA0.5 hechos; mitad web de SA0.2 y lado web de SA0.7 (capa falsa desde
+  fixture, solo en builds dev/e2e). Rampa del calendario queda para SA4.3. Capturas en `docs/screenshots/`.

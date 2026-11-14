@@ -1,0 +1,47 @@
+/* Design tokens from docs/design.md. Values must match tokens.ts (tokens.test.ts). */
+
+:root,
+:root[data-theme="light"] {
+  --bg: #F1EEE6;
+  --surface: #F9F7F2;
+  --raised: #EFECE4;
+  --border: #DDD8CD;
+  --text: #2A343B;
+  --muted: #5F6468;
+  --ctrl: #3E505B;
+  --onctrl: #F5F2EA;
+  --accent: #8EB8E5;
+  --secondary: #A4AF69;
+  --casing: #2A343B;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #16212A;
+  --surface: #1F2D37;
+  --raised: #2A3A46;
+  --border: #3E505B;
+  --text: #ECE7DC;
+  --muted: #A3AEB4;
+  --ctrl: #4D6372;
+  --onctrl: #ECE7DC;
+  --accent: #FDDA0D;
+  --secondary: #A4AF69;
+  --casing: #16212A;
+  color-scheme: dark;
+}
+
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --radius-1: 4px;
+  --radius-2: 8px;
+  --radius-3: 12px;
+  --control: 44px;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}

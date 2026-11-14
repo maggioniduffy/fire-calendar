@@ -13,3 +13,4 @@ reports/**/*.log
 .env
 .env.*
 !.env.example
+*.tsbuildinfo
