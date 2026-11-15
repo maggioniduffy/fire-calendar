@@ -75,7 +75,7 @@ export function MonthlyChart({ cal, source }: Props) {
       readout={readout}
       note={
         unverified ? (
-          <p className="dash-note muted" data-testid="band-note">
+          <p className="dash-note muted" data-testid="dash-band-note">
             {lang === "es" ? cal.band.note_es : cal.band.note_en}
           </p>
         ) : undefined

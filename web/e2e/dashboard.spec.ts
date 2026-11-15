@@ -28,7 +28,7 @@ test("charts render and the total equals the key figure and the sum of the month
   expect(sum).toBeCloseTo(total, 6);
   await expect(page.getByTestId("dashboard-total")).toHaveText(total.toLocaleString("es", { maximumFractionDigits: 1 }));
   // The band is never verified for arbitrary areas: it says so.
-  await expect(page.getByTestId("band-note")).toContainText("Sin verificar");
+  await expect(page.getByTestId("dash-band-note")).toContainText("Sin verificar");
   // ENSO and day/night/FRP have no payload: no chart for them.
   await expect(page.getByTestId("chart-enso")).toHaveCount(0);
   await expect(page.getByTestId("chart-frp")).toHaveCount(0);
