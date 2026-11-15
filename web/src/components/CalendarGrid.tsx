@@ -1,4 +1,4 @@
-import { useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import type { CalendarPayload } from "../api/types";
 import { divergingColor, sequentialColor } from "../charts/scales";
 import { format } from "../i18n";
@@ -21,7 +21,13 @@ interface Tip {
   ym: string;
   x: number;
   y: number;
+  /** Cell too close to the top of the card: draw the tooltip under it instead. */
+  below: boolean;
 }
+
+/** Year columns narrower than this get a label only every {@link LABEL_EVERY} years (plus the last one). */
+const MIN_LABEL_WIDTH = 28;
+const LABEL_EVERY = 5;
 
 /** Month name for a "YYYY-MM"; `style` "long" for sentences and tooltips, "narrow" for column heads. */
 export function monthName(lang: string, month: number, style: "long" | "narrow" | "short" = "long"): string {
@@ -34,6 +40,20 @@ export function CalendarGrid({ grid, mode, meta, selected, onSelect }: Props) {
   const wrap = useRef<HTMLDivElement>(null);
   const [focusYm, setFocusYm] = useState<string | null>(null);
   const [tip, setTip] = useState<Tip | null>(null);
+  const [sparse, setSparse] = useState(false);
+  const nYears = grid.years.length;
+
+  // Thin the year labels when the columns are too narrow for them (full year stays in aria-label).
+  useEffect(() => {
+    const el = wrap.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(([entry]) => {
+      const colWidth = (entry.contentRect.width - 28) / Math.max(1, nYears);
+      setSparse(colWidth < MIN_LABEL_WIDTH);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [nYears]);
 
   const num = (v: number) => v.toLocaleString(lang, { maximumFractionDigits: 1 });
   const label = (c: CalendarCell) => `${monthName(lang, c.month)} ${c.year}`;
@@ -45,7 +65,10 @@ export function CalendarGrid({ grid, mode, meta, selected, onSelect }: Props) {
   const show = (el: HTMLElement, ym: string) => {
     const w = wrap.current?.getBoundingClientRect();
     const r = el.getBoundingClientRect();
-    if (w) setTip({ ym, x: r.left - w.left + r.width / 2, y: r.top - w.top });
+    if (!w) return;
+    const x = Math.min(Math.max(r.left - w.left + r.width / 2, 100), Math.max(100, w.width - 100));
+    const below = r.top - w.top < 110;
+    setTip({ ym, x, y: below ? r.bottom - w.top : r.top - w.top, below });
   };
 
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>, c: CalendarCell) => {
@@ -65,22 +88,36 @@ export function CalendarGrid({ grid, mode, meta, selected, onSelect }: Props) {
 
   return (
     <div className="cal-wrap" ref={wrap} onMouseLeave={() => setTip(null)}>
-      <div className="cal-grid" role="grid" aria-label={t.calendar.gridLabel} data-testid="calendar-grid" data-mode={mode}>
+      <div
+        className="cal-grid"
+        role="grid"
+        aria-label={t.calendar.gridLabel}
+        data-testid="calendar-grid"
+        data-mode={mode}
+        data-sparse={sparse}
+        style={{ "--years": nYears } as CSSProperties}
+      >
         <div className="cal-row" role="row">
           <span className="cal-corner" role="columnheader" aria-hidden="true" />
-          {Array.from({ length: 12 }, (_, i) => (
-            <span key={i} className="cal-colhead" role="columnheader" aria-label={monthName(lang, i + 1)}>
-              {monthName(lang, i + 1, "narrow")}
+          {grid.years.map((year, i) => (
+            <span
+              key={year}
+              className="cal-colhead num"
+              role="columnheader"
+              aria-label={String(year)}
+              data-labelled={i % LABEL_EVERY === 0 || i === nYears - 1}
+            >
+              {year}
             </span>
           ))}
         </div>
-        {grid.years.map((year) => (
-          <div className="cal-row" role="row" key={year}>
-            <span className="cal-year num" role="rowheader">
-              {year}
+        {Array.from({ length: 12 }, (_, mi) => (
+          <div className="cal-row" role="row" key={mi}>
+            <span className="cal-rowhead" role="rowheader" aria-label={monthName(lang, mi + 1)}>
+              {monthName(lang, mi + 1, "short")}
             </span>
-            {Array.from({ length: 12 }, (_, i) => {
-              const c = cellAt(grid, ymKey(year, i + 1));
+            {grid.years.map((year) => {
+              const c = cellAt(grid, ymKey(year, mi + 1));
               const color = colorOf(c);
               const isSel = c.ym === selected;
               const style: CSSProperties | undefined = color ? { backgroundColor: color } : undefined;
@@ -119,7 +156,7 @@ export function CalendarGrid({ grid, mode, meta, selected, onSelect }: Props) {
       </div>
 
       {tip && tipCell && (
-        <div className="cal-tip" id="cal-tip" role="tooltip" data-testid="calendar-tooltip" style={{ left: tip.x, top: tip.y }}>
+        <div className={`cal-tip${tip.below ? " below" : ""}`} id="cal-tip" role="tooltip" data-testid="calendar-tooltip" style={{ left: tip.x, top: tip.y }}>
           <strong>{label(tipCell)}</strong>
           {tipCell.value === null ? (
             <span>{t.calendar.noData}</span>

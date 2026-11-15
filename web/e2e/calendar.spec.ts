@@ -92,18 +92,42 @@ test("anomaly toggle changes colours and legend; tooltip shows the departure fro
   await expect(page.getByTestId("tip-anomaly")).toContainText("+");
 });
 
-test("keyboard: one tab stop, arrows move focus over the grid, Enter selects", async ({ page }) => {
+test("keyboard: one tab stop, arrows follow the sideways grid, Enter selects", async ({ page }) => {
+  const first = calendar.months[0]!;
+  expect(last.month).toBeGreaterThan(1); // the arrow steps below need a previous month in the last year
   await cell(page, ym(last.year, last.month)).focus();
-  await page.keyboard.press("ArrowUp");
+  // Left/Right = previous/next year (same month row); Up/Down = previous/next month.
+  await page.keyboard.press("ArrowLeft");
   await expect(cell(page, ym(last.year - 1, last.month))).toBeFocused();
-  await page.keyboard.press("ArrowLeft");
+  await page.keyboard.press("ArrowUp");
   await expect(cell(page, ym(last.year - 1, last.month - 1))).toBeFocused();
-  await page.keyboard.press("Home");
-  await expect(cell(page, ym(last.year - 1, 1))).toBeFocused();
-  await page.keyboard.press("ArrowLeft");
-  await expect(cell(page, ym(last.year - 2, 12))).toBeFocused();
+  await page.keyboard.press("ArrowRight");
+  await expect(cell(page, ym(last.year, last.month - 1))).toBeFocused();
+  await page.keyboard.press("ArrowDown");
+  await expect(cell(page, ym(last.year, last.month))).toBeFocused();
   // Roving tabindex: exactly one cell is a tab stop.
   await expect(page.locator('[role=gridcell][tabindex="0"]')).toHaveCount(1);
+  await page.keyboard.press("ArrowLeft");
   await page.keyboard.press("Enter");
-  await expect(cell(page, ym(last.year - 2, 12))).toHaveAttribute("aria-selected", "true");
+  await expect(cell(page, ym(last.year - 1, last.month))).toHaveAttribute("aria-selected", "true");
+  // Home/End = first/last year of the same month row.
+  await page.keyboard.press("Home");
+  await expect(cell(page, ym(first.year, last.month))).toBeFocused();
+  await page.keyboard.press("End");
+  await expect(cell(page, ym(last.year, last.month))).toBeFocused();
+});
+
+test("calendar grid is turned sideways: wide, and all 12 month rows are visible without scrolling", async ({ page }) => {
+  const strip = (await page.getByTestId("calendar-strip").boundingBox())!;
+  const grid = (await page.getByTestId("calendar-grid").boundingBox())!;
+  expect(grid.width).toBeGreaterThan(strip.width * 0.6);
+  const wrap = page.locator(".cal-wrap");
+  const { scrollHeight, clientHeight } = await wrap.evaluate((el) => ({ scrollHeight: el.scrollHeight, clientHeight: el.clientHeight }));
+  expect(scrollHeight).toBeLessThanOrEqual(clientHeight + 1);
+  await expect(page.getByRole("rowheader")).toHaveCount(12);
+  await expect(page.getByRole("columnheader", { name: String(last.year) })).toBeVisible();
+  const jan = (await cell(page, ym(last.year, 1)).boundingBox())!;
+  const dec = (await cell(page, ym(last.year, 12)).boundingBox())!;
+  expect(dec.y + dec.height).toBeLessThanOrEqual(strip.y + strip.height);
+  expect(jan.y).toBeGreaterThanOrEqual(strip.y);
 });

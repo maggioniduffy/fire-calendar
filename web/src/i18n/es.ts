@@ -164,6 +164,7 @@ const es = {
     finding: "El mes más activo del período fue {month}, con {count} focos {scale}.",
     findingNone: "Sin datos suficientes en el área para señalar un mes más activo.",
     gridLabel: "Focos por año y mes",
+    resize: "Redimensionar calendario",
     noData: "Sin datos",
     estimated: "estimado",
     count: "Focos",

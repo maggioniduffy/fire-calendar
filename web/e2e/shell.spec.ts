@@ -107,3 +107,68 @@ test.describe("phone width", () => {
     expect(btn!.height).toBeGreaterThanOrEqual(44);
   });
 });
+
+test.describe("calendar strip resizer", () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+  const strip = (page: Page) => page.getByTestId("calendar-strip");
+  const handle = (page: Page) => page.getByTestId("strip-resizer");
+  const h = async (page: Page) => (await strip(page).boundingBox())!.height;
+
+  test("is a labelled separator and dragging it up makes the strip taller and the center shorter", async ({ page }) => {
+    await expect(handle(page)).toHaveAttribute("role", "separator");
+    await expect(handle(page)).toHaveAttribute("aria-label", "Redimensionar calendario");
+    const stripBefore = await h(page);
+    const centerBefore = (await page.getByTestId("center").boundingBox())!.height;
+    const box = (await handle(page).boundingBox())!;
+    const x = box.x + box.width / 2;
+    const y = box.y + box.height / 2;
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x, y - 120, { steps: 6 });
+    await page.mouse.up();
+    expect(await h(page)).toBeGreaterThan(stripBefore + 100);
+    expect((await page.getByTestId("center").boundingBox())!.height).toBeLessThan(centerBefore - 100);
+  });
+
+  test("the map canvas follows the new size when the strip is dragged", async ({ page }) => {
+    const canvas = page.getByTestId("map").locator("canvas").first();
+    await expect(canvas).toBeVisible();
+    const before = (await canvas.boundingBox())!.height;
+    await handle(page).focus();
+    await page.keyboard.press("PageUp");
+    await expect.poll(async () => (await canvas.boundingBox())!.height).toBeLessThan(before - 50);
+  });
+
+  test("keyboard: arrows, PageUp/PageDown, Home/End and Enter change the height and aria-valuenow", async ({ page }) => {
+    const now = async () => Number(await handle(page).getAttribute("aria-valuenow"));
+    await handle(page).focus();
+    const start = await now();
+    await page.keyboard.press("ArrowUp");
+    expect(await now()).toBe(start + 24);
+    expect(Math.round(await h(page))).toBe(start + 24);
+    await page.keyboard.press("PageDown");
+    expect(await now()).toBe(start - 72);
+    await page.keyboard.press("Home");
+    expect(await now()).toBe(Number(await handle(page).getAttribute("aria-valuemin")));
+    await page.keyboard.press("Enter");
+    expect(await now()).toBeGreaterThan(Number(await handle(page).getAttribute("aria-valuemin")));
+    await page.keyboard.press("End");
+    expect(await now()).toBe(Number(await handle(page).getAttribute("aria-valuemax")));
+    await page.keyboard.press("Enter");
+    expect(await now()).toBe(Number(await handle(page).getAttribute("aria-valuemin")));
+  });
+
+  test("the height survives a reload", async ({ page }) => {
+    await handle(page).focus();
+    await page.keyboard.press("PageUp");
+    const set = await handle(page).getAttribute("aria-valuenow");
+    await page.reload();
+    await expect(handle(page)).toHaveAttribute("aria-valuenow", set!);
+    expect(await page.evaluate(() => window.localStorage.getItem("fire-calendar:calendar-height"))).toBe(set);
+  });
+
+  test("is hidden at phone width", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await expect(handle(page)).toBeHidden();
+  });
+});

@@ -92,3 +92,10 @@ LightGBM (the scale factor stays), NRT.
   Accessibility: axe (WCAG 2 A/AA) with 0 violations on map, dashboard, light/dark and 360 px; keyboard tab order
   and a month stepper for the dashboard charts; focus ring accent with casing. Keyboard-only polygon drawing is out
   of scope: lat/lon + radius is the keyboard alternative.
+- 2026-11-15: phase 4 checked on real data ([reports/04/real-data-check.md](reports/04/real-data-check.md)): 10 items
+  walked, none failed; API under 0.6 s. Unverified: raw points seen on screen at zoom >= 8, hot-spot button after a
+  404, chart CSV contents, contrast over the real basemap and screen readers. CI on main fails at `pnpm e2e` (webServer
+  timeout); fix on branch `fix/ci-web-e2e`, not yet confirmed in CI.
+- 2026-11-15: SA4.9 done: the calendar strip was clipped (fixed 22vh, 26 year rows). Grid turned sideways and a
+  drag handle added (`StripResizer`). Arrow keys now follow the drawing: Left/Right = year, Up/Down = month.
+  Checked: vitest, tsc, eslint and the calendar, shell and a11y e2e specs; the other e2e specs were not rerun.

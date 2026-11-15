@@ -19,6 +19,7 @@ export default defineConfig({
     url: `http://127.0.0.1:${port}`,
     // Never reuse: a server left running may serve a build without the test hook.
     reuseExistingServer: false,
-    timeout: 120_000,
+    // The CI runner builds deck.gl + MapLibre slowly; 120 s was not enough there.
+    timeout: 300_000,
   },
 });

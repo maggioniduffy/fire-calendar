@@ -43,15 +43,22 @@ describe("buildGrid", () => {
 
 describe("neighbour", () => {
   const g = buildGrid(calendar, stats);
-  it("moves by month and year and wraps across years", () => {
-    expect(neighbour(g, "2005-12", "ArrowRight")).toBe("2006-01");
-    expect(neighbour(g, "2006-01", "ArrowLeft")).toBe("2005-12");
-    expect(neighbour(g, "2006-05", "ArrowUp")).toBe("2005-05");
-    expect(neighbour(g, "2006-05", "Home")).toBe("2006-01");
-    expect(neighbour(g, "2006-05", "End")).toBe("2006-12");
+  it("moves by year with Left/Right and by month with Up/Down, wrapping months across years", () => {
+    expect(neighbour(g, "2005-05", "ArrowRight")).toBe("2006-05");
+    expect(neighbour(g, "2006-05", "ArrowLeft")).toBe("2005-05");
+    expect(neighbour(g, "2006-05", "ArrowDown")).toBe("2006-06");
+    expect(neighbour(g, "2006-05", "ArrowUp")).toBe("2006-04");
+    expect(neighbour(g, "2006-12", "ArrowDown")).toBe("2007-01");
+    expect(neighbour(g, "2006-01", "ArrowUp")).toBe("2005-12");
+  });
+  it("jumps to the first and last year of the same month row with Home/End", () => {
+    expect(neighbour(g, "2006-05", "Home")).toBe("2005-05");
+    expect(neighbour(g, "2006-05", "End")).toBe("2007-05");
   });
   it("stops at the edges of the grid", () => {
     expect(neighbour(g, "2005-01", "ArrowLeft")).toBeNull();
+    expect(neighbour(g, "2007-12", "ArrowRight")).toBeNull();
+    expect(neighbour(g, "2005-01", "ArrowUp")).toBeNull();
     expect(neighbour(g, "2007-12", "ArrowDown")).toBeNull();
     expect(neighbour(g, "2006-05", "x")).toBeNull();
   });

@@ -165,6 +165,7 @@ const en: Messages = {
     finding: "The most active month of the period was {month}, with {count} {scale} hot spots.",
     findingNone: "Not enough data in the area to point out a most active month.",
     gridLabel: "Hot spots by year and month",
+    resize: "Resize calendar",
     noData: "No data",
     estimated: "estimated",
     count: "Hot spots",

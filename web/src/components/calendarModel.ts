@@ -70,7 +70,11 @@ export function cellAt(grid: CalendarGrid, ym: string): CalendarCell {
   return { ym, year: y, month: m, value: null, status: "none", median: null, ratio: null };
 }
 
-/** Neighbour of `ym` for a roving-focus key; null when it would leave the grid. */
+/**
+ * Neighbour of `ym` for a roving-focus key; null when it would leave the grid. The grid is drawn sideways (years
+ * across, months down), so Left/Right step a year, Up/Down step a month (wrapping across years) and Home/End jump
+ * to the first/last year of the same month row.
+ */
 export function neighbour(grid: CalendarGrid, ym: string, key: string): string | null {
   if (grid.years.length === 0) return null;
   const [y, m] = ym.split("-").map(Number);
@@ -80,22 +84,22 @@ export function neighbour(grid: CalendarGrid, ym: string, key: string): string |
   let month = m;
   switch (key) {
     case "ArrowLeft":
-      month -= 1;
-      break;
-    case "ArrowRight":
-      month += 1;
-      break;
-    case "ArrowUp":
       year -= 1;
       break;
-    case "ArrowDown":
+    case "ArrowRight":
       year += 1;
       break;
+    case "ArrowUp":
+      month -= 1;
+      break;
+    case "ArrowDown":
+      month += 1;
+      break;
     case "Home":
-      month = 1;
+      year = first;
       break;
     case "End":
-      month = 12;
+      year = last;
       break;
     default:
       return null;
