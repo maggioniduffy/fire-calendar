@@ -61,6 +61,11 @@ export function requestKey(path: string, body: ApiBody): string {
   return parts.join(" ");
 }
 
+/** Readable form of an unmatched request: path and body fields (the key format is an internal detail). */
+function describe(method: string, path: string, body: unknown, why = "no fixture"): string {
+  return `${method} ${path} ${JSON.stringify(body)} (${why}; regenerate with backend/scripts/web_fixtures.py or request a month it holds)`;
+}
+
 export interface RecordedRequest {
   method: string;
   path: string;
@@ -97,14 +102,14 @@ export async function installApi(page: Page): Promise<ApiMock> {
       const lookup = picked ? requestKey(path, { ...body, [field]: "*" }) : key;
       const file = req.method() === "POST" ? index.requests[lookup] : undefined;
       if (!file) {
-        mock.unmatched.push(`${req.method()} ${path} ${key}`);
+        mock.unmatched.push(describe(req.method(), path, body));
         return route.fulfill({ status: 404, json: { detail: `no fixture for ${key}` } });
       }
       let answer = fixtureResponse(file);
       if (picked && answer.status === 200) {
         const entry = (JSON.parse(answer.body) as { months: Record<string, unknown> }).months[picked as string];
         if (!entry) {
-          mock.unmatched.push(`${req.method()} ${path} ${key}`);
+          mock.unmatched.push(describe(req.method(), path, body, "month not in the fixture file"));
           return route.fulfill({ status: 404, json: { detail: `no fixture month for ${key}` } });
         }
         answer = { ...answer, body: JSON.stringify(entry) };

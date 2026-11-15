@@ -141,6 +141,8 @@ export interface AnomalyPayload {
   value: number | null;
   median: number | null;
   p10: number | null;
+  p25: number | null;
+  p75: number | null;
   p90: number | null;
   abs_anomaly: number | null;
   pct_anomaly: number | null;
@@ -172,7 +174,7 @@ export interface StatsPayload {
   period: { start: string; end: string };
   scale: ApiScale;
   climatology: {
-    months: { month: number; n_years: number; median: number | null; p10: number | null; p90: number | null }[];
+    months: { month: number; n_years: number; median: number | null; p10: number | null; p25: number | null; p75: number | null; p90: number | null }[];
     baseline_years: number[];
     quantile_method: string;
   };

@@ -81,3 +81,8 @@ LightGBM (the scale factor stays), NRT.
   source and period, keyboard grid. Scales in `web/src/charts/scales.ts`. Cells with no data are hatched. The
   light-theme ramp darkens with the count (dark theme lightens), a deviation from "grows in lightness" in
   `docs/design.md` for the cream theme.
+- 2026-11-15: SA4.5 (inspector, series selector) and SA4.6 (CSV downloads) done and integrated with the map and
+  calendar. The fake hot-spot test layer is gone (inspector detail/provenance blocks, map point layer,
+  `loadLayers`, `layers/manifest.ts`); `/calendar` is fetched on area, period and scale only, `/stats` also on the
+  chosen month, so changing the month does not refetch the calendar. e2e fixtures hold `/cells` and per-month
+  `/stats` for every month of the synthetic period; the climatology now also returns p25 and p75.

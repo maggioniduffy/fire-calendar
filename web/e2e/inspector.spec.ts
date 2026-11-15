@@ -87,9 +87,8 @@ test("switching series refetches with the scale and changes the figures", async 
 test("Reportado shows the per-sensor reported counts, without median or anomaly, and needs no refetch", async ({ page, api }) => {
   await page.goto("/?month=2015-09");
   await expect(page.getByTestId("fig-count")).toBeVisible();
-  // /cells (map) may arrive late: only the area data matters here.
-  const dataRequests = () => api.to("/calendar").length + api.to("/stats").length;
-  const before = dataRequests();
+  // /cells (map) may arrive late: count only the endpoints this test is about.
+  const before = { calendar: api.to("/calendar").length, stats: api.to("/stats").length };
   await page.getByTestId("series-reported").click();
 
   const row = monthRow(2015, 9);
@@ -98,7 +97,7 @@ test("Reportado shows the per-sensor reported counts, without median or anomaly,
   await expect(page.getByTestId("reported-note")).toContainText("por sensor");
   await expect(page.getByTestId("fig-median")).toHaveCount(0);
   await expect(page.getByTestId("fig-anomaly")).toHaveCount(0);
-  expect(dataRequests()).toBe(before);
+  expect({ calendar: api.to("/calendar").length, stats: api.to("/stats").length }).toEqual(before);
 
   // VIIRS did not report before 2012: a dash, not a made-up number.
   await page.goto("/?month=2005-09");

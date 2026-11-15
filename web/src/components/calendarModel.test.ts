@@ -19,7 +19,7 @@ const calendar = {
   months: [row(2005, 1, 10, "estimated"), row(2005, 2, null, "none"), row(2007, 1, 30)],
 } as unknown as CalendarPayload;
 const stats = {
-  climatology: { months: [{ month: 1, n_years: 2, median: 20, p10: 0, p90: 0 }, { month: 2, n_years: 0, median: null, p10: null, p90: null }] },
+  climatology: { months: [{ month: 1, n_years: 2, median: 20, p10: 0, p25: 10, p75: 30, p90: 0 }, { month: 2, n_years: 0, median: null, p10: null, p25: null, p75: null, p90: null }] },
 } as unknown as StatsPayload;
 
 describe("buildGrid", () => {

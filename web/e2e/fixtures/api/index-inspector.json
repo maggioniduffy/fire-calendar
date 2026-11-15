@@ -28,6 +28,14 @@
   "export-detections-cordoba-viirs_eq.json": {
    "headers": {},
    "status": 404
+  },
+  "stats-cordoba-modis_eq-months.json": {
+   "headers": {},
+   "status": 200
+  },
+  "stats-cordoba-viirs_eq-months.json": {
+   "headers": {},
+   "status": 200
   }
  },
  "synthetic": true

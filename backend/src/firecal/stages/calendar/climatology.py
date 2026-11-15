@@ -26,7 +26,7 @@ def _values(matrix: pd.DataFrame, column: str, month: int, years: list[int]) -> 
 
 
 def climatology(matrix: pd.DataFrame, column: str, baseline_years=None, exclude_years=None) -> pd.DataFrame:
-    """Per calendar month 1..12: n_years, median, p10, p90 over the baseline years.
+    """Per calendar month 1..12: n_years, median, p10, p25, p75, p90 over the baseline years.
 
     Quantiles use numpy linear interpolation (np.quantile, method='linear'). Only months with a non-NaN
     value count. Default baseline: complete years of the matrix, minus `exclude_years`. Baseline years are
@@ -37,10 +37,23 @@ def climatology(matrix: pd.DataFrame, column: str, baseline_years=None, exclude_
     for m in range(1, 13):
         v = _values(matrix, column, m, years)
         if len(v):
-            q = np.quantile(v, [0.5, 0.1, 0.9], method="linear")
-            rows.append({"month": m, "n_years": len(v), "median": q[0], "p10": q[1], "p90": q[2]})
+            q = np.quantile(v, [0.5, 0.1, 0.9, 0.25, 0.75], method="linear")
+            rows.append(
+                {
+                    "month": m,
+                    "n_years": len(v),
+                    "median": q[0],
+                    "p10": q[1],
+                    "p25": q[3],
+                    "p75": q[4],
+                    "p90": q[2],
+                }
+            )
         else:
-            rows.append({"month": m, "n_years": 0, "median": np.nan, "p10": np.nan, "p90": np.nan})
+            nan = float("nan")
+            rows.append(
+                {"month": m, "n_years": 0, "median": nan, "p10": nan, "p25": nan, "p75": nan, "p90": nan}
+            )
     out = pd.DataFrame(rows)
     out.attrs["baseline_years"] = years
     out.attrs["quantile_method"] = QUANTILE_METHOD
@@ -61,13 +74,13 @@ def anomaly(
     """Anomaly of `ref` (default: "ultimo mes disponible", the last month with a value; retrospective).
 
     The reference year is never in its own baseline: if `clim` was built with it, it is rebuilt without it.
-    Returns value, median, p10, p90, abs_anomaly = value - median, pct_anomaly = (value - median) / median
-    (None when the median is 0), percentile = empirical rank of value among the baseline values of that
-    calendar month ((#below + 0.5 * #ties) / n * 100) and n.
+    Returns value, median, p10, p25, p75, p90, abs_anomaly = value - median,
+    pct_anomaly = (value - median) / median (None when the median is 0), percentile = empirical rank of value
+    among the baseline values of that calendar month ((#below + 0.5 * #ties) / n * 100) and n.
     """
     ref = ref or last_available(matrix, column)
     empty = {
-        "ref": None, "value": None, "median": None, "p10": None, "p90": None,
+        "ref": None, "value": None, "median": None, "p10": None, "p25": None, "p75": None, "p90": None,
         "abs_anomaly": None, "pct_anomaly": None, "percentile": None, "n": 0,
     }  # fmt: skip
     if ref is None:
@@ -94,6 +107,8 @@ def anomaly(
         "value": value,
         "median": med,
         "p10": None if n == 0 else float(row["p10"]),
+        "p25": None if n == 0 else float(row["p25"]),
+        "p75": None if n == 0 else float(row["p75"]),
         "p90": None if n == 0 else float(row["p90"]),
         "abs_anomaly": None if med is None else value - med,
         "pct_anomaly": None if not med else (value - med) / med,
