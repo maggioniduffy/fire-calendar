@@ -74,12 +74,12 @@ BLOCK_GRID = (
 )
 
 ML_METHODS = {
-    "lgb_cell": "LightGBM celda",
-    "lgb_block": "LightGBM bloque-mes",
-    "lgb_cell_ta": "LightGBM celda + proporción Terra/Aqua",
-    "lgb_cell_ll": "LightGBM celda + lat/lon",
-    "zero_cell": "Cero árboles (celda)",
-    "zero_block": "Cero árboles (bloque-mes)",
+    "lgb_cell": "LightGBM cell",
+    "lgb_block": "LightGBM block-month",
+    "lgb_cell_ta": "LightGBM cell + Terra/Aqua share",
+    "lgb_cell_ll": "LightGBM cell + lat/lon",
+    "zero_cell": "Zero trees (cell)",
+    "zero_block": "Zero trees (block-month)",
 }
 
 

@@ -48,11 +48,11 @@ PAIRS: dict[str, Pair] = {
     "noaa20_to_snpp": Pair(("noaa20",), ("snpp",), NOAA20_START, label="NOAA-20 -> S-NPP"),
 }
 MAIN_PAIRS = ("viirs_to_modis", "modis_to_viirs")
-METHODS = {"sf": "SA2.2 factor", "qm": "SA2.3 cuantiles"}
+METHODS = {"sf": "SA2.2 factor", "qm": "SA2.3 quantiles"}
 INTERVALS = {
     "jackknife": "jackknife (factor)",
-    "yearly": "dispersion interanual",
-    "conformal": "conformal (residuos relativos)",
+    "yearly": "interannual dispersion",
+    "conformal": "conformal (relative residuals)",
 }
 # Fixed predicted-size bins for the pooled coverage-by-size table (reporting only, nothing is tuned on them).
 SIZE_EDGES = {

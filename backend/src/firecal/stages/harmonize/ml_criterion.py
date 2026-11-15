@@ -56,7 +56,7 @@ class Verdict:
 
     @property
     def text(self) -> str:
-        return "supera al factor" if self.passed else "no supera al factor"
+        return "beats the factor" if self.passed else "does not beat the factor"
 
 
 def _by_year(folds: list[FoldOut], pair: str, scheme: str, method: str) -> dict[int, FoldOut]:
@@ -113,23 +113,23 @@ def evaluate_criterion(
     c_bm, b_bm = row("loyo", method, "all", "block-month"), row("loyo", "sf", "all", "block-month")
     c_by, b_by = row("loyo", method, "all", "block-year"), row("loyo", "sf", "all", "block-year")
     if c_bm is None or b_bm is None or c_by is None or b_by is None:
-        return Verdict(pair, method, [Condition("datos", False, "sin resultados")], (np.nan,) * 3)
+        return Verdict(pair, method, [Condition("data", False, "no results")], (np.nan,) * 3)
 
     d_bm = c_bm["wape"] - b_bm["wape"]
     d_by = c_by["wape"] - b_by["wape"]
     conds.append(
         Condition(
-            "1. WAPE bloque-mes al menos 1 punto menor y bloque-año no mayor",
+            "1. Block-month WAPE at least 1 point lower and block-year not higher",
             bool(d_bm <= -MIN_POINTS and d_by <= 0),
-            f"bloque-mes {_pct_points(d_bm)}, bloque-año {_pct_points(d_by)}",
+            f"block-month {_pct_points(d_bm)}, block-year {_pct_points(d_by)}",
         )
     )
     won = sum(1 for y in years if wape(cand[y].obs, cand[y].pred) < wape(base[y].obs, base[y].pred))
     conds.append(
         Condition(
-            f"2. WAPE bloque-mes menor en al menos {MIN_YEARS_WON} de {len(years)} años de test",
+            f"2. Lower block-month WAPE in at least {MIN_YEARS_WON} of {len(years)} test years",
             won >= MIN_YEARS_WON,
-            f"{won} de {len(years)}",
+            f"{won} of {len(years)}",
         )
     )
     rc, rb = _by_year(allf, pair, "rolling", method), _by_year(allf, pair, "rolling", "sf")
@@ -142,25 +142,27 @@ def evaluate_criterion(
         )
         conds.append(
             Condition(
-                "3. Mejora del mismo signo con origen móvil",
+                "3. Improvement of the same sign under rolling origin",
                 bool(d_roll < 0 and d_bm < 0),
-                f"origen móvil {_pct_points(d_roll)} ({len(ry)} años)",
+                f"rolling origin {_pct_points(d_roll)} ({len(ry)} years)",
             )
         )
     else:
-        conds.append(Condition("3. Mejora del mismo signo con origen móvil", False, "sin años comparables"))
+        conds.append(
+            Condition("3. Improvement of the same sign under rolling origin", False, "no comparable years")
+        )
     worst_c = max(abs(row("loyo", method, y, "block-month")["bias"]) for y in years)
     worst_b = max(abs(row("loyo", "sf", y, "block-month")["bias"]) for y in years)
     conds.append(
         Condition(
-            "4. |sesgo| total no peor que SA2.2 + 0,5 puntos y el peor año no peor",
+            "4. Total |bias| not worse than SA2.2 + 0.5 points and the worst year not worse",
             bool(abs(c_bm["bias"]) <= abs(b_bm["bias"]) + BIAS_SLACK and worst_c <= worst_b + 1e-12),
-            f"total {c_bm['bias'] * 100:+.2f} % vs {b_bm['bias'] * 100:+.2f} %; peor año {worst_c * 100:.1f} % vs {worst_b * 100:.1f} %",
+            f"total {c_bm['bias'] * 100:+.2f} % vs {b_bm['bias'] * 100:+.2f} %; worst year {worst_c * 100:.1f} % vs {worst_b * 100:.1f} %",
         )
     )
     conds.append(
         Condition(
-            "5. Devianza de Poisson bloque-mes no peor",
+            "5. Block-month Poisson deviance not worse",
             bool(c_bm["deviance"] <= b_bm["deviance"]),
             f"{c_bm['deviance']:.3f} vs {b_bm['deviance']:.3f}",
         )
@@ -181,22 +183,22 @@ def evaluate_criterion(
 
         a, b = cov(cc), cov(cb)
         if a is None or b is None:
-            conds.append(Condition("6. Cobertura 80 ± 5 % y ancho no mayor", False, "sin intervalos"))
+            conds.append(Condition("6. Coverage 80 ± 5 % and width not larger", False, "no intervals"))
         else:
             conds.append(
                 Condition(
-                    "6. Cobertura 80 ± 5 % y ancho no mayor que SA2.2",
+                    "6. Coverage 80 ± 5 % and width not larger than SA2.2's",
                     bool(
                         COVERAGE_BAND[0] <= a["coverage"] <= COVERAGE_BAND[1]
                         and a["rel_width"] <= b["rel_width"]
                     ),
-                    f"cobertura {a['coverage'] * 100:.1f} %, ancho {a['rel_width']:.3f} vs SA2.2 {b['rel_width']:.3f}",
+                    f"coverage {a['coverage'] * 100:.1f} %, width {a['rel_width']:.3f} vs SA2.2 {b['rel_width']:.3f}",
                 )
             )
     point, lo, hi = bootstrap_diff(cand, base, n_boot)
     conds.append(
         Condition(
-            "7. Intervalo bootstrap pareado (año y bloque) de la diferencia de WAPE excluye cero",
+            "7. Paired bootstrap interval (year and block) of the WAPE difference excludes zero",
             bool(np.isfinite(hi) and hi < 0),
             f"{_pct_points(point)} [{lo * 100:+.2f}; {hi * 100:+.2f}] (95 %)",
         )

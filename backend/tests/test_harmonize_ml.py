@@ -250,7 +250,7 @@ def test_verdict_lists_failed_conditions_for_an_equal_model():
                 f.scheme = scheme
                 lst.append(f)
     v = evaluate_criterion(sf, ml, "viirs_to_modis", "lgb_cell")
-    assert v.text == "no supera al factor"
+    assert v.text == "does not beat the factor"
     failed = [c.name for c in v.conditions if not c.passed]
     assert any(c.startswith("1.") for c in failed) and any(c.startswith("7.") for c in failed)
 
@@ -276,12 +276,12 @@ def test_report_section_renders_with_verdicts_and_ablations():
             "unreachable_share": 0.01,
         }
     text = "\n".join(ml_section(MLResult(folds, diags, meta, SMALL, SMALL, 1.0, 100.0), sf))
-    assert "SA2.4 y SA2.7 vs. baseline" in text
+    assert "SA2.4 and SA2.7 vs. baseline" in text
     assert (
-        text.count("supera al factor") >= 4
+        text.count("beat the factor") + text.count("beats the factor") >= 4
     )  # one verdict line per direction and candidate (and the summary)
-    assert "Importancia de variables" in text and "LightGBM celda + proporción Terra/Aqua" in text
-    assert "Cobertura" in text
+    assert "Feature importance" in text and "LightGBM cell + Terra/Aqua share" in text
+    assert "Coverage" in text
 
 
 def test_inverse_direction_rows_at_the_offset_floor_stay_bounded(monkeypatch):

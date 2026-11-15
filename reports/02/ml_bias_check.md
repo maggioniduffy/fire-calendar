@@ -1,46 +1,45 @@
-# Sesgo del modelo de celda de LightGBM: ¿es estructural?
+# LightGBM cell-model bias: is it structural?
 
-Corrida: 2026-11-15, con `backend/scripts/ml_bias_check.py` sobre la caché de la corrida final de
-`firecal harmonize evaluate --ml` (sin reentrenar). Fuente: archivos por país de NASA FIRMS, procesamiento
-standard; año afuera con 6 meses de separación, 14 años de test (2012–2025). Retrospectivo; no es un sistema de
-alerta.
+Run: 2026-11-15, with `backend/scripts/ml_bias_check.py` on the cache of the final run of
+`firecal harmonize evaluate --ml` (no retraining). Source: NASA FIRMS per-country files, standard processing;
+leave-one-year-out with a 6-month gap, 14 test years (2012–2025). Retrospective; not an alert system.
 
-## Hipótesis
+## Hypothesis
 
-El modelo de celda solo predice en las filas donde la fuente está activa en la celda o en su 3×3, pero se lo
-evalúa contra todas las detecciones del objetivo. Las detecciones fuera de esas filas son inalcanzables, así que
-el sesgo total debería ser aproximadamente `−(fracción fuera de las filas)`.
+The cell model only predicts on rows where the source is active in the cell or in its 3×3 neighborhood, but it is
+evaluated against all target detections. Detections outside those rows are unreachable, so the total bias should
+be approximately `−(fraction outside the rows)`.
 
-## Resultado: estructural en el total, no en los años sueltos
+## Result: structural in the total, not in individual years
 
-| Sentido | Fracción fuera de las filas | Sesgo celda vs. todo | Sesgo celda vs. sus filas | Sesgo SA2.2 |
+| Direction | Fraction outside the rows | Cell bias vs. all | Cell bias vs. its rows | SA2.2 bias |
 |---|---|---|---|---|
-| SA2.4 VIIRS → MODIS | 2,58 % | −2,52 % | +0,06 % | +0,93 % |
-| SA2.7 MODIS → VIIRS | 6,22 % | −6,73 % | −0,54 % | −0,95 % |
+| SA2.4 VIIRS → MODIS | 2.58 % | −2.52 % | +0.06 % | +0.93 % |
+| SA2.7 MODIS → VIIRS | 6.22 % | −6.73 % | −0.54 % | −0.95 % |
 
-- **Total (verificado):** contado sobre sus propias filas, el sesgo del modelo de celda es casi cero (+0,06 % y
-  −0,54 %). El sesgo negativo total viene de las detecciones que el modelo no puede alcanzar. La relación
-  `sesgo_total = (1 + sesgo_filas) × (1 − fracción_fuera) − 1` se cumple exacta, pero es una identidad contable;
-  la prueba de verdad es que `sesgo_filas ≈ 0`, y en el total se cumple.
-- **Por año (no estructural):** el sesgo en sus filas va de −10,0 % a +3,6 % (SA2.4) y de −8,9 % a +5,3 %
-  (SA2.7), mientras la fracción fuera va de 0,9 % a 9,4 %. La fracción fuera explica solo unos puntos de cada año.
-- **Peor año de SA2.4 (2024, −12,4 %):** fracción fuera 2,7 %; en sus filas sigue en −10,0 %. No es
-  estructural, y SA2.2 tiene casi el mismo sesgo ese año (−10,2 %): es un año difícil para los dos métodos, no un
-  defecto propio de LightGBM. La causa queda sin verificar (2024 es el año en que cambia el cociente Terra/Aqua,
-  ver la tabla de estabilidad en `baselines.md`).
-- **Peor año de SA2.7 (2022, −13,0 %):** fracción fuera 4,6 %; en sus filas −8,9 %; SA2.2 −10,7 % ese año.
-- **SA2.2 no cambia** si se lo restringe al alcance del modelo de celda (+0,93 % y −0,95 %): solo 0,02 % y 0,30 %
-  de las detecciones caen en bloque-meses donde SA2.2 predice 0.
+- **Total (verified):** counted over its own rows, the cell model's bias is almost zero (+0.06 % and −0.54 %). The
+  negative total bias comes from detections the model cannot reach. The relation
+  `total_bias = (1 + row_bias) × (1 − fraction_outside) − 1` holds exactly, but it is an accounting identity; the
+  real test is that `row_bias ≈ 0`, and in the total it holds.
+- **Per year (not structural):** the bias on its rows ranges from −10.0 % to +3.6 % (SA2.4) and from −8.9 % to
+  +5.3 % (SA2.7), while the fraction outside ranges from 0.9 % to 9.4 %. The fraction outside explains only a few
+  points of each year.
+- **Worst SA2.4 year (2024, −12.4 %):** fraction outside 2.7 %; on its rows it is still −10.0 %. Not structural,
+  and SA2.2 has almost the same bias that year (−10.2 %): it is a hard year for both methods, not a defect of
+  LightGBM itself. The cause remains unverified (2024 is the year the Terra/Aqua ratio changes, see the stability
+  table in `baselines.md`).
+- **Worst SA2.7 year (2022, −13.0 %):** fraction outside 4.6 %; on its rows −8.9 %; SA2.2 −10.7 % that year.
+- **SA2.2 does not change** when restricted to the cell model's reach (+0.93 % and −0.95 %): only 0.02 % and
+  0.30 % of detections fall in block-months where SA2.2 predicts 0.
 
-## Qué cambia
+## What changes
 
-El veredicto no cambia: el criterio de publicación estaba fijado antes de la corrida y el modelo de celda falla
-el sesgo total tal como se evaluó. Lo que sí se aprende: si se quisiera mejorar el modelo de celda, la pieza que
-falta es estimar las detecciones fuera de sus filas (por ejemplo con el factor de bloque), no corregir el modelo
-dentro de ellas. Eso sería un diseño nuevo y una corrida nueva con el criterio fijado de antemano, no un ajuste
-de esta.
+The verdict does not change: the publication criterion was fixed before the run, and the cell model fails the
+total bias as evaluated. What is learned: if the cell model were to be improved, the missing piece is estimating
+the detections outside its rows (for example with the block factor), not correcting the model within them. That
+would be a new design and a new run with the criterion fixed in advance, not an adjustment of this one.
 
-Comparación no usada en el veredicto: "SA2.2 vs. filas del modelo de celda" (+3,6 % y +5,6 %) no es justa,
-porque SA2.2 es por bloque y no se entrenó sobre esas filas.
+Comparison not used in the verdict: "SA2.2 vs. the cell model's rows" (+3.6 % and +5.6 %) is not fair, because
+SA2.2 works per block and was not trained on those rows.
 
-Reproducir: `cd backend && uv run python scripts/ml_bias_check.py <ml-cache.pkl>`.
+Reproduce: `cd backend && uv run python scripts/ml_bias_check.py <ml-cache.pkl>`.
