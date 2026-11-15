@@ -4,6 +4,7 @@ import {
   parseNumber,
   polygonAreaKm2,
   selectionReducer,
+  selectionFromSearch,
   areaBounds,
   circleRing,
   toCellsRequest,
@@ -141,6 +142,27 @@ describe("map helpers", () => {
       month: "2016-12",
       bbox: [-33, -30, -65, -62],
     });
+  });
+
+  it("builds range and season requests and restores shareable period queries", () => {
+    const ranged = run([{ type: "setMonth", month: "2020-09" }, { type: "setMapRange", start: "2020-10", end: "2020-08" }]);
+    expect(ranged.mapPeriod).toEqual({ kind: "range", start: "2020-08", end: "2020-10" });
+    expect(toCellsRequest(ranged)).toEqual({ preset: "cordoba", scale: "viirs_eq", start: "2020-08", end: "2020-10" });
+    const season = run([{ type: "setMonth", month: "2020-09" }, { type: "setMapSeason", months: [8, 9, 8, 0, 13], years: [2020, 2015] }]);
+    expect(season.mapPeriod).toEqual({ kind: "season", months: [8, 9], years: [2015, 2020] });
+    expect(toCellsRequest(season)).toEqual({ preset: "cordoba", scale: "viirs_eq", months: [8, 9], years: [2015, 2020] });
+    expect(selectionFromSearch("?range=2019-12..2020-02").mapPeriod).toEqual({ kind: "range", start: "2019-12", end: "2020-02" });
+    expect(selectionFromSearch("?season=8,9,10@2015..2020").mapPeriod).toEqual({ kind: "season", months: [8, 9, 10], years: [2015, 2020] });
+    const bounded = run([
+      { type: "setCalendarPeriod", period: { start: "2005-01", end: "2016-12" } },
+      { type: "setMapRange", start: "2000-01", end: "2020-01" },
+    ]);
+    expect(bounded.mapPeriod).toEqual({ kind: "range", start: "2005-01", end: "2016-12" });
+    const boundedSeason = run([
+      { type: "setCalendarPeriod", period: { start: "2005-01", end: "2016-12" } },
+      { type: "setMapSeason", months: [8, 9], years: [2000, 2020] },
+    ]);
+    expect(boundedSeason.mapPeriod).toEqual({ kind: "season", months: [8, 9], years: [2005, 2016] });
   });
 
   it("bounds a circle and a polygon as [west, south, east, north]", () => {

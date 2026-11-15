@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { expect, test } from "./api";
+import { expect, setPreference, test } from "./api";
 
 // SA5.4: ENSO phase strip under the calendar. SYNTHETIC fixture (backend/scripts/web_fixtures.py).
 const DIR = join(import.meta.dirname, "fixtures/api");
@@ -73,7 +73,7 @@ test("the legend shows three phases, source, period and the association note", a
   await expect(legend.locator("[data-phase]")).toHaveCount(3);
   await expect(legend).toContainText("Fuente: NOAA CPC ONI");
   await expect(page.getByTestId("enso-note")).toHaveText(enso.note_es);
-  await page.getByTestId("lang-en").click();
+  await setPreference(page, "lang-en");
   await expect(page.getByTestId("enso-note")).toContainText("Association, not cause");
   await expect(page.getByTestId("enso-source")).toContainText("Source: NOAA CPC ONI");
 });
@@ -97,7 +97,7 @@ test("enso null hides the strip and shows the note", async ({ page }) => {
   await expect(page.getByTestId("calendar-grid")).toBeVisible();
   await expect(page.getByTestId("enso-strip")).toHaveCount(0);
   await expect(page.getByTestId("enso-missing")).toHaveText("ENSO no disponible");
-  await page.getByTestId("lang-en").click();
+  await setPreference(page, "lang-en");
   await expect(page.getByTestId("enso-missing")).toHaveText("ENSO unavailable");
   await page.getByRole("tab", { name: "Dashboard" }).click();
   await expect(page.getByTestId("season-enso-toggle")).toHaveCount(0);
@@ -122,7 +122,7 @@ test("dashboard: the ENSO toggle draws three phase medians and marks few years",
 for (const theme of ["light", "dark"] as const) {
   test(`axe: no violations with the strip visible (${theme})`, async ({ page }) => {
     await page.goto("/");
-    await page.getByTestId(`theme-${theme}`).click();
+    await setPreference(page, `theme-${theme}`);
     await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
     await expect(page.getByTestId("enso-strip")).toBeVisible();
     const run = async () => (await new AxeBuilder({ page }).withTags(TAGS).analyze()).violations.map((v) => ({ id: v.id, nodes: v.nodes.slice(0, 3).map((n) => n.target.join(" ")) }));

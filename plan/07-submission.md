@@ -65,4 +65,12 @@ province is `p-cordoba` and is the default area. Scales: `viirs_eq`, `modis_eq` 
   year, so it depends only on that year). Without `ref` the API answers `default_ref` (labels unchosen).
 - `cells/{scale}/{YYYY-MM}.json`: `{month, scale, cells: [[cell_lat, cell_lon, value, estimated 0|1], ...]}` for
   all of Argentina, value > 0; the client keeps the area's cells and applies the view window.
+- `detections/{YYYY-MM}/{lat0}_{lon0}.json`: raw filtered NASA FIRMS detections in 5° tiles by default, keyed
+  by `floor(latitude / tile_deg) * tile_deg` and `floor(longitude / tile_deg) * tile_deg`; rows are `[lat, lon,
+  acq_date, acq_time, sensor, frp, daynight, confidence]`. `detections/{YYYY-MM}/index.json` is
+  `{month, tile_deg, tiles: {"<lat0>_<lon0>": n_points}}`; months without raw detections have no directory.
+  The default 5° size reduces the estimated 2000–2026 deployment from about 73,000 files at 1° to below
+  Cloudflare Pages' 20,000-file per-deployment limit (limit unverified).
+- `manifest.json` adds `detections: {available, fields, tile_deg: 5, months, source, note}`. This is additive
+  within version 1; static clients return 404 for detections when `available` is false.
 - `export/{id}/{scale}.csv`: the `POST /export.csv` body with `kind=calendar`.

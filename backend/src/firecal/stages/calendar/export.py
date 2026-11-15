@@ -79,7 +79,7 @@ def provenance(store: SeriesStore, kind: str) -> dict[str, str]:
     }
 
 
-def _detections(r: Resolved, detections_dir: Path | None) -> pd.DataFrame:
+def _detections(r: Resolved, detections_dir: Path | None, months: list[int] | None = None) -> pd.DataFrame:
     root = Path(detections_dir) if detections_dir is not None else default_detections_dir()
     files = sorted(root.glob("product=*/year=*/part-0.parquet")) if root.is_dir() else []
     if not files:
@@ -101,6 +101,8 @@ def _detections(r: Resolved, detections_dir: Path | None) -> pd.DataFrame:
     if not parts:
         return pd.DataFrame(columns=DETECTION_COLUMNS)
     df = pd.concat(parts, ignore_index=True)
+    if months is not None:
+        df = df[pd.to_datetime(df["acq_date"]).dt.month.isin(months)]
     df = df[contains(r.area, df["latitude"].to_numpy(), df["longitude"].to_numpy())]
     df, _ = apply_filters(df, FilterConfig())
     return df.sort_values(["acq_datetime", "sensor", "latitude", "longitude"])[DETECTION_COLUMNS]

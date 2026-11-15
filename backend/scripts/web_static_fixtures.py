@@ -71,6 +71,8 @@ def generate(out: Path) -> list[str]:
         export_static(
             out, store, AREAS, enso.read_enso(oni), BOUNDARIES, workers=1, generated_at=GENERATED_AT,
             notes={"synthetic": True},
+            # Synthetic fixtures must never pick up the real FIRMS detections from data/.
+            include_detections=False,
         )  # fmt: skip
     (out / "README.md").write_text(README)
     return sorted(str(p.relative_to(out)) for p in out.rglob("*") if p.is_file())

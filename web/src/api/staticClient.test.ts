@@ -34,6 +34,7 @@ const files: Record<string, unknown> = {
     month: "2020-01", scale: "viirs_eq",
     cells: [[-31.35, -64.55, 3, 0], [-31.45, -64.55, 2, 1], [-31.45, -63.05, 9, 0], [-40.05, -64.55, 7, 0]],
   },
+  "cells/viirs_eq/2020-02.json": { month: "2020-02", scale: "viirs_eq", cells: [[-31.35, -64.55, 4, 1]] },
   "export/p-x/viirs_eq.csv": "year,month\n2020,1\n",
 };
 
@@ -145,6 +146,21 @@ describe("static client: cells", () => {
     await expect(c.getCells({ region: "p-x", month: "2030-01" })).rejects.toMatchObject({ status: 404 });
   });
 
+  it("sums range and season cells, preserves estimated and null-total rules", async () => {
+    const { c } = make();
+    const range = await c.getCells({ region: "p-x", start: "2020-01", end: "2020-03" });
+    expect(range.months).toBe(3);
+    expect(range.selection).toEqual({ kind: "range", start: "2020-01", end: "2020-03" });
+    expect(range.total).toBeNull();
+    expect(range.cells).toEqual([
+      { cell_lat: -31.45, cell_lon: -64.55, value: 2, estimated: true },
+      { cell_lat: -31.35, cell_lon: -64.55, value: 7, estimated: true },
+    ]);
+    const season = await c.getCells({ region: "p-x", months: [2], years: [2020, 2020] });
+    expect(season.selection).toEqual({ kind: "season", months: [2], years: [2020, 2020] });
+    expect(season.cells).toHaveLength(1);
+  });
+
   it("a missing calendar or area file is a 404 and is not cached", async () => {
     const { f, c } = make();
     await expect(c.postCalendar({ region: "p-nope" })).rejects.toMatchObject({ status: 404 });
@@ -158,4 +174,48 @@ describe("clipWindow", () => {
     expect(clipWindow([-60, -10, -80, -50], [-35, -30, -66, -60])).toEqual([-35, -30, -66, -60]);
     expect(clipWindow([-31, -30, -66, -65], [-35, -34, -66, -60])).toBeNull();
   });
+});
+
+describe("static client: detections", () => {
+  it("loads intersecting tiles, clips points, preserves the month payload, and samples ranges evenly", async () => {
+    files["manifest.json"] = { version: 1, default_area: "p-x", boundaries: { attribution: "A" }, detections: { available: true, fields: [], tile_deg: 1, months: 2, source: "NASA FIRMS", note: "raw" } };
+    files["detections/2020-01/index.json"] = { month: "2020-01", tiles: { "-32_-65": 5002, "-40_-65": 1 } };
+    files["detections/2020-01/-32_-65.json"] = Array.from({ length: 5002 }, (_, i) => [-31.44, -64.54, "2020-01-01", `${String(Math.floor(i / 60)).padStart(2,"0")}:${String(i % 60).padStart(2,"0")}`, "modis", 1, "D", 80]);
+    files["detections/2020-01/-40_-65.json"] = [[-40.2, -64.5, "2020-01-01", "10:00", "modis", 1, "D", 80]];
+    files["detections/2020-02/index.json"] = { month: "2020-02", tiles: { "-32_-65": 1 } };
+    files["detections/2020-02/-32_-65.json"] = [[-31.44, -64.54, "2020-02-01", "10:00", "viirs", 2, "N", null]];
+    const { c, f } = make();
+    const month = await c.getDetections({ region: "p-x", month: "2020-02", bbox: [-31.5, -31.3, -64.6, -64.5] });
+    expect(month.month).toBe("2020-02");
+    expect(month.points).toEqual([{ lat: -31.44, lon: -64.54, acq_date: "2020-02-01", sensor: "viirs", frp: 2, daynight: "N" }]);
+    const range = await c.getDetections({ region: "p-x", start: "2020-01", end: "2020-02", bbox: [-31.5, -31.3, -64.6, -64.5] });
+    expect(range.total).toBe(5003);
+    expect(range.points).toHaveLength(5000);
+    expect(range.sampled).toBe(true);
+    expect(f.mock.calls.some(([u]) => String(u).includes("-40_-65.json"))).toBe(false);
+  });
+
+  it("returns 404 when the manifest explicitly disables raw detections", async () => {
+    files["manifest.json"] = { version: 1, default_area: "p-x", detections: { available: false } };
+    const { c } = make();
+    await expect(c.getDetections({ region: "p-x", month: "2020-01", bbox: [-32, -31, -65, -64] })).rejects.toMatchObject({ status: 404 });
+  });
+
+  it("selects 5-degree tiles across both tile boundaries", async () => {
+    files["manifest.json"] = { version: 1, default_area: "p-x", detections: { available: true, note: "raw", tile_deg: 5 } };
+    (files["areas.json"] as { areas: Array<Record<string, unknown>> }).areas[0].bbox = [-31, -29, -66, -64];
+    files["detections/2020-01/index.json"] = {
+      month: "2020-01", tile_deg: 5,
+      tiles: { "-35_-70": 1, "-35_-65": 1, "-30_-70": 1, "-30_-65": 1, "-25_-60": 1 },
+    };
+    for (const key of ["-35_-70", "-35_-65", "-30_-70", "-30_-65", "-25_-60"])
+      files[`detections/2020-01/${key}.json`] = [];
+    const { c, f } = make();
+    await c.getDetections({ region: "p-x", month: "2020-01", bbox: [-30.2, -29.8, -65.2, -64.8] });
+    const paths = f.mock.calls.map(([u]) => String(u));
+    for (const key of ["-35_-70", "-35_-65", "-30_-70", "-30_-65"])
+      expect(paths.some((path) => path.endsWith(`${key}.json`))).toBe(true);
+    expect(paths.some((path) => path.endsWith("-25_-60.json"))).toBe(false);
+  });
+
 });

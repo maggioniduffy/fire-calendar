@@ -52,7 +52,15 @@ manifest. The API validates the manifest with pydantic and serves only files lis
 ## API
 
 `GET /health` · `GET /layers` · `GET /layers/{id}` · `GET /layers/{id}/data` · `POST /calendar` ·
-`POST /stats` · `POST /export.csv` (phase 3).
+`POST /stats` · `POST /cells` · `POST /detections` · `POST /export.csv` (phase 3).
+
+`/cells` returns positive 0.1° cell counts; `/detections` returns raw FIRMS points and requires a `bbox`. Both
+accept one `month` (`YYYY-MM`), a contiguous `start`/`end` range (`YYYY-MM`), or a season defined by distinct
+`months` (1–12) and a `years` span (`[first, last]`). A season selects those calendar months independently in
+each year, without wrapping across year boundaries. Single-month responses keep their existing shape; range and
+season cell responses sum monthly values, while detections include only dates in the selected months. When a
+range or season has more detections than the response cap, the API samples evenly across the sorted points so
+the full period is represented; month requests retain the existing earliest-points cap.
 
 ## Static publishing
 

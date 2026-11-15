@@ -39,10 +39,12 @@ export interface ExportRequest extends CalendarRequest {
   kind?: "calendar" | "cells" | "detections";
 }
 
-/** Body of POST /cells and /detections: `month` is required, `bbox` is the view window (required by /detections). */
-export interface CellsRequest extends Omit<CalendarRequest, "start" | "end"> {
-  /** "YYYY-MM" */
-  month: string;
+/** Body of POST /cells and /detections: exactly one month, range, or month/year season. */
+export interface CellsRequest extends CalendarRequest {
+  /** Single month "YYYY-MM". */
+  month?: string;
+  months?: number[];
+  years?: [number, number];
   bbox?: BBox;
 }
 
@@ -246,7 +248,9 @@ export interface CellsPayload extends MonthStatus {
   /** Exterior rings [lon, lat] of a polygon area; null for a circle (drawn by the client). */
   outline: number[][][] | null;
   period: { start: string; end: string };
-  month: string;
+  month?: string;
+  months?: number;
+  selection?: { kind: "month"; month: string } | { kind: "range"; start: string; end: string } | { kind: "season"; months: number[]; years: [number, number] };
   scale: ApiScale;
   bbox: BBox | null;
   cells: MapCell[];
@@ -265,11 +269,14 @@ export interface Detection {
 /** POST /detections (404 when the server has no raw detections). */
 export interface DetectionsPayload {
   meta: Meta;
-  month: string;
+  month?: string;
   bbox: BBox | null;
   points: Detection[];
   total: number;
   truncated: boolean;
   max_points: number;
   note: string;
+  period?: { start: string; end: string };
+  selection?: CellsPayload["selection"];
+  sampled?: boolean;
 }

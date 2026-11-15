@@ -18,7 +18,7 @@ Docs: [architecture](docs/architecture.md), [design](docs/design.md), [validatio
 | 1 | FIRMS data: download, filters, grid | [plan/01-data.md](plan/01-data.md) | 0 | active |
 | 2 | MODIS–VIIRS harmonization + ML | [plan/02-harmonization.md](plan/02-harmonization.md) | 1 | done 2026-11-15 (incl. post-MODIS continuity) |
 | 3 | Calendar and per-area analytics | [plan/03-calendar-analytics.md](plan/03-calendar-analytics.md) | 2 | done (backend) |
-| 4 | Web app | [plan/04-web-app.md](plan/04-web-app.md) | 0, 3 | done (backend + web) |
+| 4 | Web app | [plan/04-web-app.md](plan/04-web-app.md) | 0, 3 | done (backend + web; SA4.10–SA4.14 added 2026-11-15) |
 | 5 | ENSO and fire (ENSO-lite only) | [plan/05-enso-drought.md](plan/05-enso-drought.md) | 3, SA0.9 | ENSO-lite done (drought deferred) |
 | 5b | Atmospheric rivers and fire | [plan/05b-atmospheric-rivers.md](plan/05b-atmospheric-rivers.md) | 4 | deferred |
 | 6 | Experimental prediction | [plan/06-ml-outlook.md](plan/06-ml-outlook.md) | 2, 5 | deferred |
@@ -133,3 +133,11 @@ LightGBM (the scale factor stays), NRT.
   unverified (72.1 %). Series to 2026-10 with provisional NRT months and web badges; static export regenerated, not
   deployed. Open: map view does not mark provisional months; calendar rows Nov–Dec sit under the ENSO strip at
   1440x720 (hover blocked, keyboard works); a11y tab-order test flaky (also on the base).
+- 2026-11-15: SA4.10–SA4.14 done (branch `fm/map-ranges-hotspots`). Top bar replaced by a hover header and a settings
+  gear + dialog; flame emblem as favicon and app icon. Calendar Nov–Dec rows no longer under the ENSO strip at
+  1440x720. Map period by month, range or season: `/cells` and `/detections` sum or filter the selected months
+  (detections over the cap are an evenly spaced sample), the static export publishes raw detections in 5° tiles per
+  month, and the UI adds shift-click ranges, a season picker and `?range=`/`?season=`. Full static export measured
+  locally: 963 MB, 10,453 files; detections 442 MB, 6,256 files (2000-11 to 2025-12), largest file 6.4 MB. The
+  Cloudflare Pages per-deployment file limit (20,000) is unverified. Checks: e2e 91/91, backend pytest 409 passed,
+  vitest 108/109 (the static CSV test fails under Node's Blob in jsdom; also failing before this branch).

@@ -72,6 +72,13 @@ export function SelectionProvider({ children, initial = initialSelection }: { ch
     if (loadedEnd && state.month === null) dispatch({ type: "setMonth", month: loadedEnd });
   }, [loadedEnd, state.month]);
 
+  const loadedStart = calendar?.key === calendarKey && "data" in calendar ? calendar.data.period.start : null;
+  useEffect(() => {
+    if (loadedStart && loadedEnd && (state.calendarPeriod?.start !== loadedStart || state.calendarPeriod?.end !== loadedEnd)) {
+      dispatch({ type: "setCalendarPeriod", period: { start: loadedStart, end: loadedEnd } });
+    }
+  }, [loadedStart, loadedEnd, state.calendarPeriod?.start, state.calendarPeriod?.end]);
+
   const value = useMemo<Value>(() => {
     const cal = calendar?.key === calendarKey ? calendar : null;
     const st = stats?.key === statsKey ? stats : null;

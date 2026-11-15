@@ -22,10 +22,10 @@ import pandas as pd
 import pyarrow.parquet as pq
 from pydantic import ValidationError
 
-from firecal.stages.calendar.area import PolygonArea, describe
+from firecal.stages.calendar.area import ARG_BBOX, PolygonArea, describe
 from firecal.stages.calendar.cells import _outline
 from firecal.stages.calendar.climatology import climatology, last_available
-from firecal.stages.calendar.export import calendar_csv
+from firecal.stages.calendar.export import DETECTIONS_NOTE, _detections, calendar_csv
 from firecal.stages.calendar.service import (
     CalendarRequest,
     area_matrix,
@@ -43,6 +43,7 @@ VERSION = 1
 SCALES = ("viirs_eq", "modis_eq")
 DEFAULT_AREA = "p-cordoba"
 SUBTREES = ("calendar", "stats", "export", "areas", "cells")
+DETECTION_SOURCE = "NASA FIRMS (MODIS, VIIRS S-NPP, VIIRS NOAA-20)"
 
 
 class PreloadedStore(SeriesStore):
@@ -216,6 +217,84 @@ def national_cells(store: PreloadedStore, out: Path) -> int:
     return n
 
 
+def national_detections(
+    store: PreloadedStore,
+    out: Path,
+    detections_dir: Path | None = None,
+    years_only: Sequence[int] | None = None,
+    tile_deg: float = 5,
+) -> int:
+    """Write compact, filtered national detections in configurable tiles, one parquet year at a time."""
+    if tile_deg <= 0:
+        raise ValueError("tile_deg must be positive")
+    from firecal.stages.calendar.area import PolygonArea, _normalize
+    from firecal.stages.calendar.export import default_detections_dir
+    from firecal.stages.calendar.service import resolve
+
+    root = Path(detections_dir) if detections_dir is not None else default_detections_dir()
+    files = sorted(root.glob("product=*/year=*/part-0.parquet")) if root.is_dir() else []
+    if not files:
+        return 0
+    # ARG bbox selects national points; `_detections` applies shared FIRMS filters.
+    la0, la1, lo0, lo1 = ARG_BBOX
+    geojson = {
+        "type": "Polygon",
+        "coordinates": [[[lo0, la0], [lo1, la0], [lo1, la1], [lo0, la1], [lo0, la0]]],
+    }
+    area = PolygonArea.model_construct(geojson=geojson)
+    area._polygons = _normalize(geojson)
+    period_start, period_end = store.manifest.period_start.year, store.manifest.period_end.year
+    years = sorted(
+        {
+            int(f.parent.name.split("=")[1])
+            for f in files
+            if period_start <= int(f.parent.name.split("=")[1]) <= period_end
+            and (years_only is None or int(f.parent.name.split("=")[1]) in years_only)
+        }
+    )
+    written = 0
+    for year in years:
+        r = resolve(
+            store, CalendarRequest.model_construct(area=area, start=f"{year:04d}-01", end=f"{year:04d}-12")
+        )
+        df = _detections(r, root)
+        for month, group in df.groupby(pd.to_datetime(df["acq_date"]).dt.strftime("%Y-%m"), sort=True):
+            points: dict[str, list[list]] = {}
+            d = group.copy()
+            d["lat0"] = np.floor(d["latitude"] / tile_deg) * tile_deg
+            d["lon0"] = np.floor(d["longitude"] / tile_deg) * tile_deg
+            d = d.sort_values(["acq_datetime", "sensor", "latitude", "longitude"])
+            for row in d.itertuples(index=False):
+                key = f"{row.lat0:g}_{row.lon0:g}"
+                points.setdefault(key, []).append(
+                    [
+                        round(float(row.latitude), 4),
+                        round(float(row.longitude), 4),
+                        str(row.acq_date),
+                        row.acq_datetime.strftime("%H%M"),
+                        str(row.sensor),
+                        None if pd.isna(row.frp) else float(row.frp),
+                        None if pd.isna(row.daynight) else str(row.daynight),
+                        (
+                            str(row.confidence_class)
+                            if not pd.isna(row.confidence_class)
+                            else None
+                            if pd.isna(row.confidence_pct)
+                            else float(row.confidence_pct)
+                        ),
+                    ]
+                )
+            tiles = {k: len(v) for k, v in sorted(points.items())}
+            for key, rows in points.items():
+                write_atomic(out / "detections" / month / f"{key}.json", dumps(rows))
+            write_atomic(
+                out / "detections" / month / "index.json",
+                dumps({"month": month, "tile_deg": tile_deg, "tiles": tiles}),
+            )
+            written += 1
+    return written
+
+
 def _month_status(cov: pd.DataFrame, y: int, mo: int) -> dict:
     """Additive status of a month (see `SeriesStore.coverage`): provisional, source_level, modis_drift."""
     if (y, mo) not in cov.index:
@@ -270,6 +349,9 @@ def export_static(
     pre_skipped: Sequence[dict] = (),
     notes: dict | None = None,
     generated_at: datetime | None = None,
+    include_detections: bool = True,
+    detections_dir: Path | None = None,
+    detections_tile_deg: float = 5,
 ) -> Summary:
     """Write the static tree under `out`. `only` restricts the areas (manifest and areas.json list those)."""
     global _STATE
@@ -298,6 +380,11 @@ def export_static(
     )
     write_atomic(out / "areas.json", dumps({"areas": done}))
     n_cells_files = national_cells(store, out)
+    n_detection_months = (
+        national_detections(store, out, detections_dir, tile_deg=detections_tile_deg)
+        if include_detections
+        else 0
+    )
     if only is None:
         _prune(out, {r["id"] for r in done})
     meta = store.meta()
@@ -317,6 +404,14 @@ def export_static(
         "enso": enso is not None,
         "n_areas": len(done),
         "n_cells_files": n_cells_files,
+        "detections": {
+            "available": n_detection_months > 0,
+            "fields": ["lat", "lon", "acq_date", "acq_time", "sensor", "frp", "daynight", "confidence"],
+            "tile_deg": detections_tile_deg,
+            "months": n_detection_months,
+            "source": DETECTION_SOURCE,
+            "note": DETECTIONS_NOTE,
+        },
         "partial": only is not None,
         **(notes or {}),
     }  # fmt: skip

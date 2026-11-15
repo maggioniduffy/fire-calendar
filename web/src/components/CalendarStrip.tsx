@@ -119,7 +119,7 @@ export function CalendarStrip() {
         </div>
         <div className="cal-main">
           {grid && grid.years.length > 0 && (
-            <CalendarGrid grid={grid} mode={mode} scale={calendar.scale} enso={calendar.enso} selected={selected} onSelect={(month) => dispatch({ type: "setMonth", month })} />
+            <CalendarGrid grid={grid} mode={mode} scale={calendar.scale} enso={calendar.enso} selected={selected} mapPeriod={state.mapPeriod} onSelect={(month) => { dispatch({ type: "setMonth", month }); dispatch({ type: "setMapMonth" }); }} onRange={(start, end) => dispatch({ type: "setMapRange", start, end })} />
           )}
           <EnsoLegend enso={calendar.enso} />
         </div>

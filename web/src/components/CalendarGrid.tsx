@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import type { EnsoBlock } from "../api/types";
+import type { MapPeriod } from "../state/selection";
 import { divergingColor, sequentialColor } from "../charts/scales";
 import { format } from "../i18n";
 import { statusView } from "../state/monthStatus";
@@ -19,6 +20,8 @@ interface Props {
   /** Chosen month "YYYY-MM" (already defaulted to the latest with data). */
   selected: string | null;
   onSelect: (ym: string) => void;
+  mapPeriod?: MapPeriod;
+  onRange?: (start: string, end: string) => void;
 }
 
 interface Tip {
@@ -38,7 +41,7 @@ export function monthName(lang: string, month: number, style: "long" | "narrow" 
   return new Intl.DateTimeFormat(lang, { month: style, timeZone: "UTC" }).format(new Date(Date.UTC(2001, month - 1, 1)));
 }
 
-export function CalendarGrid({ grid, mode, scale, enso, selected, onSelect }: Props) {
+export function CalendarGrid({ grid, mode, scale, enso, selected, onSelect, mapPeriod, onRange }: Props) {
   const t = useT();
   const { theme, lang } = usePrefs();
   const wrap = useRef<HTMLDivElement>(null);
@@ -79,6 +82,7 @@ export function CalendarGrid({ grid, mode, scale, enso, selected, onSelect }: Pr
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>, c: CalendarCell) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
+      if (e.key === "Enter" && e.shiftKey && selected && onRange) { onRange(selected, c.ym); return; }
       if (c.value !== null) onSelect(c.ym);
       return;
     }
@@ -126,16 +130,19 @@ export function CalendarGrid({ grid, mode, scale, enso, selected, onSelect }: Pr
               const c = cellAt(grid, ymKey(year, mi + 1));
               const color = colorOf(c);
               const isSel = c.ym === selected;
+              const rangeSelected = mapPeriod?.kind === "range" && c.ym >= mapPeriod.start && c.ym <= mapPeriod.end;
+              const seasonSelected = mapPeriod?.kind === "season" && mapPeriod.years[0] <= c.year && c.year <= mapPeriod.years[1] && mapPeriod.months.includes(c.month);
+              const isPeriodSelected = rangeSelected || seasonSelected;
               const prov = c.value !== null && c.statusInfo.provisional === true;
               const style: CSSProperties | undefined = color ? { backgroundColor: color } : undefined;
               return (
                 <div
                   key={c.ym}
                   role="gridcell"
-                  className={`cal-cell${color ? "" : " nodata"}${isSel ? " chosen" : ""}${prov ? " provisional" : ""}`}
+                  className={`cal-cell${color ? "" : " nodata"}${isSel ? " chosen" : ""}${isPeriodSelected ? " period-selected" : ""}${prov ? " provisional" : ""}`}
                   style={style}
                   tabIndex={c.ym === roving ? 0 : -1}
-                  aria-selected={isSel}
+                  aria-selected={isSel || isPeriodSelected}
                   aria-label={
                     c.value === null
                       ? format(t.calendar.cellLabelNone, { month: label(c) })
@@ -149,7 +156,7 @@ export function CalendarGrid({ grid, mode, scale, enso, selected, onSelect }: Pr
                   data-color={color ?? ""}
                   data-status={c.status}
                   data-provisional={prov}
-                  onClick={() => c.value !== null && onSelect(c.ym)}
+                  onClick={(e) => { if (c.value === null) return; if (e.shiftKey && selected && onRange) onRange(selected, c.ym); else onSelect(c.ym); }}
                   onKeyDown={(e) => onKeyDown(e, c)}
                   onMouseEnter={(e) => show(e.currentTarget, c.ym)}
                   onFocus={(e) => {

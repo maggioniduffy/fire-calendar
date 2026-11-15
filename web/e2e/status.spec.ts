@@ -1,4 +1,4 @@
-import { expect, test } from "./api";
+import { expect, setPreference, test } from "./api";
 
 // SYNTHETIC fixtures (backend/scripts/web_fixtures.py): 2016-11 and 2016-12 are provisional (NRT), every month of
 // 2016 is flagged MODIS drift, earlier months are standard country SP. Nothing here is real data.
@@ -43,7 +43,7 @@ for (const lang of ["es", "en"] as const) {
   test.describe(`status badges (${lang})`, () => {
     const x = TEXT[lang];
     test.beforeEach(async ({ page }) => {
-      if (lang === "en") await page.getByTestId("lang-en").click();
+      if (lang === "en") await setPreference(page, "lang-en");
     });
 
     test("calendar: provisional cell is marked, its tooltip and the legend say so; a standard month does not", async ({ page }) => {
