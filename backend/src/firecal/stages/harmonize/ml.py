@@ -36,6 +36,7 @@ from firecal.stages.harmonize.intervals import collect_residuals, conformal_from
 from firecal.stages.harmonize.ml_features import (
     BASE_FEATURES,
     BLOCK_FEATURES,
+    BURNED_FEATURES,
     LATLON_FEATURES,
     TA_FEATURES,
     RowSet,
@@ -256,10 +257,10 @@ class MLPrep:
     block: RowSet
 
 
-def prepare(cube: Cube, long: pd.DataFrame, pair_name: str) -> MLPrep:
+def prepare(cube: Cube, long: pd.DataFrame, pair_name: str, burned: pd.DataFrame | None = None) -> MLPrep:
     pair = PAIRS[pair_name]
     d = pair_data(cube, pair)
-    cells = build_cell_rows(long, d.ym, cube.blocks, pair.src, pair.tgt, d.src)
+    cells = build_cell_rows(long, d.ym, cube.blocks, pair.src, pair.tgt, d.src, burned=burned)
     return MLPrep(pair_name, d, cells, build_block_rows(d.src, d.tgt, d.month_idx, cells))
 
 
@@ -302,16 +303,20 @@ def run_ml_cv(
     with_intervals: bool = True,
     only_years: set[int] | None = None,
     log=None,
+    burned: bool = False,
+    cell_only: bool = False,
 ) -> tuple[list[FoldOut], list[FoldDiag]]:
     """Cell and block candidates (+ablations, + zero-tree checks) for every fold of `scheme`.
 
     Folds whose training set is too short for an inner leave-one-year-out are skipped (none in `loyo`).
     Ablations reuse the configuration chosen for the main cell model of the same outer fold.
+    SA2.9: `burned` adds `BURNED_FEATURES` to the cell model (the rows must have been built with `burned`);
+    `cell_only` skips the block-month model (its results would not change).
     """
     d, pair = prep.d, prep.pair
     src_tot, tgt_tot = d.src.sum(axis=-1), d.tgt.sum(axis=-1)
     folds, diags = [], []
-    base = BASE_FEATURES
+    base = BASE_FEATURES + (BURNED_FEATURES if burned else ())
     ta = BASE_FEATURES + TA_FEATURES
     ll = BASE_FEATURES + LATLON_FEATURES
     has_ta = bool(set(PAIRS[pair].src) & {"terra", "aqua"})
@@ -323,8 +328,8 @@ def run_ml_cv(
         k, _ = select_k(d.src, d.tgt, d.dates, d.month_idx, tr, K_GRID, GAP_MONTHS)
         common = dict(pair=pair, scheme=scheme, test_year=fold.test_year, ym=d.ym[te], obs=tgt_tot[te])
         sel_c = select_config(prep.cells, base, cell_grid, d, k, tr)
-        sel_b = select_config(prep.block, BLOCK_FEATURES, block_grid, d, k, tr)
-        if sel_c is None or sel_b is None:
+        sel_b = None if cell_only else select_config(prep.block, BLOCK_FEATURES, block_grid, d, k, tr)
+        if sel_c is None or (sel_b is None and not cell_only):
             if log:
                 log(f"  {pair} {scheme} {fold.test_year}: skipped (training too short for inner folds)")
             continue
@@ -338,14 +343,15 @@ def run_ml_cv(
             fold.test_year,
             sel_c.cfg.name,
             sel_c.iters,
-            sel_b.cfg.name,
-            sel_b.iters,
+            "" if cell_only else sel_b.cfg.name,
+            0 if cell_only else sel_b.iters,
             0.0,
             dict(zip(base, (gain / gain.sum()).tolist() if gain.sum() > 0 else gain.tolist(), strict=True)),
         )
-        out["lgb_block"], out["zero_block"], _ = fit_final(
-            prep.block, BLOCK_FEATURES, sel_b.cfg, sel_b.iters, d, k, tr, te
-        )
+        if not cell_only:
+            out["lgb_block"], out["zero_block"], _ = fit_final(
+                prep.block, BLOCK_FEATURES, sel_b.cfg, sel_b.iters, d, k, tr, te
+            )
         if ablations:
             if has_ta:
                 out["lgb_cell_ta"], _, _ = fit_final(prep.cells, ta, sel_c.cfg, sel_c.iters, d, k, tr, te)
@@ -364,7 +370,7 @@ def run_ml_cv(
         if log:
             log(
                 f"  {pair} {scheme} {fold.test_year}: cell {sel_c.cfg.name}/{sel_c.iters} "
-                f"block {sel_b.cfg.name}/{sel_b.iters} {diag.seconds:.0f} s"
+                f"block {'-' if cell_only else f'{sel_b.cfg.name}/{sel_b.iters}'} {diag.seconds:.0f} s"
             )
     return folds, diags
 
@@ -386,9 +392,21 @@ class MLResult:
 _SHARED: dict = {}
 
 
-def run_ml_pair(cube: Cube, long: pd.DataFrame, pair_name: str, log=None, ablations: bool = True):
-    """Both schemes of one direction: (folds by scheme, diagnostics, row metadata)."""
-    prep = prepare(cube, long, pair_name)
+def run_ml_pair(
+    cube: Cube,
+    long: pd.DataFrame,
+    pair_name: str,
+    log=None,
+    ablations: bool = True,
+    burned: pd.DataFrame | None = None,
+    use_burned: bool = False,
+    cell_only: bool = False,
+):
+    """Both schemes of one direction: (folds by scheme, diagnostics, row metadata).
+
+    SA2.9: with `burned` the cell rows carry the burned-area columns; `use_burned` makes the model use them.
+    """
+    prep = prepare(cube, long, pair_name, burned=burned)
     meta = {
         "cell_rows": int(len(prep.cells.y)),
         "block_rows": int(len(prep.block.y)),
@@ -396,9 +414,23 @@ def run_ml_pair(cube: Cube, long: pd.DataFrame, pair_name: str, log=None, ablati
         if prep.cells.target_total > 0
         else float("nan"),
     }
+    if burned is not None:
+        in_pair = burned[burned["ym"].isin({int(v) for v in prep.d.ym})]
+        day = prep.cells.dn == 0  # one of the two (day, night) rows of each candidate cell-month
+        meta["burned_km2_total"] = float(in_pair["burned_km2"].sum())
+        meta["burned_km2_in_rows"] = float(
+            prep.cells.X[day, prep.cells.names.index("ba_cell")].astype(np.float64).sum()
+        )
     folds, diags = {}, []
     for scheme in ("loyo", "rolling"):
-        f, dg = run_ml_cv(prep, scheme, ablations=ablations and scheme == "loyo", log=log)
+        f, dg = run_ml_cv(
+            prep,
+            scheme,
+            ablations=ablations and scheme == "loyo",
+            log=log,
+            burned=use_burned,
+            cell_only=cell_only,
+        )
         folds[pair_name, scheme] = f
         diags += dg
     return folds, diags, meta
@@ -406,7 +438,9 @@ def run_ml_pair(cube: Cube, long: pd.DataFrame, pair_name: str, log=None, ablati
 
 def _worker(pair_name: str):
     cube, long = _SHARED["cube"], _SHARED["long"]
-    return pair_name, *run_ml_pair(cube, long, pair_name, log=lambda m: print(m, flush=True))
+    return pair_name, *run_ml_pair(
+        cube, long, pair_name, log=lambda m: print(m, flush=True), **_SHARED.get("opts", {})
+    )
 
 
 def _pss_mb(pid: int) -> float:
@@ -420,8 +454,18 @@ def _pss_mb(pid: int) -> float:
     return 0.0
 
 
-def run_ml(cube: Cube, long: pd.DataFrame, n_jobs: int = 2, log=print) -> MLResult:
-    """Run SA2.4 (viirs_to_modis) and SA2.7 (modis_to_viirs); `n_jobs` = 2 runs one process per direction."""
+def run_ml(
+    cube: Cube,
+    long: pd.DataFrame,
+    n_jobs: int = 2,
+    log=print,
+    pairs: tuple[str, ...] = MAIN_PAIRS,
+    **pair_opts,
+) -> MLResult:
+    """Run SA2.4 (viirs_to_modis) and SA2.7 (modis_to_viirs); `n_jobs` = 2 runs one process per direction.
+
+    `pairs` restricts the directions; `pair_opts` (burned, use_burned, ...) go to `run_ml_pair`.
+    """
     import os
     import threading
 
@@ -440,15 +484,15 @@ def run_ml(cube: Cube, long: pd.DataFrame, n_jobs: int = 2, log=print) -> MLResu
     folds, diags, meta = {}, [], {}
     try:
         if n_jobs > 1:
-            _SHARED.update(cube=cube, long=long)
-            with ProcessPoolExecutor(len(MAIN_PAIRS), mp_context=mp.get_context("fork")) as ex:
-                for pair, f, dg, m in ex.map(_worker, MAIN_PAIRS):
+            _SHARED.update(cube=cube, long=long, opts=pair_opts)
+            with ProcessPoolExecutor(len(pairs), mp_context=mp.get_context("fork")) as ex:
+                for pair, f, dg, m in ex.map(_worker, pairs):
                     folds.update(f)
                     diags += dg
                     meta[pair] = m
         else:
-            for pair in MAIN_PAIRS:
-                f, dg, m = run_ml_pair(cube, long, pair, log=log)
+            for pair in pairs:
+                f, dg, m = run_ml_pair(cube, long, pair, log=log, **pair_opts)
                 folds.update(f)
                 diags += dg
                 meta[pair] = m

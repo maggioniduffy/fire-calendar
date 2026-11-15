@@ -12,7 +12,9 @@ Features (all from the source sensor(s), known at prediction time):
     n3 (source count in the 3x3 cells, same month and day/night, centre included), block_src (source total of
     the 2.5 degree block-month, both day/night), month (calendar, 1-12);
     Terra/Aqua variant (MODIS source only): terra_cnt, aqua_cnt, terra_frp, aqua_frp, terra_share;
-    lat/lon ablation: cell_lat, cell_lon.
+    lat/lon ablation: cell_lat, cell_lon;
+    SA2.9 (only when `burned` is given): ba_cell, ba_n3 = MCD64A1 burned km2 in the cell and in the 3x3 cells,
+    same calendar month (independent of the sensors; cell-months without a granule count as 0).
 The offset base `s_off` is the source count of the row, or the 3x3 mean (n3 / 9) when the row has no source.
 """
 
@@ -40,6 +42,8 @@ BASE_FEATURES = (
 )
 TA_FEATURES = ("terra_cnt", "aqua_cnt", "terra_frp", "aqua_frp", "terra_share")
 LATLON_FEATURES = ("cell_lat", "cell_lon")
+# SA2.9, off by default: MCD64A1 burned area (km2) in the cell and in its 3x3 neighbourhood, same month.
+BURNED_FEATURES = ("ba_cell", "ba_n3")
 BLOCK_FEATURES = (
     "src_cnt",
     "src_frp",
@@ -123,6 +127,27 @@ def _safe_div(a: np.ndarray, b: np.ndarray) -> np.ndarray:
     return out
 
 
+def _burned_columns(
+    burned: pd.DataFrame, pos_of: dict, mi: np.ndarray, cr: np.ndarray, cc: np.ndarray, nrows: int, ncols: int
+) -> dict[str, np.ndarray]:
+    """Burned km2 in each row's cell and 3x3 neighbourhood for the row's month (0 where nothing is burned)."""
+    b = burned[burned["ym"].isin(list(pos_of))]
+    pos = np.array([pos_of[int(v)] for v in b["ym"].to_numpy()], dtype=np.int64)
+    r, c = np.divmod(b["cell_id"].to_numpy().astype(np.int64), ncols)
+    key = (pos * nrows + r) * ncols + c
+    w = pd.Series(b["burned_km2"].to_numpy(dtype=float)).groupby(key).sum().sort_index()
+    bk, bv = w.index.to_numpy(), w.to_numpy()
+    own = _lookup(bk, bv, (mi * nrows + cr) * ncols + cc)
+    n3 = np.zeros(len(mi))
+    for dr in (-1, 0, 1):
+        for dc in (-1, 0, 1):
+            r2, c2 = cr + dr, cc + dc
+            ok = (r2 >= 0) & (r2 < nrows) & (c2 >= 0) & (c2 < ncols)
+            q = (mi * nrows + r2) * ncols + c2
+            n3 += np.where(ok, _lookup(bk, bv, np.where(ok, q, -1)), 0.0)
+    return {"ba_cell": own, "ba_n3": n3}
+
+
 def build_cell_rows(
     long: pd.DataFrame,
     ym: np.ndarray,
@@ -131,11 +156,14 @@ def build_cell_rows(
     tgt_sats: tuple[str, ...],
     src_dense: np.ndarray,
     res: float = 0.1,
+    burned: pd.DataFrame | None = None,
 ) -> RowSet:
     """Candidate cell rows with every feature column (base, Terra/Aqua, lat/lon) and the target.
 
     `ym` are the pair's months (sorted); `src_dense` is the (months, blocks, 2) source count. Months of `long`
-    outside `ym` are dropped.
+    outside `ym` are dropped. `burned` (SA2.9, columns cell_id, ym, burned_km2) adds the `BURNED_FEATURES`
+    columns at the end; without it the output is exactly what it was before SA2.9. The candidate rows do not
+    change with it.
     """
     nrows, ncols = grid_shape(res)
     pos_of = {int(v): i for i, v in enumerate(ym)}
@@ -221,6 +249,8 @@ def build_cell_rows(
         "cell_lat": lat2,
         "cell_lon": lon2,
     }
+    if burned is not None:
+        cols.update(_burned_columns(burned, pos_of, mi, cr2, cc2, nrows, ncols))
     names = tuple(cols)
     X = np.column_stack([cols[k] for k in names]).astype(np.float32)
     # Smoothed source: own count, or the 3x3 mean for rows without source; rescaled inside each block-month x
