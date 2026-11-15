@@ -106,6 +106,7 @@ const en: Messages = {
       title: "Seasonality",
       median: "Median",
       range: "p10–p90",
+      normal: "Normal (p25–p75)",
       latest: "Year {year}",
       note: "Climatology {y0}–{y1}; quantile method: {method}.",
     },

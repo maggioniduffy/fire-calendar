@@ -105,6 +105,7 @@ const es = {
       title: "Estacionalidad",
       median: "Mediana",
       range: "p10–p90",
+      normal: "Normal (p25–p75)",
       latest: "Año {year}",
       note: "Climatología {y0}–{y1}; método de cuantiles: {method}.",
     },

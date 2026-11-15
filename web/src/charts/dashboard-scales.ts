@@ -115,13 +115,15 @@ export interface SeasonPoint {
   month: number;
   median: number | null;
   p10: number | null;
+  p25: number | null;
+  p75: number | null;
   p90: number | null;
   nYears: number;
   /** Value of the latest year in the series for this calendar month (null = not observed). */
   latest: number | null;
 }
 
-/** Climatology per calendar month (median, p10, p90: the only quantiles the payload has) plus the latest year. */
+/** Climatology per calendar month (median, p10, p25, p75, p90) plus the latest year. */
 export function seasonality(cal: CalendarPayload, stats: StatsPayload): { latestYear: number | null; points: SeasonPoint[] } {
   const series = monthlySeries(cal);
   const latestYear = series.length ? Math.max(...series.map((p) => p.year)) : null;
@@ -133,6 +135,8 @@ export function seasonality(cal: CalendarPayload, stats: StatsPayload): { latest
       month,
       median: c?.median ?? null,
       p10: c?.p10 ?? null,
+      p25: c?.p25 ?? null,
+      p75: c?.p75 ?? null,
       p90: c?.p90 ?? null,
       nYears: c?.n_years ?? 0,
       latest: series.find((p) => p.year === latestYear && p.month === month)?.value ?? null,

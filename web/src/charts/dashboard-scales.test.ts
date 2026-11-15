@@ -52,6 +52,11 @@ describe("aggregations (synthetic Córdoba fixture)", () => {
     expect(points).toHaveLength(12);
     expect(points[11].latest).toBe(stats.anomaly.value); // December 2016 is the reference month
     expect(points[8].median).toBe(stats.key_figures.peak_calendar_month!.median);
+    for (const p of points) {
+      const c = stats.climatology.months.find((m) => m.month === p.month)!;
+      expect([p.p10, p.p25, p.median, p.p75, p.p90]).toEqual([c.p10, c.p25, c.median, c.p75, c.p90]);
+      expect(p.p10! <= p.p25! && p.p25! <= p.median! && p.median! <= p.p75! && p.p75! <= p.p90!).toBe(true);
+    }
   });
   it("anomaly is value minus the median of the calendar month", () => {
     const a = anomalies(cal, stats);

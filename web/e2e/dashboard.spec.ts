@@ -34,6 +34,21 @@ test("charts render and the total equals the key figure and the sum of the month
   await expect(page.getByTestId("chart-frp")).toHaveCount(0);
 });
 
+test("seasonality draws the wide p10-p90 band and the narrower normal band p25-p75", async ({ page }) => {
+  const svg = page.getByTestId("season-svg");
+  await expect(svg.locator(".d-band-range")).toBeAttached();
+  await expect(svg.locator(".d-band-normal")).toBeAttached();
+  // Normal sits inside the wide band: its path is drawn after it (on top) and its box is not taller.
+  const box = (sel: string) => svg.locator(sel).evaluate((el) => (el as SVGPathElement).getBBox().height);
+  expect(await box(".d-band-normal")).toBeLessThan(await box(".d-band-range"));
+  await expect(page.getByTestId("chart-season").locator(".dash-legend")).toContainText("p25\u2013p75");
+  // Readout of a hovered month names both ranges, from the fixture.
+  const sep = stats.climatology.months.find((m: { month: number }) => m.month === 9);
+  await svg.locator('[data-month="9"]').hover();
+  const f = (v: number) => v.toLocaleString("es", { maximumFractionDigits: 1 });
+  await expect(page.getByTestId("chart-season")).toContainText(`${f(sep.p25)}\u2013${f(sep.p75)}`);
+});
+
 test("CSV export: header and plotted rows", async ({ page }) => {
   const downloadCsv = async (id: string) => {
     const [download] = await Promise.all([page.waitForEvent("download"), page.getByTestId(`chart-${id}-csv`).click()]);
@@ -53,8 +68,10 @@ test("CSV export: header and plotted rows", async ({ page }) => {
   expect(yearSum).toBeCloseTo(total, 6);
 
   const season = (await downloadCsv("season")).trimEnd().split("\r\n");
-  expect(season[0]).toBe("month,median,p10,p90,n_years,latest_year,latest_value");
+  expect(season[0]).toBe("month,median,p10,p25,p75,p90,n_years,latest_year,latest_value");
   expect(season).toHaveLength(13);
+  const sep = stats.climatology.months.find((m: { month: number }) => m.month === 9);
+  expect(season[9].split(",").slice(0, 6)).toEqual([9, sep.median, sep.p10, sep.p25, sep.p75, sep.p90].map(String));
 
   const anomaly = (await downloadCsv("anomaly")).trimEnd().split("\r\n");
   expect(anomaly[0]).toBe("month,value,median,anomaly");

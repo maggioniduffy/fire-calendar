@@ -24,15 +24,15 @@ export function SeasonChart({ cal, stats, source, pending }: { cal: CalendarPayl
   const latestLabel = latestYear === null ? "" : format(d.latest, { year: latestYear });
 
   const csv = {
-    header: ["month", "median", "p10", "p90", "n_years", "latest_year", "latest_value"],
-    rows: points.map((p) => [p.month, p.median, p.p10, p.p90, p.nYears, latestYear, p.latest]),
+    header: ["month", "median", "p10", "p25", "p75", "p90", "n_years", "latest_year", "latest_value"],
+    rows: points.map((p) => [p.month, p.median, p.p10, p.p25, p.p75, p.p90, p.nYears, latestYear, p.latest]),
   };
   // A month of the latest year the user hovers/selected elsewhere maps to its calendar month here.
   const focus = link.hover ? link.hover.month : (link.selected?.month ?? null);
   const shown = points.find((p) => p.month === focus);
   const readout = shown ? (
     <>
-      {monthName(shown.month)} · {d.median} {fmt(shown.median)} ({d.range} {fmt(shown.p10)}–{fmt(shown.p90)})
+      {monthName(shown.month)} · {d.median} {fmt(shown.median)} ({d.range} {fmt(shown.p10)}–{fmt(shown.p90)}; {d.normal} {fmt(shown.p25)}–{fmt(shown.p75)})
       {shown.latest !== null ? ` · ${latestLabel} ${fmt(shown.latest)}` : ""}
     </>
   ) : undefined;
@@ -49,6 +49,7 @@ export function SeasonChart({ cal, stats, source, pending }: { cal: CalendarPayl
         <Legend
           items={[
             { label: d.range, swatch: "sw-range" },
+            { label: d.normal, swatch: "sw-normal" },
             { label: d.median, swatch: "sw-median" },
             ...(latestYear !== null ? [{ label: latestLabel, swatch: "sw-latest" }] : []),
           ]}
@@ -63,9 +64,10 @@ export function SeasonChart({ cal, stats, source, pending }: { cal: CalendarPayl
       {(width) => {
         const H = CHART_HEIGHT;
         const x = linear([1, 12], [MARGIN.l + 12, width - MARGIN.r - 12]);
-        const ymax = niceMax(Math.max(1, ...points.flatMap((p) => [p.p90, p.median, p.latest]).map((v) => v ?? 0)));
+        const ymax = niceMax(Math.max(1, ...points.flatMap((p) => [p.p90, p.p75, p.median, p.latest]).map((v) => v ?? 0)));
         const y = linear([0, ymax], [H - MARGIN.b, MARGIN.t]);
         const ranged = points.filter((p) => p.p10 !== null && p.p90 !== null);
+        const normal = points.filter((p) => p.p25 !== null && p.p75 !== null);
         const step = (width - MARGIN.l - MARGIN.r) / 12;
         const select = (month: number) => {
           // Seasonality has no year of its own: choose that month of the latest year when it has a value.
@@ -82,6 +84,13 @@ export function SeasonChart({ cal, stats, source, pending }: { cal: CalendarPayl
               d={bandPath(
                 ranged.map((p) => ({ x: x(p.month), y: y(p.p90!) })),
                 ranged.map((p) => ({ x: x(p.month), y: y(p.p10!) })),
+              )}
+            />
+            <path
+              className="d-band-normal"
+              d={bandPath(
+                normal.map((p) => ({ x: x(p.month), y: y(p.p75!) })),
+                normal.map((p) => ({ x: x(p.month), y: y(p.p25!) })),
               )}
             />
             {linePaths(points.map((p) => (p.median === null ? null : { x: x(p.month), y: y(p.median) }))).map((dd, i) => (

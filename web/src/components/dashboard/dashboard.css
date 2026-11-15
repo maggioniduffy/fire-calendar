@@ -158,6 +158,11 @@
 
 .d-band-range {
   fill: var(--secondary);
+  fill-opacity: 0.25;
+}
+
+.d-band-normal {
+  fill: var(--secondary);
   fill-opacity: 0.55;
 }
 
@@ -277,6 +282,10 @@
   fill-opacity: 0.5;
 }
 .sw-range {
+  fill: var(--secondary);
+  fill-opacity: 0.25;
+}
+.sw-normal {
   fill: var(--secondary);
   fill-opacity: 0.55;
 }

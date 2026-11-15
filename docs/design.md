@@ -67,8 +67,9 @@ Dashboard shows the selected area as a grid of chart cards on `--raised`, built 
   VIIRS-eq / MODIS-eq months are estimated from the other sensor.
 - Harmonized monthly series with its uncertainty band (always labelled "unverified" for arbitrary areas) and the
   per-sensor reported series; estimated months are dashed. Total per year (partial years drawn lighter).
-  Seasonality: median and p10-p90 per calendar month (the only quantiles the payload has) with the latest year on top
-  in `--accent` with a `--casing` outline. Monthly anomaly: value minus the median of that calendar month, diverging
+  Seasonality: the p10–p90 range (wide, light) and the "normal" band p25–p75 (narrower, on top; `--secondary` at 0.55
+  opacity) per calendar month, the median line above them and the latest year on top in `--accent` with a `--casing`
+  outline. Monthly anomaly: value minus the median of that calendar month, diverging
   blue (below) / orange (above) around a neutral zero line.
 - Each card: title, source and period line (from `meta`), a legend, a one-line readout of the hovered or selected
   month, and `CSV` / `PNG` buttons (the CSV holds exactly the plotted rows).
