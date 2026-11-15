@@ -1,4 +1,4 @@
-import type { CalendarPayload, EqStatus, StatsPayload } from "../api/types";
+import type { CalendarPayload, EnsoBlock, EnsoPhase, EqStatus, StatsPayload } from "../api/types";
 import { anomalyRatio } from "../charts/scales";
 
 export interface CalendarCell {
@@ -113,4 +113,27 @@ export function neighbour(grid: CalendarGrid, ym: string, key: string): string |
   }
   if (year < first || year > last) return null;
   return ymKey(year, month);
+}
+
+export interface EnsoMonth {
+  /** "YYYY-MM" */
+  ym: string;
+  oni: number | null;
+  /** null when the month has no ONI value (drawn hatched, like a no-data cell). */
+  phase: EnsoPhase | null;
+}
+
+/** ONI and phase by "YYYY-MM" from the payload's `enso` block; empty when the block is null. */
+export function ensoIndex(enso: EnsoBlock | null): Map<string, EnsoMonth> {
+  const out = new Map<string, EnsoMonth>();
+  for (const m of enso?.months ?? []) {
+    const oni = typeof m.oni === "number" && Number.isFinite(m.oni) ? m.oni : null;
+    out.set(m.ym, { ym: m.ym, oni, phase: oni === null ? null : m.phase });
+  }
+  return out;
+}
+
+/** ENSO month for "YYYY-MM"; a month the block does not hold has no ONI and no phase. */
+export function ensoAt(index: Map<string, EnsoMonth>, ym: string): EnsoMonth {
+  return index.get(ym) ?? { ym, oni: null, phase: null };
 }

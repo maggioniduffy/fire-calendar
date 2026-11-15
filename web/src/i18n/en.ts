@@ -110,6 +110,12 @@ const en: Messages = {
       normal: "Normal (p25–p75)",
       latest: "Year {year}",
       note: "Climatology {y0}–{y1}; quantile method: {method}.",
+      ensoToggle: "By ENSO phase",
+      ensoLabel: "Seasonality by ENSO phase",
+      ensoFew: "few years",
+      ensoFewPoint: "{phase}, month {month}: few years (n = {n})",
+      ensoPoint: "{phase} · median {median} · {n} years",
+      ensoNote: "Median per calendar month over the years of each ENSO phase ({source}); association, not cause. Hollow points have fewer than 3 years: few years.",
     },
     anomaly: {
       title: "Monthly anomaly",
@@ -179,6 +185,19 @@ const en: Messages = {
     above: "More",
     cellLabel: "{month}: {count} hot spots",
     cellLabelNone: "{month}: no data",
+    enso: {
+      title: "ENSO",
+      strip: "ENSO phase by month and year (ONI, {source})",
+      seg: "{month}: ONI {oni} · {phase} · Source: {source} · period {start}–{end}",
+      segNone: "{month}: no ONI value · Source: {source} · period {start}–{end}",
+      nino: "El Niño",
+      nina: "La Niña",
+      neutral: "Neutral",
+      legend: "ENSO phase",
+      src: "Source: {source} · period {start}–{end}",
+      missing: "ENSO unavailable",
+      noOni: "No ONI",
+    },
   },
 };
 

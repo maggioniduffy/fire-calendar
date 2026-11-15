@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import type { CalendarPayload } from "../api/types";
 import { divergingGradient, sequentialGradient } from "../charts/scales";
 import { format } from "../i18n";
 import { usePrefs, useT } from "../state/prefs";
@@ -6,6 +7,40 @@ import { useSelection } from "../state/SelectionContext";
 import { CalendarGrid, monthName, type CalendarMode } from "./CalendarGrid";
 import { buildGrid } from "./calendarModel";
 import "./Calendar.css";
+
+function EnsoLegend({ enso }: { enso: CalendarPayload["enso"] }) {
+  const t = useT();
+  const { lang } = usePrefs();
+  const e = t.calendar.enso;
+  if (!enso) {
+    return (
+      <p className="enso-missing muted" data-testid="enso-missing">
+        {e.missing}
+      </p>
+    );
+  }
+  return (
+    <div className="cal-legend enso-legend" data-testid="enso-legend">
+      <span className="cal-legend-title">{e.legend}</span>
+      <ul className="enso-swatches">
+        {(["nino", "nina", "neutral"] as const).map((p) => (
+          <li key={p}>
+            <span className="cal-swatch enso-sw" data-phase={p} aria-hidden="true" /> {e[p]}
+          </li>
+        ))}
+        <li>
+          <span className="cal-swatch nodata" aria-hidden="true" /> {e.noOni}
+        </li>
+      </ul>
+      <span className="muted num" data-testid="enso-source">
+        {format(e.src, { source: enso.source, start: enso.period.start, end: enso.period.end })}
+      </span>
+      <span className="muted" data-testid="enso-note">
+        {lang === "en" ? enso.note_en : enso.note_es}
+      </span>
+    </div>
+  );
+}
 
 const modes: readonly CalendarMode[] = ["count", "anomaly"];
 
@@ -73,8 +108,9 @@ export function CalendarStrip() {
         </div>
         <div className="cal-main">
           {grid && grid.years.length > 0 && (
-            <CalendarGrid grid={grid} mode={mode} meta={calendar.meta} selected={selected} onSelect={(month) => dispatch({ type: "setMonth", month })} />
+            <CalendarGrid grid={grid} mode={mode} meta={calendar.meta} enso={calendar.enso} selected={selected} onSelect={(month) => dispatch({ type: "setMonth", month })} />
           )}
+          <EnsoLegend enso={calendar.enso} />
         </div>
       </>
     );

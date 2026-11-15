@@ -19,7 +19,7 @@ Docs: [architecture](docs/architecture.md), [design](docs/design.md), [validatio
 | 2 | MODIS–VIIRS harmonization + ML | [plan/02-harmonization.md](plan/02-harmonization.md) | 1 | closed 2026-11-15 (part deferred) |
 | 3 | Calendar and per-area analytics | [plan/03-calendar-analytics.md](plan/03-calendar-analytics.md) | 2 | done (backend) |
 | 4 | Web app | [plan/04-web-app.md](plan/04-web-app.md) | 0, 3 | done (backend + web) |
-| 5 | ENSO and fire (ENSO-lite only) | [plan/05-enso-drought.md](plan/05-enso-drought.md) | 3, SA0.9 | active (drought deferred) |
+| 5 | ENSO and fire (ENSO-lite only) | [plan/05-enso-drought.md](plan/05-enso-drought.md) | 3, SA0.9 | ENSO-lite done (drought deferred) |
 | 5b | Atmospheric rivers and fire | [plan/05b-atmospheric-rivers.md](plan/05b-atmospheric-rivers.md) | 4 | deferred |
 | 6 | Experimental prediction | [plan/06-ml-outlook.md](plan/06-ml-outlook.md) | 2, 5 | deferred |
 | 7 | Publication | [plan/07-submission.md](plan/07-submission.md) | 4 | active |
@@ -104,4 +104,8 @@ LightGBM (the scale factor stays), NRT.
   pipeline was rebuilt (FIRMS 2000–2025, ONI to 2026-09). SA5.5 done ([reports/05/SA5.5.md](reports/05/SA5.5.md)),
   design pre-registered with the advisor: Córdoba, VIIRS-eq, Jul–Oct season, n = 25: no association detectable
   (max |rho| 0.35 at lag 2, family-wise p 0.30; detectable needs |rho| ≥ 0.50). Exploratory areas (NOA, Pampas,
-  Argentina) show small own p values but are not independent and are not the headline. SA5.4 (UI row) in progress.
+  Argentina) show small own p values but are not independent and are not the headline.
+- 2026-11-15: SA5.4 done, ENSO-lite closed. Calendar ENSO row (12 phase segments per year column, ONI, source and
+  period, association note; hidden with a note when `enso` is null) and a "By ENSO phase" toggle in the dashboard
+  seasonality (few-years points marked). Full e2e 59/59; one earlier a11y tab-order failure did not reproduce
+  (possibly flaky, unverified). Next: phase 7 (README, deployed demo).

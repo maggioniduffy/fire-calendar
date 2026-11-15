@@ -109,6 +109,12 @@ const es = {
       normal: "Normal (p25–p75)",
       latest: "Año {year}",
       note: "Climatología {y0}–{y1}; método de cuantiles: {method}.",
+      ensoToggle: "Por fase ENSO",
+      ensoLabel: "Estacionalidad según fase ENSO",
+      ensoFew: "pocos años",
+      ensoFewPoint: "{phase}, mes {month}: pocos años (n = {n})",
+      ensoPoint: "{phase} · mediana {median} · {n} años",
+      ensoNote: "Mediana por mes calendario en años de cada fase ENSO ({source}); asociación, no causa. Los puntos huecos tienen menos de 3 años: pocos años.",
     },
     anomaly: {
       title: "Anomalía mensual",
@@ -178,6 +184,19 @@ const es = {
     above: "Más",
     cellLabel: "{month}: {count} focos",
     cellLabelNone: "{month}: sin datos",
+    enso: {
+      title: "ENSO",
+      strip: "Fase ENSO por mes y año (ONI, {source})",
+      seg: "{month}: ONI {oni} · {phase} · Fuente: {source} · período {start}–{end}",
+      segNone: "{month}: sin dato de ONI · Fuente: {source} · período {start}–{end}",
+      nino: "El Niño",
+      nina: "La Niña",
+      neutral: "Neutral",
+      legend: "Fase ENSO",
+      src: "Fuente: {source} · período {start}–{end}",
+      missing: "ENSO no disponible",
+      noOni: "Sin ONI",
+    },
   },
 };
 

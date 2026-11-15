@@ -13,6 +13,8 @@
   --accent: #8EB8E5;
   --secondary: #A4AF69;
   --casing: #2A343B;
+  --enso-nino: #C4552B;
+  --enso-nina: #3F7FB5;
   color-scheme: light;
 }
 
@@ -28,6 +30,8 @@
   --accent: #FDDA0D;
   --secondary: #A4AF69;
   --casing: #16212A;
+  --enso-nino: #E98A5C;
+  --enso-nina: #6FA8DC;
   color-scheme: dark;
 }
 
