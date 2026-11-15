@@ -20,6 +20,7 @@ from firecal.stages.harmonize.series import (
     calibration_from_dict,
     calibration_to_dict,
     fit_calibration,
+    freeze_calibration,
     publish,
     sensor_months,
     wide_counts,
@@ -238,9 +239,10 @@ def test_adding_a_year_leaves_earlier_rows_unchanged(tmp_path):
         pq.write_table(pa.Table.from_pandas(grid_rows(d), preserve_index=False), dest)
     root = tmp_path / "out" / "harmonized"
     when = datetime(2026, 11, 15, tzinfo=UTC)
-    publish(cal, grid_dir, root, years=[2005, 2020], now=when)
+    freeze_calibration(cal, tmp_path / "frozen")
+    publish(cal, grid_dir, root, years=[2005, 2020], now=when, frozen_dir=tmp_path / "frozen")
     before = {y: pq.read_table(root / "series" / f"{y}.parquet").to_pandas() for y in (2005, 2020)}
-    m1 = publish(cal, grid_dir, root, years=[2021], now=when)
+    m1 = publish(cal, grid_dir, root, years=[2021], now=when, frozen_dir=tmp_path / "frozen")
     for y, df in before.items():
         pd.testing.assert_frame_equal(df, pq.read_table(root / "series" / f"{y}.parquet").to_pandas())
     assert m1.period == "2005-03-01/2021-03-31"
@@ -256,7 +258,11 @@ def test_manifest_validates_and_api_lists_layer(tmp_path):
         pa.Table.from_pandas(grid_rows({(2005, 3): {"terra": 5, "aqua": 7}}), preserve_index=False), dest
     )
     processed = tmp_path / "processed"
-    publish(cal, grid_dir, processed / "harmonized", now=datetime(2026, 11, 15, tzinfo=UTC))
+    freeze_calibration(cal, tmp_path / "frozen")
+    publish(
+        cal, grid_dir, processed / "harmonized", now=datetime(2026, 11, 15, tzinfo=UTC),
+        frozen_dir=tmp_path / "frozen",
+    )  # fmt: skip
 
     layers = discover_layers(processed)
     assert [m.id for m in layers] == ["harmonized"]

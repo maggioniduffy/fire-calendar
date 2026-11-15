@@ -17,17 +17,31 @@ def _peak_mb() -> float:
 
 @series_app.command("calibrate")
 def calibrate_cmd(
-    version: Annotated[str, typer.Option(help="Calibration version label.")] = "sf-2026.11.1",
+    version: Annotated[str, typer.Option(help="New calibration version label (required; never reused).")],
     method: Annotated[str, typer.Option(help="Only 'scale_factor' is implemented.")] = "scale_factor",
 ) -> None:
     """Fit and freeze the SA2.2 factors and conformal calibration on the full overlap."""
     from firecal.stages.harmonize.regions import build_cube, build_monthly_region_table
-    from firecal.stages.harmonize.series import LAYER_ID, fit_calibration, save_calibration
+    from firecal.stages.harmonize.series import (
+        LAYER_ID,
+        calibration_path,
+        fit_calibration,
+        freeze_calibration,
+        frozen_paths,
+        save_calibration,
+    )
 
+    root = processed_dir() / LAYER_ID
+    taken = [*frozen_paths(version), calibration_path(version, root)]
+    for p in taken:
+        if p.exists():
+            raise typer.BadParameter(f"version {version} already exists ({p}); pick a new version")
     t0 = time.time()
     cal = fit_calibration(build_cube(build_monthly_region_table()), version, method)
-    path = save_calibration(cal, processed_dir() / LAYER_ID)
+    path = save_calibration(cal, root)
+    frozen = freeze_calibration(cal)
     typer.echo(str(path))
+    typer.echo(f"frozen {frozen}")
     for name, pc in cal.pairs.items():
         typer.echo(f"{name}: k={pc.k} months={pc.n_months} {pc.start}..{pc.end}")
     typer.echo(f"runtime {time.time() - t0:.1f} s, peak RSS {_peak_mb():.0f} MB")
@@ -41,14 +55,17 @@ def build_cmd(
     """Apply a frozen calibration to the 0.1 degree grid and publish the layer (series, bands, manifest)."""
     from firecal.stages.harmonize.series import (
         LAYER_ID,
-        load_calibration,
+        load_frozen,
         national_summary,
         publish,
+        verified_frozen_sha,
     )
 
     t0 = time.time()
     root = processed_dir() / LAYER_ID
-    manifest = publish(load_calibration(version, root), years=year)
+    cal = load_frozen(version)
+    typer.echo(f"frozen calibration {version} sha256 {verified_frozen_sha(version)} verified")
+    manifest = publish(cal, years=year)
     typer.echo(f"{root / 'manifest.json'}  period {manifest.period}  files {len(manifest.files)}")
     typer.echo(national_summary(root).round(0).to_string(index=False))
     typer.echo(f"runtime {time.time() - t0:.1f} s, peak RSS {_peak_mb():.0f} MB")
