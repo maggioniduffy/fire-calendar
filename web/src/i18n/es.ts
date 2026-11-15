@@ -2,6 +2,9 @@
 const es = {
   app: {
     title: "Calendario de fuego",
+    headerTitle: "Calendario de fuego - NASA Space Apps Challenge",
+    settings: "Ajustes",
+    closeSettings: "Cerrar ajustes",
     event: "NASA Space Apps 2026 · Desafío CONAE",
     challenge: "Armonización de focos de calor MODIS y VIIRS",
     author: "Faustino Maggioni Duffy",

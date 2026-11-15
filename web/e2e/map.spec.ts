@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { expect, test } from "./api";
+import { expect, setPreference, test } from "./api";
 
 const DIR = join(import.meta.dirname, "fixtures/api");
 // One file per area + scale holds the /cells answer of every month; the tests use the latest one.
@@ -31,7 +31,7 @@ test("default Córdoba: overlay shows the month and the total of the fixture", a
 });
 
 test("overlay and legend follow the language", async ({ page }) => {
-  await page.getByTestId("lang-en").click();
+  await setPreference(page, "lang-en");
   await expect(page.getByTestId("map-count")).toHaveText(`${cordoba.total} hot spots in the area`);
   await expect(page.getByTestId("map-legend")).toContainText("Hot spots per 0.1° cell");
 });

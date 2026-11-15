@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { expect, test } from "./api";
+import { expect, setPreference, test } from "./api";
 
 // Values come from the SYNTHETIC fixtures (backend/scripts/web_fixtures.py), read from disk, not retyped.
 const DIR = join(import.meta.dirname, "fixtures/api");
@@ -55,7 +55,7 @@ test("a month up to 2011 is marked estimated on VIIRS-eq, with the unverified ba
 
 test("the estimated note and the band note follow the language", async ({ page }) => {
   await page.goto("/?month=2005-09");
-  await page.getByTestId("lang-en").click();
+  await setPreference(page, "lang-en");
   const s = stats("viirs_eq", "2005-09");
   await expect(page.getByTestId("inspector-heading")).toContainText("September 2005");
   await expect(page.getByTestId("estimated-note")).toContainText(s.meta.estimated_note_en);

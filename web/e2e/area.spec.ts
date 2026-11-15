@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import { expect, test, type ApiMock } from "./api";
+import { expect, setPreference, test, type ApiMock } from "./api";
 
 // Same point and radius as the circle fixture (backend/scripts/web_fixtures.py).
 const GEO = { latitude: -31.42, longitude: -64.18 };
@@ -77,9 +77,9 @@ test("coordinates and radius: validates inline, then requests a circle", async (
   await apply.click();
   await expect(err).toContainText("debe tocar Argentina");
 
-  await page.getByTestId("lang-en").click();
+  await setPreference(page, "lang-en");
   await expect(err).toContainText("must touch Argentina");
-  await page.getByTestId("lang-es").click();
+  await setPreference(page, "lang-es");
 
   // None of the invalid attempts reached the API.
   expect(api.requests.every((r) => "preset" in r.body)).toBe(true);

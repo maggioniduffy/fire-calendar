@@ -1,6 +1,6 @@
 # Phase 4 — Web app
 
-Status: done 2026-11-15 · Depends on: 0, 3 · Refs: `docs/design.md`
+Status: active (SA4.10–SA4.14 opened 2026-11-15) · Depends on: 0, 3 · Refs: `docs/design.md`
 
 ## Goal
 
@@ -20,3 +20,8 @@ it.
 | SA4.8 | "Dashboard" view of the selected area (tab next to the map), charts linked to each other and to the calendar: harmonized monthly series with uncertainty band and per-sensor series; totals per year; seasonality (median and p10–p90 per month with the current year on top); monthly anomaly; day/night split and FRP distribution; ENSO phase and drought (if phase 5 exists). Each chart with source and period, exportable as PNG and CSV | Sonnet | e2e: choose area → charts with the same totals as SA3.4; vitest of scales — **done 2026-11-15** (day/night, FRP and ENSO charts deferred: no payload provides them) |
 | SA4.7 | Accessibility: AA contrast, keyboard, visible focus, phone width | Sonnet | Playwright + axe with no errors — **done 2026-11-15** (`e2e/a11y.spec.ts`; keyboard-only polygon drawing out of scope, lat/lon + radius is the keyboard alternative) |
 | SA4.9 | Calendar strip readable on desktop: grid turned sideways (years across, months down, summary/toggle/legend in a side column) and a drag handle to resize the strip (pointer + keyboard, height kept in `localStorage`, hidden at phone width) | Opus + Sonnet | vitest of the arrow keys + e2e of drag, keyboard, reload and layout — **done 2026-11-15** |
+| SA4.10 | Shell: top bar removed; hover header at the top edge (icon + "Fire Calendar - NASA Space Apps Challenge"); settings gear bottom-left opening a modal (theme, language, challenge, author); flame emblem as favicon and app icon | Codex | vitest of the modal + e2e of hover header and settings |
+| SA4.11 | Calendar Nov–Dec rows hidden under the ENSO strip at 1440×720 (hover blocked) | Codex | e2e: hover on Nov and Dec shows the tooltip at 1440×720 |
+| SA4.12 | API `/cells` and `/detections` over a range (start→end) or a season (months × year span); single-month answers unchanged | Codex | pytest: range = sum of months, season filter, total = `/calendar` sum, month regression |
+| SA4.13 | Static export: raw detections as 1° tiles per month; static client sums cells and loads detections for ranges and seasons | Codex | pytest of the tile writer + vitest of the static client; export size reported |
+| SA4.14 | Period selection UI: month, range (shift-click or pickers), season; map overlay shows period and summed total | Codex | vitest of reducer/request + e2e on API and static fixtures |

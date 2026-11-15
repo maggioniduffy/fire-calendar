@@ -3,6 +3,9 @@ import type { Messages } from "./index";
 const en: Messages = {
   app: {
     title: "Fire calendar",
+    headerTitle: "Fire Calendar - NASA Space Apps Challenge",
+    settings: "Settings",
+    closeSettings: "Close settings",
     event: "NASA Space Apps 2026 · CONAE challenge",
     challenge: "Harmonization of MODIS and VIIRS Hot Spots",
     author: "Faustino Maggioni Duffy",

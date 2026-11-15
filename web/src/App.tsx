@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useState, type CSSProperties } from "react";
-import { TopBar } from "./components/TopBar";
+import { HoverHeader } from "./components/HoverHeader";
+import { SettingsButton } from "./components/Settings";
 import { LeftPanel } from "./components/LeftPanel";
 import { Inspector } from "./components/Inspector";
 import { CalendarStrip } from "./components/CalendarStrip";
@@ -23,7 +24,8 @@ export function App() {
 
   return (
     <div className="shell" style={{ "--cal-h": `${height}px` } as CSSProperties}>
-      <TopBar />
+      <HoverHeader />
+      <SettingsButton />
       <LeftPanel />
       <main className="center card" data-testid="center">
         <div className="tabs" role="tablist" aria-label={t.tabs.label}>

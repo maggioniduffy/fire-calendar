@@ -120,6 +120,13 @@ export async function installApi(page: Page): Promise<ApiMock> {
   return mock;
 }
 
+/** Changes one preference through the settings dialog and leaves the app ready for interaction. */
+export async function setPreference(page: Page, id: `theme-${"light" | "dark"}` | `lang-${"es" | "en"}`) {
+  await page.getByTestId("settings-button").click();
+  await page.getByTestId(id).click();
+  await page.getByRole("button", { name: /cerrar ajustes|close settings/i }).click();
+}
+
 /** `test` with an auto `api` fixture: fails the test when the app asked for something without a fixture. */
 export const test = base.extend<{ api: ApiMock }>({
   api: [

@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
-import { expect, test } from "./api";
+import { expect, setPreference, test } from "./api";
 
 /**
  * SA4.7: axe (WCAG 2 A/AA) with no violations on the Map and Dashboard tabs, in both themes and at phone width.
@@ -14,7 +14,7 @@ test.beforeEach(async ({ page }) => {
 
 async function ready(page: Page, theme: "light" | "dark") {
   await page.goto("/");
-  await page.getByTestId(`theme-${theme}`).click();
+  await setPreference(page, `theme-${theme}`);
   await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
   await expect(page.getByTestId("calendar-grid")).toBeVisible();
   await expect(page.getByTestId("fig-count")).toBeVisible();
@@ -84,7 +84,7 @@ for (const theme of ["light", "dark"] as const) {
 async function focused(page: Page) {
   return page.evaluate(() => {
     const el = document.activeElement as HTMLElement;
-    const region = ["topbar", "left-panel", "center", "inspector", "strip-resizer", "calendar-strip"].find((id) => el.closest(`[data-testid="${id}"]`));
+    const region = ["settings-button", "left-panel", "center", "inspector", "strip-resizer", "calendar-strip"].find((id) => el.closest(`[data-testid="${id}"]`));
     const cs = getComputedStyle(el);
     return {
       region: region ?? "none",
@@ -95,8 +95,12 @@ async function focused(page: Page) {
   });
 }
 
-test("keyboard: tab order topbar > left panel > tabs > inspector > resizer > calendar, every stop with a visible ring", async ({ page }) => {
+test("keyboard: tab order includes settings, left panel, tabs, inspector, resizer and calendar with a visible ring", async ({ page }) => {
   await ready(page, "light");
+  // Preference setup closes the dialog and restores focus to the gear; reload to reset
+  // the browser's sequential focus starting point before measuring the page order.
+  await page.reload();
+  await expect(page.getByTestId("calendar-grid")).toBeVisible();
   const stops: Awaited<ReturnType<typeof focused>>[] = [];
   // Start from the first stop of the page.
   await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
@@ -107,7 +111,7 @@ test("keyboard: tab order topbar > left panel > tabs > inspector > resizer > cal
     if (f.region === "none") break; // left the app (browser chrome / body)
   }
   const first = (region: string) => stops.findIndex((s) => s.region === region);
-  const order = ["topbar", "left-panel", "center", "inspector", "strip-resizer", "calendar-strip"].map(first);
+  const order = ["settings-button", "left-panel", "center", "inspector", "strip-resizer", "calendar-strip"].map(first);
   expect(order.every((i) => i >= 0), `regions reached: ${JSON.stringify(stops.map((s) => s.region))}`).toBe(true);
   expect(order, "regions in order").toEqual([...order].sort((a, b) => a - b));
   const bad = stops.filter((s) => s.region !== "none" && s.ring === null);
@@ -143,6 +147,7 @@ test("keyboard: the dashboard has a month stepper reachable after the tabs; char
 test("focus ring is the accent ring with a casing, in both themes", async ({ page }) => {
   for (const theme of ["light", "dark"] as const) {
     await ready(page, theme);
+    await page.getByTestId("settings-button").click();
     await page.getByTestId("lang-en").focus();
     await page.keyboard.press("Shift+Tab");
     await page.keyboard.press("Tab");
@@ -156,5 +161,6 @@ test("focus ring is the accent ring with a casing, in both themes", async ({ pag
     const rgb = (hex: string) => `rgb(${[1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(", ")})`;
     expect(css.color).toBe(rgb(css.accent));
     expect(css.shadow).toContain(rgb(css.casing));
+    await page.getByTestId("close-settings").click();
   }
 });

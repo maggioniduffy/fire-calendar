@@ -47,17 +47,13 @@ dd {
   padding: var(--space-2);
   gap: var(--space-2);
   grid-template-columns: minmax(220px, 260px) minmax(0, 1fr) minmax(260px, 320px);
-  grid-template-rows: auto minmax(0, 1fr) auto var(--cal-h, 30vh);
+  grid-template-rows: minmax(0, 1fr) auto var(--cal-h, 30vh);
   grid-template-areas:
-    "top top top"
     "left center right"
     "grip grip grip"
     "cal cal cal";
 }
 
-.topbar {
-  grid-area: top;
-}
 .left {
   grid-area: left;
 }
@@ -69,6 +65,7 @@ dd {
 }
 .calendar {
   grid-area: cal;
+  padding-left: 64px;
 }
 .strip-resizer {
   grid-area: grip;
@@ -126,44 +123,130 @@ dd {
   gap: var(--space-2);
 }
 
-/* ---------- Top bar ---------- */
-
-.topbar {
-  min-height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: var(--space-3) var(--space-5);
-  padding-block: var(--space-2);
-}
-
-.brand {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: var(--space-1) var(--space-4);
-}
-
-.app-title {
-  font-size: 16px;
-  font-weight: 600;
-}
-
 .area-title {
   font-size: 16px;
   font-weight: 600;
+  margin-bottom: var(--space-3);
 }
 
-.event,
-.author {
-  color: var(--muted);
+.hover-header-shell {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 20;
+  height: 56px;
+  pointer-events: none;
 }
 
-.prefs {
+.hover-header-hot-zone {
+  height: 8px;
+  pointer-events: auto;
+}
+
+.hover-header {
+  position: absolute;
+  top: 0;
+  left: 50%;
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
   gap: var(--space-2);
+  max-width: min(calc(100vw - 32px), 720px);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border);
+  border-top: 0;
+  border-radius: 0 0 var(--radius-2) var(--radius-2);
+  transform: translate(-50%, calc(-100% - 16px));
+  transition: transform 180ms ease;
+  pointer-events: auto;
+  white-space: nowrap;
+}
+
+.hover-header img {
+  flex: none;
+  object-fit: contain;
+}
+
+.hover-header-shell:hover .hover-header,
+.hover-header-shell:focus-within .hover-header {
+  transform: translate(-50%, 0);
+}
+
+.settings-button {
+  position: fixed;
+  z-index: 21;
+  left: 16px;
+  bottom: 16px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 2px 10px rgb(0 0 0 / 20%);
+  cursor: pointer;
+}
+
+.settings-dialog {
+  width: min(420px, calc(100vw - 32px));
+  max-width: none;
+  padding: var(--space-5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-3);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 16px 48px rgb(0 0 0 / 35%);
+}
+
+.settings-dialog::backdrop {
+  background: rgb(4 10 16 / 55%);
+}
+
+.settings-heading,
+.settings-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.settings-heading .card-title {
+  margin: 0;
+}
+
+.settings-controls {
+  align-items: stretch;
+  flex-direction: column;
+  margin-block: var(--space-4);
+}
+
+.settings-controls .segmented {
+  justify-content: space-around;
+}
+
+.settings-controls .segmented button {
+  flex: 1;
+}
+
+.dialog-close {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: var(--radius-2);
+  background: var(--raised);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 24px;
+}
+
+.settings-footer {
+  display: grid;
+  gap: var(--space-1);
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-3);
+  color: var(--muted);
+  font-size: 12px;
 }
 
 /* ---------- Controls ---------- */
@@ -396,7 +479,6 @@ button {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto;
     grid-template-areas:
-      "top"
       "left"
       "center"
       "right"
@@ -409,6 +491,7 @@ button {
 
   .calendar {
     height: auto;
+    padding-left: 64px;
   }
 
   .center {
@@ -422,8 +505,19 @@ button {
     justify-content: center;
   }
 
+  .settings-button {
+    top: 56px;
+    right: 80px;
+    bottom: auto;
+    left: auto;
+  }
+
   .left .card-title {
     margin-bottom: 0;
+  }
+
+  .left .area-title {
+    margin-bottom: var(--space-2);
   }
 
   .left[data-open="false"] .drawer-body {
@@ -437,6 +531,10 @@ button {
 
 @media (prefers-reduced-motion: reduce) {
   .chevron {
+    transition: none;
+  }
+
+  .hover-header {
     transition: none;
   }
 }

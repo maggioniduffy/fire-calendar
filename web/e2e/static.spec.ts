@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
+import { setPreference } from "./api";
 
 /**
  * SA7.2 static mode: the app built with VITE_DATA_URL=/data reads the SYNTHETIC export tree
@@ -104,7 +105,7 @@ test("static mode: provisional month shows marker, tooltip, legend and inspector
   await cell("2012-06").hover();
   await expect(page.getByTestId("tip-provisional")).toHaveCount(0);
 
-  await page.getByTestId("lang-en").click();
+  await setPreference(page, "lang-en");
   await expect(page.getByTestId("legend-provisional")).toContainText("Provisional month (NRT)");
   await cell("2014-12").focus();
   await expect(page.getByTestId("tip-provisional")).toContainText("Provisional (NRT, near real time): may change when standard processing arrives");

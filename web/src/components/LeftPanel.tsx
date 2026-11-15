@@ -13,6 +13,7 @@ import {
 } from "../state/selection";
 import { useT } from "../state/prefs";
 import { SeriesSection } from "./SeriesSection";
+import { areaName } from "../state/areaName";
 
 type GeoMessage = "geoDenied" | "geoUnavailable" | "geoUnsupported" | "geoOutside" | AreaError;
 
@@ -114,6 +115,7 @@ export function LeftPanel() {
 
   return (
     <aside className="left card" data-testid="left-panel" data-open={open} aria-labelledby={`${bodyId}-title`}>
+      <h1 className="area-title" data-testid="area-name">{areaName(area, t)}</h1>
       <div className="card-head">
         <h2 className="card-title" id={`${bodyId}-title`}>
           {t.panel.title}

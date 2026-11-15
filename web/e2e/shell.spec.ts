@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import { expect, test } from "./api";
+import { expect, setPreference, test } from "./api";
 
 // Tests run offline: the basemap is not needed to draw deck.gl layers.
 test.beforeEach(async ({ page }) => {
@@ -17,11 +17,8 @@ async function expectSamePage(page: Page) {
 
 test("shell shows title, challenge, author and all regions in Spanish", async ({ page }) => {
   await expect(page.locator("html")).toHaveAttribute("lang", "es");
-  const top = page.getByTestId("topbar");
-  await expect(top.getByRole("heading", { level: 1 })).toHaveText("Córdoba");
-  await expect(top).toContainText("Calendario de fuego");
-  await expect(top).toContainText("NASA Space Apps 2026 · Desafío CONAE");
-  await expect(top).toContainText("Faustino Maggioni Duffy");
+  await expect(page.getByTestId("area-name")).toHaveText("Córdoba");
+  await expect(page.getByTestId("settings-button")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Área y período" })).toBeVisible();
   await expect(page.getByRole("tab", { name: "Mapa" })).toHaveAttribute("aria-selected", "true");
   await expect(page.getByTestId("map")).toBeVisible();
@@ -35,30 +32,29 @@ test("shell shows title, challenge, author and all regions in Spanish", async ({
 });
 
 test("theme switches without a reload and keeps the same layout", async ({ page }) => {
-  await page.getByTestId("theme-light").click();
+  await setPreference(page, "theme-light");
   await markPage(page);
-  const top = page.getByTestId("topbar");
+  const header = page.getByTestId("hover-header");
   const boxLight = await page.getByTestId("inspector").boundingBox();
   await expect(page.locator("body")).toHaveCSS("background-color", "rgb(241, 238, 230)");
-  expect(await top.evaluate((el) => getComputedStyle(el).backgroundImage)).toContain("radial-gradient");
+  expect(await header.evaluate((el) => getComputedStyle(el).backgroundImage)).toContain("radial-gradient");
 
-  await page.getByTestId("theme-dark").click();
+  await setPreference(page, "theme-dark");
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await expect(page.locator("body")).toHaveCSS("background-color", "rgb(22, 33, 42)");
-  expect(await top.evaluate((el) => getComputedStyle(el).backgroundImage)).toBe("none");
+  expect(await header.evaluate((el) => getComputedStyle(el).backgroundImage)).toBe("none");
   expect(await page.getByTestId("inspector").boundingBox()).toEqual(boxLight);
   await expectSamePage(page);
 });
 
 test("language switches without a reload", async ({ page }) => {
   await markPage(page);
-  await page.getByTestId("lang-en").click();
+  await setPreference(page, "lang-en");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
-  await expect(page.getByTestId("topbar")).toContainText("Fire calendar");
-  await expect(page.getByTestId("topbar")).toContainText("NASA Space Apps 2026 · CONAE challenge");
+  await expect(page.getByTestId("hover-header")).toContainText("Fire Calendar - NASA Space Apps Challenge");
   await expect(page.getByRole("tab", { name: "Map" })).toBeVisible();
   await expect(page.getByRole("tab", { name: "Dashboard" })).toBeVisible();
-  await page.getByTestId("lang-es").click();
+  await setPreference(page, "lang-es");
   await expect(page.getByRole("tab", { name: "Mapa" })).toBeVisible();
   await expectSamePage(page);
 });
@@ -80,7 +76,7 @@ test.describe("phone width", () => {
   test.use({ viewport: { width: 375, height: 812 } });
 
   test("panels stack with a 16 px gutter and no horizontal scroll", async ({ page }) => {
-    const ids = ["topbar", "left-panel", "center", "inspector", "calendar-strip"];
+    const ids = ["left-panel", "center", "inspector", "calendar-strip"];
     const boxes = await Promise.all(ids.map((id) => page.getByTestId(id).boundingBox()));
     for (const b of boxes) {
       expect(b!.x).toBe(16);
@@ -103,9 +99,24 @@ test.describe("phone width", () => {
     await expect(page.getByText("Provincia de Córdoba")).toBeVisible();
 
     // Controls keep a 44 px target.
+    await page.getByTestId("settings-button").click();
     const btn = await page.getByTestId("theme-dark").boundingBox();
     expect(btn!.height).toBeGreaterThanOrEqual(44);
   });
+});
+
+test("hover header reveals on top-edge hover and settings changes the language", async ({ page }) => {
+  const header = page.getByTestId("hover-header");
+  expect((await header.boundingBox())!.y).toBeLessThan(0);
+  await page.mouse.move(500, 2);
+  await expect(header).toBeVisible();
+  await expect(header).toContainText("Calendario de fuego - NASA Space Apps Challenge");
+  await page.getByTestId("settings-button").click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await page.getByTestId("lang-en").click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(header).toContainText("Fire Calendar - NASA Space Apps Challenge");
+  await page.getByRole("button", { name: "Close settings" }).click();
 });
 
 test.describe("calendar strip resizer", () => {
