@@ -109,6 +109,7 @@ export function StripResizer({ height, onChange }: Props) {
       aria-valuenow={height}
       tabIndex={0}
       data-testid="strip-resizer"
+      data-compact={height <= MIN_HEIGHT}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={end}

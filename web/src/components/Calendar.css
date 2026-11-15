@@ -46,11 +46,17 @@
 .cal-grid {
   display: grid;
   flex: 1 1 0;
-  min-height: 120px;
+  min-height: 0;
   gap: 2px;
   grid-template-columns: 32px repeat(var(--years, 1), minmax(8px, 1fr));
-  grid-template-rows: auto repeat(12, minmax(10px, 1fr));
+  grid-template-rows: auto repeat(12, minmax(0, 1fr));
   align-items: stretch;
+}
+
+/* At the user's minimum strip height, preserve the heatmap's fallback scroll range. */
+.shell:has(.strip-resizer[data-compact="true"]) .cal-grid {
+  flex: 0 0 auto;
+  min-height: 120px;
 }
 
 .cal-row {

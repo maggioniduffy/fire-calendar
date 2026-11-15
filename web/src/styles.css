@@ -63,7 +63,7 @@ dd {
 .inspector {
   grid-area: right;
 }
-.calendar {
+.shell > .calendar.card {
   grid-area: cal;
   padding-left: 64px;
 }
