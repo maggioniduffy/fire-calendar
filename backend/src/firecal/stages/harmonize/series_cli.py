@@ -49,7 +49,7 @@ def calibrate_cmd(
 
 @series_app.command("build")
 def build_cmd(
-    version: Annotated[str, typer.Option(help="Frozen calibration to apply.")] = "sf-2026.11.1",
+    version: Annotated[str, typer.Option(help="Frozen calibration to apply.")] = "sf-2026.11.2",
     year: Annotated[list[int] | None, typer.Option(help="Only these years (repeatable).")] = None,
 ) -> None:
     """Apply a frozen calibration to the 0.1 degree grid and publish the layer (series, bands, manifest)."""
