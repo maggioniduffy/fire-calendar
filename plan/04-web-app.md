@@ -15,7 +15,7 @@ it.
 | SA4.2 | deck.gl map with hot spots (raw or cells depending on zoom) and the selected area | Sonnet | e2e: changes when the area moves |
 | SA4.3 | Calendar: year × month heatmap with a colorblind-safe sequential ramp; tooltip with count and source | Sonnet | e2e + vitest of the color scale |
 | SA4.4 | Anomalies: year × month vs. median with a blue/orange diverging ramp; current month highlighted with the accent | Sonnet | e2e |
-| SA4.5 | Inspector: SA3.4 figures, series selector: reported per sensor, MODIS-equivalent or VIIRS-equivalent (2000–2011 marked "estimated"), calibration version, source and period | Sonnet | e2e |
-| SA4.6 | CSV downloads (hot spots and calendar) | Sonnet | e2e: the file downloads with the SA3.6 columns |
+| SA4.5 | Inspector: SA3.4 figures, series selector: reported per sensor, MODIS-equivalent or VIIRS-equivalent (2000–2011 marked "estimated"), calibration version, source and period | Sonnet | e2e — **done 2026-11-15** (Reported = per-sensor columns of `/calendar`; ENSO row hidden until phase 5) |
+| SA4.6 | CSV downloads (hot spots and calendar) | Sonnet | e2e: the file downloads with the SA3.6 columns — **done 2026-11-15** (hot-spot button is removed after the first 404) |
 | SA4.8 | "Dashboard" view of the selected area (tab next to the map), charts linked to each other and to the calendar: harmonized monthly series with uncertainty band and per-sensor series; totals per year; seasonality (median and p10–p90 per month with the current year on top); monthly anomaly; day/night split and FRP distribution; ENSO phase and drought (if phase 5 exists). Each chart with source and period, exportable as PNG and CSV | Sonnet | e2e: choose area → charts with the same totals as SA3.4; vitest of scales |
 | SA4.7 | Accessibility: AA contrast, keyboard, visible focus, phone width | Sonnet | Playwright + axe with no errors |

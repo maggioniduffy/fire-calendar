@@ -401,3 +401,21 @@ button {
     transition: none;
   }
 }
+
+/* ---------- Inspector figures and downloads (SA4.5, SA4.6) ---------- */
+
+.figures .row {
+  min-height: 28px;
+}
+
+.detail-title {
+  margin-top: var(--space-5);
+}
+
+.downloads {
+  margin-top: var(--space-5);
+}
+
+.downloads .btn {
+  margin-top: 0;
+}

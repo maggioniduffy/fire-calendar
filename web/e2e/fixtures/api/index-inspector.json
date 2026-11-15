@@ -1,0 +1,52 @@
+{
+ "note": "SYNTHETIC data, not real FIRMS counts. `responses` holds status and headers per file.",
+ "requests": {
+  "POST /export.csv area=preset:cordoba scale=viirs_eq kind=calendar": "export-calendar-cordoba-viirs_eq.csv",
+  "POST /export.csv area=preset:cordoba scale=viirs_eq kind=detections": "export-detections-cordoba-viirs_eq.json",
+  "POST /stats area=preset:cordoba scale=modis_eq ref=2005-09": "stats-cordoba-modis_eq-ref2005-09.json",
+  "POST /stats area=preset:cordoba scale=modis_eq ref=2015-09": "stats-cordoba-modis_eq-ref2015-09.json",
+  "POST /stats area=preset:cordoba scale=viirs_eq ref=2005-09": "stats-cordoba-viirs_eq-ref2005-09.json",
+  "POST /stats area=preset:cordoba scale=viirs_eq ref=2015-09": "stats-cordoba-viirs_eq-ref2015-09.json"
+ },
+ "responses": {
+  "export-calendar-cordoba-viirs_eq.csv": {
+   "headers": {
+    "content-disposition": "attachment; filename=\"firecal_calendar_viirs_eq_2005-01_2016-12.csv\"",
+    "x-firecal-calibration": "synthetic-1",
+    "x-firecal-period": "2005-01-01/2016-12-31",
+    "x-firecal-source": "SYNTHETIC fixture, not real FIRMS data"
+   },
+   "status": 200
+  },
+  "export-detections-available.csv": {
+   "headers": {
+    "content-disposition": "attachment; filename=\"firecal_detections_viirs_eq_2005-01_2016-12.csv\"",
+    "x-firecal-calibration": "n/a",
+    "x-firecal-period": "2005-01-01/2016-12-31",
+    "x-firecal-source": "NASA FIRMS (MODIS, VIIRS S-NPP, VIIRS NOAA-20); phase-1 filters applied"
+   },
+   "status": 200
+  },
+  "export-detections-cordoba-viirs_eq.json": {
+   "headers": {},
+   "status": 404
+  },
+  "stats-cordoba-modis_eq-ref2005-09.json": {
+   "headers": {},
+   "status": 200
+  },
+  "stats-cordoba-modis_eq-ref2015-09.json": {
+   "headers": {},
+   "status": 200
+  },
+  "stats-cordoba-viirs_eq-ref2005-09.json": {
+   "headers": {},
+   "status": 200
+  },
+  "stats-cordoba-viirs_eq-ref2015-09.json": {
+   "headers": {},
+   "status": 200
+  }
+ },
+ "synthetic": true
+}
