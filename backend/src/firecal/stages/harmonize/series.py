@@ -691,7 +691,10 @@ def build_series(
     source_level = np.where(one[bits], source_levels, "mixed")
     provisional = (bits & (1 << LEVEL_ORDER.index("nrt"))) != 0
 
-    keep = modis_exists | viirs_exists
+    # A cell with detections only by NOAA-21 is a row only where NOAA-21 is the VIIRS source (no empty rows
+    # elsewhere, so the series of months that never use NOAA-21 is the one built without that column).
+    others = terra + aqua + snpp + n20 > 0
+    keep = (modis_exists | viirs_exists) & (others | from_n21)
     d = pd.DataFrame(
         {
             "ym": ym,
