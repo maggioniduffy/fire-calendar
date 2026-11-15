@@ -1,4 +1,4 @@
-.PHONY: install dev dev-api web test lint format backend-test backend-lint web-test web-lint
+.PHONY: install dev dev-api web test lint format backend-test backend-lint web-test web-lint data static-export static-site
 
 install:
 	cd backend && uv sync
@@ -25,6 +25,22 @@ format:
 
 web:
 	cd web && pnpm dev
+
+# Full data pipeline (FIRMS, NOAA CPC ONI, harmonized series). Heavy: see README for the memory cap.
+data:
+	cd backend && uv run firecal enso build && uv run firecal firms download && uv run firecal firms ingest \
+		&& uv run firecal firms grid && uv run firecal series calibrate && uv run firecal series build
+
+# Static export per province and department (SA7.2), into data/publish/static.
+static-export:
+	cd backend && uv run firecal boundaries fetch && uv run firecal publish export --workers $${WORKERS:-2}
+
+# Deployable site in data/publish/site (must not exist yet): web build with VITE_DATA_URL=/data plus the export.
+static-site:
+	cd web && pnpm build:static
+	mkdir data/publish/site
+	cd web/dist && find . -mindepth 1 -maxdepth 1 ! -name static-e2e -exec cp -r {} ../../data/publish/site/ \;
+	cp -r data/publish/static data/publish/site/data
 
 web-test:
 	cd web && pnpm test
