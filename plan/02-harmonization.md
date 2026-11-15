@@ -322,3 +322,52 @@ drift years is flagged "orbit drift (unverified cause)" regardless of the outcom
   block-year (7 months) WAPE, national bias, band coverage. Reported as is; it changes no decision. MODIS in 2026
   is in the drift epoch, so this measures "MODIS as in the calibration period" against a drifted MODIS, and the
   report says so.
+
+### Revision 1 (2026-11-15, advisor review, still before any step 1 result or 2026 data)
+
+The advisor ran only a completeness count (days with detections per satellite-month, filtered 0.1° grid,
+2003–2025); no factor, error or 2026 number was computed. These items replace the matching text above; where they
+differ, this section rules.
+
+- **P1 coverage:** outside 75–85 % the band is published unchanged with its measured coverage and labelled
+  "cobertura sin verificar / coverage unverified"; no widening after the fact. Coverage rows: source > 0, pooled.
+- **P2:** pooled = Σ|err| / Σobs over all (cut-off, test year, block) rows. The 2026 partial block never enters
+  the P5 decision; beside it, the Jan–Jul sums of test years 2022–2025 are reported as the like-for-like
+  reference, and it is scored only if P7 and P8 pass. A cut-off × test-year table is given; degradation with
+  horizon is claimed only within the same test year (horizon is confounded with calendar year). The 2018–2021 vs
+  2022–2025 split is a fixed split, not the P3 epoch.
+- **P3:** evaluated only for years ≥ 2021. Reference = unweighted mean of the yearly means 2003–2020. The epoch
+  starts at the first year ≥ 2021 more than 15 minutes from the reference and includes every later year. Terra
+  2022 is on the edge (about 14.7 minutes), so P4 is also reported for a 2022+ Terra window as sensitivity; the
+  rule decides.
+- **P4:** applied per pair (`viirs_to_modis`, `modis_to_viirs`, and `terra_to_viirs` with Terra's epoch only).
+  Condition 1 becomes a descriptive placebo table (national factor moved by dropping the drift window vs every
+  other window of the same length; total, day, night, Terra, Aqua); it does not gate, because the yearly tables
+  were already seen (expected from them: dropping 2020–2022 moves the factor more than 2023–2025). The gate is
+  condition 2 alone. SA2.8 trains on 2016-01..2025-12 with no gap (mirror of the forward holdouts) and tests
+  2012–2015; with four test years the year bootstrap is coarse, so "report only" is the likely outcome. The gate
+  only decides whether a later version is opened; `.2` is untouched either way.
+- **P5:** the route pair and its conformal residuals in `.2` are fitted on months ≤ 2025-12 (so P9 stays out of
+  sample). In the chain's inner folds each leg has its own `k`; the S-NPP -> MODIS leg uses 2012-02+ minus fold and
+  gap. The paired bootstrap of the block-year WAPE difference and per-cut-off results are reported (not a gate);
+  if cut-offs 2023 and 2024 both disagree in sign with the pooled result, the pooled rule still decides and the
+  report says the choice is not robust. Ties go to the direct factor (the baseline), as written. Disclosed biases:
+  the direct factor has only 3.7 training years at cut-off 2021; the forward tests score against drifted MODIS,
+  which favours a recently trained factor.
+- **P6:** "no mask" is reported as the baseline and the mask must have lower |bias| than it. Selection uses
+  history ≤ 2023 scored on SP 2024; acceptance uses history ≤ 2024 scored on SP 2025; deployment uses history
+  ≤ 2025. Chosen per sensor family (MODIS, VIIRS) by the smallest maximum |bias| over satellite × day/night;
+  accepted per family (a family that fails keeps its NRT months out). Block rule: at least 90 % of blocks with
+  ≥ 100 `type == 0` detections within ±10 % block-year; the others are listed. Gross error (false removals plus
+  misses) and small blocks are reported in absolute terms. This validates the `type` proxy only; the NRT vs SP
+  processing difference stays unverified.
+- **P7:** unmatched rows under 1 % per direction and satellite, at least 95 % of them within 5 km of the
+  boundary, and unmatched rows farther than 5 km under 0.05 % (catches missing chunks). Match as a multiset
+  (duplicate keys exist). NOAA-21 has no country files: its clip is unverified (same code path only). Any remedy
+  (e.g. a buffer) is a dated deviation.
+- **P8:** gates only months ≥ 2026-01, with the 90 % rule. For 2000–2025 the flags are a diagnostic table in
+  SA2.6; the `.1`/`.2` series and fits are unchanged. In a gated month where Terra or Aqua is partial, observed
+  MODIS is undefined for that month and MODIS-eq is estimated from VIIRS and flagged. P2 and P9 are also reported
+  excluding the historically flagged satellite-months (secondary; the primary is unchanged). The advisor found
+  28 of 813 historical satellite-months below 90 % (e.g. Aqua 2022-04, S-NPP 2022-08 and 2024-07, Terra 2022-10);
+  some coincide with the worst leave-one-year-out years (association, cause unverified).
