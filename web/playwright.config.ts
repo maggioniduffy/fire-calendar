@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const port = 4173;
+// PW_PORT lets parallel runs (several worktrees) avoid clashing on the preview port.
+const port = Number(process.env.PW_PORT ?? 4173);
 
 export default defineConfig({
   testDir: "e2e",

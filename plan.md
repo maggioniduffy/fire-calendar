@@ -76,3 +76,8 @@ LightGBM (the scale factor stays), NRT.
 - 2026-11-15: SA4.2 done: `POST /cells` (cells of one month in the area, total equal to `/calendar`) and
   `POST /detections` (capped, 404 without raw detections); map draws the area outline and cells, raw points at
   zoom ≥ 8 when the server has them, overlay with month and area total.
+- 2026-11-15: SA4.3 + SA4.4 done: calendar card with the year × month heatmap (count, single-hue violet ramp) and
+  the anomaly view against the `/stats` climatology median (blue/orange, neutral `--raised`), tooltip with count,
+  source and period, keyboard grid. Scales in `web/src/charts/scales.ts`. Cells with no data are hatched. The
+  light-theme ramp darkens with the count (dark theme lightens), a deviation from "grows in lightness" in
+  `docs/design.md` for the cream theme.
