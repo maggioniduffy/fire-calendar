@@ -114,3 +114,12 @@ LightGBM (the scale factor stays), NRT.
   run. Unverified: exact FIRMS and CPC terms, CARTO attribution text; no code license file yet. SA7.2 static
   export designed in `plan/07-submission.md`; boundary candidate geoBoundaries ADM2 (IGN + OCHA ROLAC,
   CC BY 3.0 IGO); its ADM1 file lacks Entre Ríos, so provinces are to be built from ADM2.
+- 2026-11-15: SA7.2 built and tested, not yet deployed. `firecal boundaries fetch` (geoBoundaries ADM2 pinned to
+  commit 8ce2700, CC BY 3.0 IGO) and `firecal publish export`: 513 areas (24 provinces, 489 departments; Córdoba 26),
+  4197 files, 492 MB; 36 areas under 100 km² skipped; files equal the API on synthetic and real data. ADM1 is used
+  only to assign provinces and is wrong in places: 43 corrections hard-coded and listed in the manifest (Entre Ríos
+  department list and per-province counts unverified). Web static mode (`VITE_DATA_URL=/data`, region picker,
+  location -> province, attribution) with e2e 64/64. Hosting decided: Cloudflare Pages project `fire-calendar`
+  (created). The cloud session cannot upload (its proxy replaces wrangler's upload token), so deploy runs from the
+  manual `deploy-demo` workflow, which needs the CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID secrets and the
+  workflow on the default branch.
