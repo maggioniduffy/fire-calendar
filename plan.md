@@ -96,3 +96,6 @@ LightGBM (the scale factor stays), NRT.
   walked, none failed; API under 0.6 s. Unverified: raw points seen on screen at zoom >= 8, hot-spot button after a
   404, chart CSV contents, contrast over the real basemap and screen readers. CI on main fails at `pnpm e2e` (webServer
   timeout); fix on branch `fix/ci-web-e2e`, not yet confirmed in CI.
+- 2026-11-15: SA4.9 done: the calendar strip was clipped (fixed 22vh, 26 year rows). Grid turned sideways and a
+  drag handle added (`StripResizer`). Arrow keys now follow the drawing: Left/Right = year, Up/Down = month.
+  Checked: vitest, tsc, eslint and the calendar, shell and a11y e2e specs; the other e2e specs were not rerun.

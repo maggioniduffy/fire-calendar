@@ -35,6 +35,10 @@ export function CalendarStrip() {
     const selected = state.month ?? grid?.latest ?? null;
     return (
       <>
+        <div className="cal-side">
+          <h2 className="card-title" id="calendar-title">
+            {t.calendar.title}
+          </h2>
         <p className="cal-finding" data-testid="calendar-finding">
           {finding}
         </p>
@@ -51,9 +55,6 @@ export function CalendarStrip() {
             </button>
           ))}
         </div>
-        {grid && grid.years.length > 0 && (
-          <CalendarGrid grid={grid} mode={mode} meta={calendar.meta} selected={selected} onSelect={(month) => dispatch({ type: "setMonth", month })} />
-        )}
         <div className="cal-legend" data-testid="calendar-legend" data-mode={mode}>
           <span className="cal-legend-title">{mode === "count" ? t.calendar.legendCount : t.calendar.legendAnomaly}</span>
           <span className="cal-legend-bar">
@@ -69,16 +70,28 @@ export function CalendarStrip() {
             <span className="cal-swatch nodata" aria-hidden="true" /> {t.calendar.noData}
           </span>
         </div>
+        </div>
+        <div className="cal-main">
+          {grid && grid.years.length > 0 && (
+            <CalendarGrid grid={grid} mode={mode} meta={calendar.meta} selected={selected} onSelect={(month) => dispatch({ type: "setMonth", month })} />
+          )}
+        </div>
       </>
     );
   };
 
   return (
     <section className="calendar card" aria-labelledby="calendar-title" data-testid="calendar-strip">
-      <h2 className="card-title" id="calendar-title">
-        {t.calendar.title}
-      </h2>
-      {body()}
+      {data.status === "ready" ? (
+        body()
+      ) : (
+        <div className="cal-side">
+          <h2 className="card-title" id="calendar-title">
+            {t.calendar.title}
+          </h2>
+          {body()}
+        </div>
+      )}
     </section>
   );
 }

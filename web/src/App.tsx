@@ -1,8 +1,9 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState, type CSSProperties } from "react";
 import { TopBar } from "./components/TopBar";
 import { LeftPanel } from "./components/LeftPanel";
 import { Inspector } from "./components/Inspector";
 import { CalendarStrip } from "./components/CalendarStrip";
+import { StripResizer, useStripHeight } from "./components/StripResizer";
 import { Dashboard } from "./components/dashboard/Dashboard";
 import { useT } from "./state/prefs";
 
@@ -14,13 +15,14 @@ const tabs: readonly Tab[] = ["map", "dashboard"];
 export function App() {
   const t = useT();
   const [tab, setTab] = useState<Tab>("map");
+  const { height, setHeight } = useStripHeight();
 
   useEffect(() => {
     document.title = `${t.app.title} · ${t.app.event}`;
   }, [t]);
 
   return (
-    <div className="shell">
+    <div className="shell" style={{ "--cal-h": `${height}px` } as CSSProperties}>
       <TopBar />
       <LeftPanel />
       <main className="center card" data-testid="center">
@@ -62,6 +64,7 @@ export function App() {
         </div>
       </main>
       <Inspector />
+      <StripResizer height={height} onChange={setHeight} />
       <CalendarStrip />
     </div>
   );
