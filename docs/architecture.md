@@ -45,7 +45,8 @@ Cada paso es un comando CLI idempotente (`firecal <stage> <step>`).
 }
 ```
 
-`experimental` es opcional. Tablas en Parquet/GeoParquet. La UI toma fuente y período del manifiesto. La API
+`experimental` es opcional. Las capas modeladas (serie armonizada) agregan `method`, `calibration_version` y
+`notes` (listas por idioma `es`/`en`), también opcionales. Tablas en Parquet/GeoParquet. La UI toma fuente y período del manifiesto. La API
 valida el manifiesto con pydantic y solo sirve archivos listados en `files`.
 
 ## API
