@@ -3,11 +3,16 @@
 import numpy as np
 import pandas as pd
 
-from firecal.stages.calendar.store import BLOCK_DEG, YM, month_index
+from firecal.stages.calendar.store import BLOCK_DEG, STATUS_TEXT, YM, month_index
 from firecal.stages.harmonize.regions import block_ids
 
 VALUE_COLS = ["modis_reported", "viirs_reported", "modis_eq", "viirs_eq"]
 BAND_METHOD = "block_proportional"
+# Per-month status of the series: `provisional` (any satellite used comes from NRT), `source_level`
+# (country-sp / api-sp / nrt / mixed; `source_levels` lists them, e.g. "api-sp+nrt") and `modis_drift`
+# (observed MODIS from 2022: orbit drift, unverified cause).
+STATUS_BOOL = ("provisional", "modis_drift")
+STATUS_COLS = ["provisional", "source_level", "source_levels", "modis_drift"]
 
 
 def months_between(start: YM, end: YM) -> pd.DataFrame:
@@ -20,15 +25,18 @@ def calendar_matrix(rows: pd.DataFrame, coverage: pd.DataFrame, start: YM, end: 
     """One row per (year, month) in [start, end].
 
     Columns: modis_reported, viirs_reported, modis_eq, viirs_eq (sums over the area's cells), cells (cells
-    with a row, i.e. any detection), modis_eq_status / viirs_eq_status in {"observed", "estimated", "none"}.
+    with a row, i.e. any detection), modis_eq_status / viirs_eq_status in {"observed", "estimated", "none"}
+    and the status columns `STATUS_COLS` (None / False for series built before they existed).
     A month where the sensor is available and the area has no rows is 0; where the sensor is not available
     the value is NaN. An eq value is available when the sensor is available or the month is estimated.
     """
     out = months_between(start, end)
     cov = coverage.copy()
     out = out.merge(cov, on=["year", "month"], how="left")
-    for f in ("modis_available", "viirs_available", "modis_eq_estimated", "viirs_eq_estimated"):
+    for f in ("modis_available", "viirs_available", "modis_eq_estimated", "viirs_eq_estimated", *STATUS_BOOL):
         out[f] = out[f].fillna(False).astype(bool) if f in out else False
+    for c in STATUS_TEXT:
+        out[c] = out[c].astype(object).where(out[c].notna(), None) if c in out else None
     if len(rows):
         g = rows.groupby(["year", "month"]).agg(
             **{c: (c, "sum") for c in VALUE_COLS}, cells=("cell_id", "nunique")
@@ -49,7 +57,7 @@ def calendar_matrix(rows: pd.DataFrame, coverage: pd.DataFrame, start: YM, end: 
         eq_ok = (avail | est).to_numpy()
         out[f"{s}_reported"] = np.where(rep_ok, out[f"{s}_reported"].fillna(0.0), np.nan)
         out[f"{s}_eq"] = np.where(eq_ok, out[f"{s}_eq"].fillna(0.0), np.nan)
-    cols = ["year", "month", *VALUE_COLS, "cells", "modis_eq_status", "viirs_eq_status"]
+    cols = ["year", "month", *VALUE_COLS, "cells", "modis_eq_status", "viirs_eq_status", *STATUS_COLS]
     return out[cols].reset_index(drop=True)
 
 
@@ -58,11 +66,15 @@ def annual(matrix: pd.DataFrame) -> pd.DataFrame:
 
     Per value column `c`: `c` (total; NaN if no month has the sensor), `c_n_months` (months with a value),
     `c_complete` (12 months with a value, within the request) and, for eq columns, `c_estimated_months`.
-    `n_months` is the number of months of that year in the request.
+    `n_months` is the number of months of that year in the request; `provisional_months` counts the months
+    flagged provisional (NRT).
     """
     rows = []
     for year, g in matrix.groupby("year", sort=True):
         r: dict = {"year": int(year), "n_months": int(len(g))}
+        r["provisional_months"] = (
+            int(g["provisional"].fillna(False).astype(bool).sum()) if "provisional" in g else 0
+        )
         for c in VALUE_COLS:
             v = g[c]
             n = int(v.notna().sum())
