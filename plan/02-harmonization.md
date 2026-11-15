@@ -105,7 +105,7 @@ Todo lo de abajo es diseño; los supuestos sobre los datos quedan "sin verificar
 | SA2.8 | (postergado) Validación hacia atrás: entrenar con 2016 en adelante y evaluar en 2012–2015, para simular estimar el pasado y ver si la relación cambia con el tiempo | Sonnet | Tabla de error por región y año; unit: ningún año de test en entrenamiento |
 | SA2.9 | (postergado) Áreas quemadas MCD64A1 (2000–) como variable de SA2.7 para fuegos que MODIS no marcó como foco; Landsat solo si SA0.8 confirma acceso y cobertura | Sonnet escribe, opencode corre | Error de SA2.7 con y sin la variable |
 | SA2.10 | (postergado) Continuidad post-MODIS: calibración congelada con versión y fecha; ingesta de un año VIIRS nuevo actualiza las dos series sin recalibrar | Sonnet | Unit: agregar un año no cambia los valores previos |
-| SA2.11 | Serie final en dos escalas (MODIS-eq y VIIRS-eq) con banda de incertidumbre; manifiesto con método, versión de calibración, fuente y período | Sonnet | Capa publicada + e2e de carga |
+| SA2.11 | Serie final en dos escalas (MODIS-eq y VIIRS-eq) con banda de incertidumbre; manifiesto con método, versión de calibración, fuente y período | Sonnet | Capa publicada + e2e de carga. Hecho ✅ (2026-11-15; capa `harmonized` con calibración congelada `sf-2026.11.1` del factor SA2.2 y bandas conformales por bloque-mes y bloque-año; unit de API; el e2e de carga en la web queda para la fase 4; MODIS-eq desde NOAA-20 cuando terminen MODIS y S-NPP queda sin banda) |
 
 ## Entregable
 

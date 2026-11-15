@@ -54,4 +54,8 @@ de fase ENSO), LightGBM (queda el factor de escala), NRT.
   definidas por la fuente: cobertura 80 % (nominal 80 %) en los dos sentidos, bloque-mes y bloque-año; el peor
   año bloque-año baja a 67–72 %. Solo 0,3 % de las detecciones VIIRS caen donde MODIS no vio nada. Diseño de
   LightGBM y criterio de publicación fijados en `plan/02-harmonization.md`; siguiente: SA2.4 y SA2.7.
+- 2026-11-15: SA2.11 hecho: capa `harmonized` (`firecal series calibrate|build`) con la serie MODIS-eq y VIIRS-eq
+  por celda de 0,1° y mes, 2000-11 a 2025-12, método factor de escala (calibración `sf-2026.11.1`) y bandas por
+  bloque. VIIRS-eq 2000–2011 marcado "estimado"; 2000–2002 usa el factor de Terra solo (sin verificar la
+  extrapolación). LightGBM (SA2.4, SA2.7) en curso: si pasa el criterio fijado, reemplaza el método de la capa.
 
