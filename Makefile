@@ -26,10 +26,13 @@ format:
 web:
 	cd web && pnpm dev
 
+# Frozen calibration applied by `make data` (committed in backend/calibrations/; never re-fitted here).
+CALIBRATION ?= sf-2026.11.2
+
 # Full data pipeline (FIRMS, NOAA CPC ONI, harmonized series). Heavy: see README for the memory cap.
 data:
 	cd backend && uv run firecal enso build && uv run firecal firms download && uv run firecal firms ingest \
-		&& uv run firecal firms grid && uv run firecal series calibrate && uv run firecal series build
+		&& uv run firecal firms grid && uv run firecal series build --version $(CALIBRATION)
 
 # Static export per province and department (SA7.2), into data/publish/static.
 static-export:
