@@ -96,7 +96,9 @@ Todo lo de abajo es diseño; los supuestos sobre los datos quedan "sin verificar
   WAPE bloque-mes 15,9 % vs 17,2 %, 12 de 14 años, pero sesgo −2,5 %; bloque-mes: bootstrap con límite +0,02).
   La primera corrida de SA2.7 divergió numéricamente; se agregó `max_delta_step = 1` después de esa corrida (no
   estaba en el diseño previo, aplica a los dos sentidos) y un control de predicciones. Abierto: grilla reducida
-  por tiempo; el sesgo negativo del modelo de celda puede ser estructural (sin verificar).
+  por tiempo. Sesgo del modelo de celda verificado ([reports/02/ml_bias_check.md](../reports/02/ml_bias_check.md)):
+  estructural en el total (en sus filas +0,06 % y −0,54 %), no en los años sueltos; el peor año de SA2.4 (2024)
+  es difícil también para SA2.2.
 
 ## Tareas
 
