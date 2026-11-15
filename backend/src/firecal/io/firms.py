@@ -308,6 +308,35 @@ def grid_cmd(res: float = 0.1) -> None:
         typer.echo(str(p))
 
 
+@firms_app.command("nrt-mask")
+def nrt_mask_cmd(out: Path = REPO_ROOT / "reports" / "01" / "SA1.6_nrt_mask.md") -> None:
+    """P6: select, accept and save the NRT static-source mask; writes reports/01/SA1.6_nrt_mask.md."""
+    from firecal.stages.grid.nrt_mask import build_nrt_mask, detection_note, write_report
+
+    det = interim_dir() / "firms" / "detections"
+    results = build_nrt_mask(det)
+    for fam, r in results.items():
+        typer.echo(
+            f"{fam}: cell {r.chosen[0]} k {int(r.chosen[1])} accepted={r.accepted} "
+            + " ".join(f"{k}={'PASS' if v else 'FAIL'}" for k, v in r.checks.items())
+        )
+    typer.echo(str(write_report(results, out, detection_note(det))))
+
+
+@firms_app.command("completeness")
+def completeness_cmd(
+    out: Path = REPO_ROOT / "reports" / "01" / "SA1.6_completeness.md",
+) -> None:
+    """P8: completeness per satellite x month; writes completeness.parquet and the report."""
+    from firecal.stages.grid.completeness import build_completeness
+
+    table = build_completeness(report=out)
+    g = table[table["gated"]]
+    for r in g.itertuples():
+        typer.echo(f"{r.satellite} {r.month} {r.level} days={r.days_with_detections} {r.status}")
+    typer.echo(str(out))
+
+
 @firms_app.command("profile")
 def profile_cmd(out: Path = REPO_ROOT / "reports" / "01" / "SA1.7.md") -> None:
     """Write the data profile report (SA1.7)."""

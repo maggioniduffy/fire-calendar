@@ -13,15 +13,24 @@ class FilterConfig:
     keep_missing_type: bool = False
 
 
-def apply_filters(df: pd.DataFrame, cfg: FilterConfig | None = None) -> tuple[pd.DataFrame, dict[str, int]]:
-    """Return the filtered frame and the number of rows dropped per reason (applied in this order)."""
+def apply_filters(
+    df: pd.DataFrame, cfg: FilterConfig | None = None, skip_type: bool = False
+) -> tuple[pd.DataFrame, dict[str, int]]:
+    """Return the filtered frame and the number of rows dropped per reason (applied in this order).
+
+    `skip_type` leaves the fire-type filter out (NRT rows have no type; the NRT static-source mask takes its
+    place, see `nrt_mask`). The confidence filters are the same either way.
+    """
     cfg = cfg or FilterConfig()
     drops: dict[str, int] = {}
-    keep_type = df["type"].isin(cfg.types)
-    if cfg.keep_missing_type:
-        keep_type |= df["type"].isna()
-    drops["type"] = int((~keep_type).sum())
-    df = df[keep_type.to_numpy()]
+    if skip_type:
+        drops["type"] = 0
+    else:
+        keep_type = df["type"].isin(cfg.types)
+        if cfg.keep_missing_type:
+            keep_type |= df["type"].isna()
+        drops["type"] = int((~keep_type).sum())
+        df = df[keep_type.to_numpy()]
 
     modis = (df["sensor"] == "modis").to_numpy()
     bad_modis = modis & ~(df["confidence_pct"] >= cfg.modis_min_confidence).fillna(False).to_numpy()
