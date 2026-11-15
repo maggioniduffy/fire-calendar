@@ -5,6 +5,7 @@ import { setWorkerUrl } from "maplibre-gl";
 import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { ApiError, getCells, getDetections } from "../api/client";
+import { regionInfo } from "../api/staticData";
 import type { BBox, CellsPayload, DetectionsPayload } from "../api/types";
 import { format } from "../i18n";
 import { usePrefs, useT } from "../state/prefs";
@@ -122,7 +123,7 @@ export default function MapView() {
     const el = box.current;
     if (!el) return;
     const { width, height } = el.getBoundingClientRect();
-    const view = fitView(areaBounds(state.area, CORDOBA_BOUNDS), Math.max(width, 1), Math.max(height, 1));
+    const view = fitView(areaBounds(state.area, CORDOBA_BOUNDS, state.area.kind === "region" ? regionInfo(state.area.id)?.bbox : null), Math.max(width, 1), Math.max(height, 1));
     lastView.current = view;
     setInitialView(view);
     setWin(null);
@@ -200,6 +201,13 @@ export default function MapView() {
     const { area } = state;
     if (area.kind === "circle") return [circleRing(area.lat, area.lon, area.radiusKm)];
     if (area.kind === "polygon") return [[...area.vertices, area.vertices[0]]];
+    if (area.kind === "region") {
+      const rings = lastCells?.outline as LonLat[][] | null | undefined;
+      if (rings?.length) return rings;
+      const b = regionInfo(area.id)?.bbox;
+      if (!b) return [];
+      return [[[b[2], b[0]], [b[3], b[0]], [b[3], b[1]], [b[2], b[1]], [b[2], b[0]]]];
+    }
     const ring = lastCells?.outline?.[0] as LonLat[] | undefined;
     if (ring) return [ring];
     const [w, s, e, n] = CORDOBA_BOUNDS;

@@ -21,6 +21,8 @@ export type AreaSpec = CircleArea | PolygonArea;
 export interface CalendarRequest {
   area?: AreaSpec;
   preset?: string;
+  /** Static mode only: id of a province or department (`areas.json`). */
+  region?: string;
   /** "YYYY-MM" */
   start?: string;
   end?: string;
