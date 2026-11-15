@@ -5,7 +5,7 @@ Harmonized MODIS + VIIRS fire calendar for Argentina. Built around the CONAE cha
 (MODIS-equivalent and VIIRS-equivalent), a year × month calendar, anomalies against the climatology, ENSO phase
 context and CSV export.
 
-Status: planning done, implementation starting. See [plan.md](plan.md) (in Spanish).
+Status: planning done, implementation starting. See [plan.md](plan.md).
 
 - Data: NASA FIRMS per-country archives (MODIS C6.1, VIIRS 375 m S-NPP and NOAA-20) and the FIRMS area API for
   recent months. Sources: [docs/research/data-sources.md](docs/research/data-sources.md).

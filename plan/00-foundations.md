@@ -1,32 +1,31 @@
-# Fase 0 — Bases
+# Phase 0 — Foundations
 
-Estado: activa · Refs: `docs/architecture.md`, `docs/design.md` (solo SA0.4–SA0.5), `docs/agents.md`, `docs/research/data-sources.md`
+Status: active · Refs: `docs/architecture.md`, `docs/design.md` (SA0.4–SA0.5 only), `docs/agents.md`, `docs/research/data-sources.md`
 
-## Objetivo
+## Goal
 
-Repo listo para sumar capas y acceso a datos resuelto.
+Repo ready to add layers, and data access resolved.
 
-## Tareas
+## Tasks
 
-| ID | Tarea | Agente | Hecho cuando |
+| ID | Task | Agent | Done when |
 |---|---|---|---|
-| SA0.1 | Reglas de Space Apps 2026: código o datos preparados antes del evento, licencia, entregables (video, slides, página del proyecto, repo público) → `docs/research/rules.md` | Opus | Hecho (histórico: ya no se compite) ✅ |
-| SA0.2 | Monorepo según `docs/architecture.md`: `backend/` (uv, Python 3.12, paquete `firecal`) y `web/` (pnpm, Vite, React, TS, deck.gl); `Makefile`; `data/` fuera de git | Sonnet | `make dev` levanta API y app. Hecho ✅ (2026-11-14; `make dev` completo sin probar de punta a punta) |
-| SA0.3 | CI (GitHub Actions): ruff, pytest, eslint, tsc, vitest, Playwright | Sonnet | CI verde en un PR. Jobs backend y web (tsc, eslint, vitest, Playwright) escritos ✅; el job web todavía no corrió en GitHub |
-| SA0.4 | Tokens de `docs/design.md`, tema claro/oscuro, `web/src/i18n/es.ts` y `en.ts` | Sonnet | Cambio de tema y de idioma sin recarga; ningún string fuera de i18n. Hecho ✅ (e2e y vitest) |
-| SA0.5 | Shell de la app según el canvas: barra superior con desafío y autor, panel izquierdo, mapa, inspector, franja del calendario | Sonnet | Layout fijo en ambos temas y a ancho de teléfono. Hecho ✅ (e2e) |
-| SA0.6 | FastAPI (`/health`, `/layers`, `/layers/{id}`) y manifiesto validado con pydantic según `docs/architecture.md`, con `source`, `period`, `license` y campo opcional `experimental` | Sonnet | Unit de manifiesto válido e inválido. Hecho ✅ |
-| SA0.7 | Capa de prueba de punta a punta con focos falsos | Sonnet | e2e: la capa aparece y se inspecciona. Hecho ✅ |
-| SA0.8 | Acceso a datos (lista abajo) → `docs/research/data-sources.md` | Opus | FIRMS verificado el 2026-11-14; el resto pendiente (postergado salvo lo que pida la fase activa) |
-| SA0.9 | ONI mensual (NOAA CPC) y fase ENSO por mes, portando `docs/reference/enso.py` (clima-ideas F0.10) a `firecal.io.enso` | Sonnet | Parquet + unit de umbrales sobre serie sintética. Código y unit hechos ✅ (regla CPC de 5 estaciones); corrida 2026-11-14: 921 meses, 1950-01 a 2026-09 |
+| SA0.1 | Space Apps 2026 rules: code or data prepared before the event, license, deliverables (video, slides, project page, public repo) → `docs/research/rules.md` | Opus | Done (historical: no longer competing) ✅ |
+| SA0.2 | Monorepo per `docs/architecture.md`: `backend/` (uv, Python 3.12, `firecal` package) and `web/` (pnpm, Vite, React, TS, deck.gl); `Makefile`; `data/` out of git | Sonnet | `make dev` starts API and app. Done ✅ (2026-11-14; full `make dev` not tested end to end) |
+| SA0.3 | CI (GitHub Actions): ruff, pytest, eslint, tsc, vitest, Playwright | Sonnet | CI green on a PR. Backend and web jobs (tsc, eslint, vitest, Playwright) written ✅; the web job has not yet run on GitHub |
+| SA0.4 | Tokens from `docs/design.md`, light/dark theme, `web/src/i18n/es.ts` and `en.ts` | Sonnet | Theme and language switch without reload; no string outside i18n. Done ✅ (e2e and vitest) |
+| SA0.5 | App shell per the canvas: top bar with challenge and author, left panel, map, inspector, calendar strip | Sonnet | Fixed layout in both themes and at phone width. Done ✅ (e2e) |
+| SA0.6 | FastAPI (`/health`, `/layers`, `/layers/{id}`) and manifest validated with pydantic per `docs/architecture.md`, with `source`, `period`, `license` and optional `experimental` field | Sonnet | Unit for valid and invalid manifest. Done ✅ |
+| SA0.7 | End-to-end test layer with fake hot spots | Sonnet | e2e: the layer appears and can be inspected. Done ✅ |
+| SA0.8 | Data access (list below) → `docs/research/data-sources.md` | Opus | FIRMS verified on 2026-11-14; the rest pending (deferred except what the active phase asks for) |
+| SA0.9 | Monthly ONI (NOAA CPC) and ENSO phase per month, porting `docs/reference/enso.py` (clima-ideas F0.10) to `firecal.io.enso` | Sonnet | Parquet + threshold unit on a synthetic series. Code and unit done ✅ (CPC 5-season rule); run 2026-11-14: 921 months, 1950-01 to 2026-09 |
 
-## SA0.8: qué investigar
+## SA0.8: what to investigate
 
-FIRMS ✅ (ver `docs/research/data-sources.md`) · Catálogo de Focos de Calor y
-Áreas Quemadas y Visor Temático de CONAE (acceso, licencia) · SPI/SPEI: CHIRPS, ERA5, SPEIbase · FWI de
-Copernicus CEMS · cobertura del suelo global (MODIS MCD12Q1 o ESA WorldCover) · deriva orbital de Terra y Aqua
-y fechas de fin de misión · dónde desplegar la demo gratis.
+FIRMS ✅ (see `docs/research/data-sources.md`) · CONAE's Hot Spots and Burned Areas Catalog and Thematic Viewer
+(access, license) · SPI/SPEI: CHIRPS, ERA5, SPEIbase · Copernicus CEMS FWI · global land cover (MODIS MCD12Q1 or
+ESA WorldCover) · Terra and Aqua orbital drift and end-of-mission dates · where to deploy the demo for free.
 
 ## Tests
 
-Unit: manifiesto, fase ENSO, store de tema e idioma. e2e: shell, tema, idioma, capa de prueba.
+Unit: manifest, ENSO phase, theme and language store. e2e: shell, theme, language, test layer.

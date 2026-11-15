@@ -1,12 +1,12 @@
-# Fase 7 — Publicación
+# Phase 7 — Publication
 
-Estado: activa · Depende de: 4 · Refs: `docs/architecture.md` (Publicación estática)
+Status: active · Depends on: 4 · Refs: `docs/architecture.md` (Static publishing)
 
-## Tareas
+## Tasks
 
-| ID | Tarea | Agente | Hecho cuando |
+| ID | Task | Agent | Done when |
 |---|---|---|---|
-| SA7.1 | README en inglés: problema, método de armonización con su tabla de error, fuentes y licencias, cómo correr | Sonnet | Revisado por Opus |
-| SA7.2 | Demo desplegada: web estática + JSON precalculados por provincia y departamento en R2 | Sonnet | URL pública responde y muestra Córdoba |
-| SA7.3 | (postergado) Video y slides | usuario, con borrador de Opus | — |
-| SA7.4 | (postergado) Página del proyecto en el sitio de Space Apps: no se compite | usuario | — |
+| SA7.1 | README in English: problem, harmonization method with its error table, sources and licenses, how to run | Sonnet | Reviewed by Opus |
+| SA7.2 | Deployed demo: static web + JSON precomputed per province and department on R2 | Sonnet | Public URL responds and shows Córdoba |
+| SA7.3 | (deferred) Video and slides | user, with Opus draft | — |
+| SA7.4 | (deferred) Project page on the Space Apps site: not competing | user | — |

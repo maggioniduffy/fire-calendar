@@ -1,27 +1,26 @@
-# Fase 6 — Predicción experimental
+# Phase 6 — Experimental prediction
 
-Estado: postergado · Depende de: 2, 5 · Refs: `docs/validation.md`; registro congelado y capa experimental como clima-ideas F6.4 y F6.6 (https://github.com/maggioniduffy/clima-ideas/blob/main/plan/06-forecast.md)
+Status: deferred · Depends on: 2, 5 · Refs: `docs/validation.md`; frozen registry and experimental layer as clima-ideas F6.4 and F6.6 (https://github.com/maggioniduffy/clima-ideas/blob/main/plan/06-forecast.md)
 
-Experimental: nadie la usa para decidir. Mide si un modelo predice la actividad de fuego mejor que la
-climatología.
+Experimental: nobody uses it to decide. It measures whether a model predicts fire activity better than the
+climatology.
 
-## Pregunta
+## Question
 
-¿Cuál es la probabilidad de que el próximo mes tenga más focos que la mediana del área (terciles)?
+What is the probability that next month has more hot spots than the area's median (terciles)?
 
-## Tareas
+## Tasks
 
-| ID | Tarea | Agente | Hecho cuando |
+| ID | Task | Agent | Done when |
 |---|---|---|---|
-| SA6.1 | Variables: ONI y su pronóstico, SPEI reciente, FWI, anomalía de focos del mes previo, mes del año; días con río atmosférico si existe 5b | Sonnet | Unit: ninguna variable con fecha de disponibilidad posterior a la de emisión |
-| SA6.2 | Baselines: climatología, persistencia y análogos de años con la misma fase ENSO | Sonnet | Unit |
-| SA6.3 | Regresión logística y LightGBM validados con el esquema F6.2 | Sonnet implementa, opencode entrena | RPS y Brier por año de test vs. cada baseline |
-| SA6.4 | Registro congelado de predicciones, como clima-ideas F6.4 | Sonnet | Unit: no se edita ni se emite con fecha pasada |
-| SA6.5 | Capa "Experimental" con probabilidad, incertidumbre, skill y aviso fijo "Experimental, no es una alerta" | Sonnet | e2e: ver predicción, skill y aviso |
+| SA6.1 | Variables: ONI and its forecast, recent SPEI, FWI, hot-spot anomaly of the previous month, month of the year; atmospheric-river days if 5b exists | Sonnet | Unit: no variable with an availability date later than the issue date |
+| SA6.2 | Baselines: climatology, persistence and analog years with the same ENSO phase | Sonnet | Unit |
+| SA6.3 | Logistic regression and LightGBM validated with scheme F6.2 | Sonnet implements, opencode trains | RPS and Brier per test year vs. each baseline |
+| SA6.4 | Frozen registry of predictions, as clima-ideas F6.4 | Sonnet | Unit: cannot be edited or issued with a past date |
+| SA6.5 | "Experimental" layer with probability, uncertainty, skill and a fixed notice "Experimental, not an alert" | Sonnet | e2e: see prediction, skill and notice |
 
-## Reglas
+## Rules
 
-Horizonte máximo: 6 meses. Nada de proyecciones de décadas; eso requiere escenarios climáticos y queda fuera
-de alcance.
+Maximum horizon: 6 months. No projections of decades; that requires climate scenarios and is out of scope.
 
-Si un modelo no supera a la climatología, se informa así y la capa lo muestra.
+If a model does not beat the climatology, we report it and the layer shows it.

@@ -1,29 +1,30 @@
-# Fase 1 — Datos FIRMS
+# Phase 1 — FIRMS data
 
-Estado: activa · Depende de: 0 (SA0.8) · Refs: `docs/architecture.md`, `docs/research/data-sources.md`
+Status: active · Depends on: 0 (SA0.8) · Refs: `docs/architecture.md`, `docs/research/data-sources.md`
 
-## Objetivo
+## Goal
 
-Focos de calor de MODIS y VIIRS 2000–hoy, filtrados y en una grilla liviana de Argentina para consultar cualquier área del país.
+MODIS and VIIRS hot spots 2000–today, filtered and in a lightweight Argentina grid so any area of the country can
+be queried.
 
-## Datos
+## Data
 
-MODIS C6.1 (Terra desde 11/2000, Aqua desde 7/2002), VIIRS 375 m (S-NPP desde 1/2012, NOAA-20, NOAA-21).
-Archivo standard por país para la historia (URL en `docs/research/data-sources.md`; S-NPP termina el 2026-11-02);
-NRT por API de área para los meses que el standard todavía no cubre, solo si hay `FIRMS_MAP_KEY`.
+MODIS C6.1 (Terra from 11/2000, Aqua from 7/2002), VIIRS 375 m (S-NPP from 1/2012, NOAA-20, NOAA-21).
+Standard per-country archive for the history (URL in `docs/research/data-sources.md`; S-NPP ends on 2026-11-02);
+NRT through the area API for the months the standard archive does not cover yet, only if `FIRMS_MAP_KEY` is set.
 
-## Tareas
+## Tasks
 
-| ID | Tarea | Agente | Hecho cuando |
+| ID | Task | Agent | Done when |
 |---|---|---|---|
-| SA1.1 | Descarga idempotente de los CSV anuales de Argentina (MODIS, VIIRS S-NPP, VIIRS NOAA-20) | Sonnet escribe, opencode corre | Archivos con checksum + unit de idempotencia. Hecho ✅ (corrida 2026-11-14: 48 archivos, 487 MB) |
-| SA1.2 | Ingesta a Parquet con esquema único (sensor, satélite, fecha/hora, día/noche, lat, lon, confianza, FRP, tipo) | Sonnet | Unit sobre filas sintéticas de cada sensor. Hecho ✅ (códigos de `satellite` verificados en los archivos reales) |
-| SA1.3 | Filtros: solo `type` vegetación (sin fuentes fijas ni mar adentro); confianza MODIS ≥ umbral, VIIRS nominal o alta; umbral configurable | Sonnet | Unit: cada filtro descarta lo esperado. Hecho ✅ |
-| SA1.4 | Grilla de Argentina: conteo por celda (0,1° y 0,25°) × día × sensor × día/noche | Sonnet escribe, opencode corre | Parquet particionado por año + unit de agregación. Hecho ✅ (0,1° y 0,25°, corrida 2026-11-14) |
-| SA1.5 | Detecciones crudas de Argentina en DuckDB para consultas y CSV (postergado: el CSV sale del Parquet) | Sonnet | Consulta por polígono < 2 s en Córdoba |
-| SA1.6 | Ingesta NRT de los meses sin standard por API de área (solo con `FIRMS_MAP_KEY`) | Sonnet | Una corrida trae el último día disponible |
-| SA1.7 | Perfil de datos: focos por año, sensor y región; huecos | opencode | `reports/01/SA1.7.md`. Hecho ✅ (sin 2026 en standard; `version` MODIS cambia en 2018 y 2023, a revisar en fase 2) |
+| SA1.1 | Idempotent download of the yearly Argentina CSVs (MODIS, VIIRS S-NPP, VIIRS NOAA-20) | Sonnet writes, opencode runs | Files with checksum + idempotency unit. Done ✅ (run 2026-11-14: 48 files, 487 MB) |
+| SA1.2 | Ingestion to Parquet with a single schema (sensor, satellite, date/time, day/night, lat, lon, confidence, FRP, type) | Sonnet | Unit on synthetic rows of each sensor. Done ✅ (`satellite` codes verified in the real files) |
+| SA1.3 | Filters: only `type` vegetation (no fixed sources or offshore); MODIS confidence ≥ threshold, VIIRS nominal or high; configurable threshold | Sonnet | Unit: each filter drops what is expected. Done ✅ |
+| SA1.4 | Argentina grid: count per cell (0.1° and 0.25°) × day × sensor × day/night | Sonnet writes, opencode runs | Parquet partitioned by year + aggregation unit. Done ✅ (0.1° and 0.25°, run 2026-11-14) |
+| SA1.5 | Raw Argentina detections in DuckDB for queries and CSV (deferred: the CSV comes from the Parquet) | Sonnet | Polygon query < 2 s in Córdoba |
+| SA1.6 | NRT ingestion of the months without standard data through the area API (only with `FIRMS_MAP_KEY`) | Sonnet | One run brings the latest available day |
+| SA1.7 | Data profile: hot spots per year, sensor and region; gaps | opencode | `reports/01/SA1.7.md`. Done ✅ (no 2026 in standard; MODIS `version` changes in 2018 and 2023, to review in phase 2) |
 
-## Abierto
+## Open
 
-- Resuelto el 2026-11-14: cobertura Argentina (487 MB medidos). Otros países, más adelante, con el mismo descargador.
+- Resolved on 2026-11-14: Argentina coverage (487 MB measured). Other countries later, with the same downloader.

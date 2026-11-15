@@ -1,124 +1,123 @@
-# Fase 2 — Armonización MODIS–VIIRS
+# Phase 2 — MODIS–VIIRS harmonization
 
-Estado: cerrada el 2026-11-15 (SA2.6, SA2.8, SA2.9 y SA2.10 postergadas) · Depende de: 1 · Refs: `docs/validation.md`
+Status: closed on 2026-11-15 (SA2.6, SA2.8, SA2.9 and SA2.10 deferred) · Depends on: 1 · Refs: `docs/validation.md`
 
-## Pregunta
+## Question
 
-¿Cómo convertir 2000–hoy en una sola serie donde el sensor de origen ya no importe, en las dos escalas y sin
-cortarse cuando MODIS deje de operar?
+How do we turn 2000–today into a single series where the source sensor no longer matters, in both scales and
+without breaking when MODIS stops operating?
 
-## Enfoque
+## Approach
 
-Solapamiento 2012–hoy: los dos sensores miden lo mismo. VIIRS ve más focos chicos por su resolución (375 m vs.
-1 km), y los horarios de paso difieren. Con ese período se calibra en los dos sentidos:
+2012–today overlap: both sensors measure the same thing. VIIRS sees more small hot spots because of its
+resolution (375 m vs. 1 km), and the overpass times differ. With that period we calibrate in both directions:
 
-- **Hacia MODIS:** VIIRS → "MODIS-equivalente". Serie larga y comparable con la literatura.
-- **Hacia VIIRS (serie inversa):** MODIS → "VIIRS-equivalente" para 2000–2011. Estima cuántos focos habría
-  registrado VIIRS en un área y período, con incertidumbre; no ubica focos individuales que MODIS no detectó.
-  En la UI dice "estimado", nunca "detectado".
-- **Continuidad:** cuando MODIS se apague, cada año nuevo de VIIRS (S-NPP, NOAA-20, NOAA-21 y siguientes JPSS,
-  sin verificar fechas) entra a las dos series con la calibración congelada.
+- **Toward MODIS:** VIIRS → "MODIS-equivalent". Long series, comparable with the literature.
+- **Toward VIIRS (inverse series):** MODIS → "VIIRS-equivalent" for 2000–2011. Estimates how many hot spots VIIRS
+  would have recorded in an area and period, with uncertainty; it does not locate individual hot spots that MODIS
+  did not detect. In the UI it says "estimated" (`estimado`), never "detected".
+- **Continuity:** when MODIS is switched off, each new year of VIIRS (S-NPP, NOAA-20, NOAA-21 and later JPSS,
+  dates unverified) enters both series with the calibration frozen.
 
-Supervisado, no aprendizaje por refuerzo: hay pares observados (MODIS y VIIRS, misma celda y día) y no hay
-agente, entorno ni recompensa.
+Supervised, not reinforcement learning: there are observed pairs (MODIS and VIIRS, same cell and day) and there is
+no agent, environment or reward.
 
-## Diseño de los baselines (decidido 2026-11-14, con consulta al asesor)
+## Baseline design (decided 2026-11-14, with advisor consultation)
 
-Todo lo de abajo es diseño; los supuestos sobre los datos quedan "sin verificar" hasta la primera corrida real.
+Everything below is design; the assumptions about the data stay "unverified" until the first real run.
 
-- **Escalas:** MODIS = Terra + Aqua; VIIRS = S-NPP solo. NOAA-20 nunca se suma a S-NPP: entra por un factor de
-  transferencia NOAA-20→S-NPP ajustado desde 2018-05, que se encadena para la continuidad. Se excluyen los meses
-  parciales 2012-01 y 2018-04. Día y noche se ajustan por separado y se suman. Los meses con solo Terra (antes
-  de Aqua) necesitan un factor Terra-solo.
-- **Conteo:** el que muestra el calendario: detecciones tras `FilterConfig`, tal como salen de la grilla de 0,1°.
-  La tabla de celdas de 1 km por día (SA2.1, par Aqua ~ S-NPP) queda para LightGBM y como diagnóstico. Todos
-  los métodos se evalúan sobre el mismo conteo.
-- **Región:** bloques de 2,5° lat/lon (origen −90/−180, anidan con las dos grillas, sin datos nuevos).
-- **Unidad:** se ajusta sobre sumas por región × mes del año × día/noche; se evalúa por región-mes de cada año
-  de test y por total región-año.
-- **Estimador (SA2.2):** cociente de sumas, con encogimiento hacia el factor nacional del mismo mes y día/noche:
-  `f = (M + k·f_nacional) / (V + k)`, con `k` elegido dentro del entrenamiento. Intervalos a partir de la
-  dispersión de los factores año afuera, no de la varianza de Poisson.
-- **Métricas** (las mismas para ML después), por año de test, región y sentido: sesgo relativo (Σpred/Σobs − 1),
-  WAPE, MAE, devianza de Poisson media y, en la serie inversa, cobertura del intervalo.
-- **Ajuste de cuantiles (SA2.3):** sobre totales región-mes, juntando los meses del año; cero va a cero y se
-  ajustan solo los positivos; por encima del máximo de entrenamiento, cociente constante. No es aditivo, así que
-  no se aplica celda por celda: sirve para ver si el cociente depende del nivel de actividad.
-- **Estabilidad (versión MODIS y deriva orbital):** año y `version` no entran al baseline. Con la primera corrida
-  se publica una tabla: factor por año (nacional y por bloque, por día/noche y por Terra y Aqua), NOAA-20/S-NPP
-  por año como control sin MODIS, Terra/Aqua por año, hora media de adquisición por satélite y año, y el control
-  de origen móvil. Si aparece un escalón en 2018 o 2023 con el control VIIRS plano, se ajusta por época y la
-  serie inversa se calibra solo con 2012–2017 (misma `version` que 2000–2011), y se retoma SA2.8.
+- **Scales:** MODIS = Terra + Aqua; VIIRS = S-NPP only. NOAA-20 is never added to S-NPP: it enters through a
+  NOAA-20→S-NPP transfer factor fitted from 2018-05, which is chained for continuity. The partial months 2012-01
+  and 2018-04 are excluded. Day and night are fitted separately and summed. Months with Terra only (before Aqua)
+  need a Terra-only factor.
+- **Count:** the one the calendar shows: detections after `FilterConfig`, as they come out of the 0.1° grid. The
+  table of 1 km cells per day (SA2.1, Aqua ~ S-NPP pair) is kept for LightGBM and as a diagnostic. All methods are
+  evaluated on the same count.
+- **Region:** 2.5° lat/lon blocks (origin −90/−180, they nest with both grids, no new data).
+- **Unit:** fitted on sums per region × month of the year × day/night; evaluated per region-month of each test
+  year and per region-year total.
+- **Estimator (SA2.2):** ratio of sums, with shrinkage toward the national factor of the same month and day/night:
+  `f = (M + k·f_national) / (V + k)`, with `k` chosen inside the training set. Intervals from the dispersion of
+  the leave-one-year-out factors, not from the Poisson variance.
+- **Metrics** (the same for ML later), per test year, region and direction: relative bias (Σpred/Σobs − 1), WAPE,
+  MAE, mean Poisson deviance and, in the inverse series, interval coverage.
+- **Quantile matching (SA2.3):** on region-month totals, pooling the months of the year; zero maps to zero and
+  only the positives are fitted; above the training maximum, constant ratio. It is not additive, so it is not
+  applied cell by cell: it serves to see whether the ratio depends on the activity level.
+- **Stability (MODIS version and orbital drift):** year and `version` do not enter the baseline. With the first
+  run a table is published: factor per year (national and per block, by day/night and by Terra and Aqua),
+  NOAA-20/S-NPP per year as a control without MODIS, Terra/Aqua per year, mean acquisition time per satellite and
+  year, and the rolling-origin control. If a step appears in 2018 or 2023 with the VIIRS control flat, it is
+  adjusted per epoch and the inverse series is calibrated only with 2012–2017 (same `version` as 2000–2011), and
+  SA2.8 is resumed.
 
-- **Hallazgo 2026-11-14 (`docs/research/data-sources.md`):** desde 2018 MODIS marca más focos como `type` 2
-  (fuente fija), así que el filtro `type == 0` saca 3–4 puntos más que antes. La tabla de estabilidad se calcula
-  con y sin el filtro de `type` para medir cuánto del escalón viene de ahí.
+- **Finding 2026-11-14 (`docs/research/data-sources.md`):** since 2018 MODIS flags more hot spots as `type` 2
+  (static source), so the `type == 0` filter removes 3–4 points more than before. The stability table is computed
+  with and without the `type` filter to measure how much of the step comes from there.
 
-- **Primera corrida (2026-11-14, [reports/02/baselines.md](../reports/02/baselines.md)):** el factor de escala
-  (SA2.2) le gana al ajuste de cuantiles (SA2.3) en los dos sentidos: WAPE bloque-mes con año afuera 17,2 % vs.
-  19,4 % (VIIRS→MODIS) y 17,9 % vs. 19,4 % (MODIS→VIIRS); el control de origen móvil coincide. Factor nacional
-  VIIRS→MODIS 0,302 (día 0,360, noche 0,147). Sin escalón claro en 2018 ni en 2023: el filtro de `type` mueve el
-  cociente 2018 de 0,308 a 0,302. Abierto: (1) los intervalos de la serie inversa cubren 26 % (jackknife) y 54 %
-  (dispersión interanual) contra un nominal de 80 %; hacen falta intervalos que incluyan el ruido del conteo
-  antes de SA2.11; (2) en 2024–2025 el cociente Terra/Aqua cae (0,59 → 0,41) y la hora media de paso de Terra se
-  adelanta (13:55 → 13:15 UTC de día) mientras S-NPP y NOAA-20 quedan fijos: compatible con deriva orbital de
-  Terra, sin verificar la causa. La serie MODIS total (Terra + Aqua) no muestra escalón en esos años.
+- **First run (2026-11-14, [reports/02/baselines.md](../reports/02/baselines.md)):** the scale factor (SA2.2)
+  beats quantile matching (SA2.3) in both directions: leave-one-year-out block-month WAPE 17.2 % vs. 19.4 %
+  (VIIRS→MODIS) and 17.9 % vs. 19.4 % (MODIS→VIIRS); the rolling-origin control agrees. National VIIRS→MODIS
+  factor 0.302 (day 0.360, night 0.147). No clear step in 2018 or 2023: the `type` filter moves the 2018 ratio
+  from 0.308 to 0.302. Open: (1) the inverse-series intervals cover 26 % (jackknife) and 54 % (interannual
+  dispersion) against a nominal 80 %; intervals that include the count noise are needed before SA2.11; (2) in
+  2024–2025 the Terra/Aqua ratio drops (0.59 → 0.41) and Terra's mean overpass time moves earlier (13:55 → 13:15
+  UTC by day) while S-NPP and NOAA-20 stay fixed: compatible with Terra orbital drift, cause unverified. The
+  total MODIS series (Terra + Aqua) shows no step in those years.
 
-## Diseño de LightGBM (SA2.4 y SA2.7, decidido 2026-11-14 antes de correr, con consulta al asesor)
+## LightGBM design (SA2.4 and SA2.7, decided 2026-11-14 before running, with advisor consultation)
 
-- **Unidad:** celda de 0,1° × mes × día/noche, solo filas con algún sensor activo; las predicciones se suman a
-  bloque-mes para evaluar igual que SA2.2. Segundo candidato barato: LightGBM directo sobre bloque-mes, muy
-  regularizado, para separar cuánto aporta la resolución y cuánto las variables. Celda-día descartada (horarios
-  de paso distintos y poca coincidencia a 1 km). Medido en 2020: 52.316 filas activas; 17 % de las detecciones
-  S-NPP caen en filas sin MODIS.
-- **Base:** el baseline entra como offset, `init_score = log(f_bloque × fuente + ε)`, con la fuente suavizada en
-  3×3 para las filas sin fuente. Con cero árboles el modelo reproduce SA2.2; se verifica que los totales por
-  bloque coincidan con SA2.2 dentro de ~1 %. El factor usado en las filas de entrenamiento sale de un año afuera
-  interno (fuera de muestra), nunca ajustado sobre esas mismas filas.
-- **Variables:** conteos y FRP de la fuente por satélite y día/noche, FRP por detección, proporción día/noche,
-  conteo de la fuente en 3×3, total de la fuente en el bloque, mes del año. Con y sin proporción Terra/Aqua
-  (Terra cambia en 2024–2025 y Aqua no existe antes de 2002-07). Lat/lon solo en una ablación. Fuera: año,
-  `version`, mes anterior. Toda variable de SA2.7 tiene que existir en 2000–2011 (solo MODIS). Sin cobertura del
-  suelo (SA0.8 pendiente) ni ángulo de escaneo (no hay `scan`).
-- **Hiperparámetros:** grilla chica elegida dentro de cada entrenamiento externo por WAPE bloque-mes con año
-  afuera interno; pocos hilos, menos de 4 GB.
-- **Intervalos:** el mismo esquema conformal anidado del baseline aplicado a la predicción puntual, para comparar
-  cobertura y ancho con SA2.2. LightGBM por cuantiles solo como diagnóstico a nivel bloque-mes.
-- **Criterio de publicación (fijado antes de la corrida), por sentido; LightGBM se publica solo si cumple todo:**
-  WAPE bloque-mes con año afuera al menos 1 punto menor que SA2.2 y bloque-año no mayor; menor WAPE bloque-mes
-  en al menos 10 de 14 años de test; mejora del mismo signo con origen móvil; |sesgo| total no peor que el de
-  SA2.2 + 0,5 puntos y el peor año no peor; devianza de Poisson bloque-mes no peor; en SA2.7, cobertura
-  80 ± 5 % y ancho no mayor; el intervalo bootstrap pareado (por año y bloque) de la diferencia de WAPE excluye
-  cero. Si no, el informe dice "no supera al factor" y se publica SA2.2.
+- **Unit:** 0.1° cell × month × day/night, only rows with some active sensor; predictions are summed to
+  block-month to evaluate the same way as SA2.2. Second cheap candidate: LightGBM directly on block-month, heavily
+  regularized, to separate how much comes from the resolution and how much from the variables. Cell-day
+  discarded (different overpass times and little coincidence at 1 km). Measured in 2020: 52,316 active rows; 17 %
+  of S-NPP detections fall in rows without MODIS.
+- **Base:** the baseline enters as an offset, `init_score = log(f_block × source + ε)`, with the source smoothed
+  over 3×3 for rows without source. With zero trees the model reproduces SA2.2; it is checked that block totals
+  match SA2.2 within ~1 %. The factor used in the training rows comes from an inner leave-one-year-out
+  (out-of-sample), never fitted on those same rows.
+- **Variables:** source counts and FRP per satellite and day/night, FRP per detection, day/night share, source
+  count over 3×3, source total in the block, month of the year. With and without the Terra/Aqua ratio (Terra
+  changes in 2024–2025 and Aqua does not exist before 2002-07). Lat/lon only in an ablation. Out: year,
+  `version`, previous month. Every SA2.7 variable has to exist in 2000–2011 (MODIS only). No land cover (SA0.8
+  pending) and no scan angle (there is no `scan`).
+- **Hyperparameters:** small grid chosen inside each outer training set by inner leave-one-year-out block-month
+  WAPE; few threads, under 4 GB.
+- **Intervals:** the same nested conformal scheme as the baseline applied to the point prediction, to compare
+  coverage and width with SA2.2. Quantile LightGBM only as a block-month-level diagnostic.
+- **Publication criterion (fixed before the run), per direction; LightGBM is published only if it meets all:**
+  leave-one-year-out block-month WAPE at least 1 point lower than SA2.2 and block-year no higher; lower
+  block-month WAPE in at least 10 of 14 test years; improvement of the same sign with rolling origin; total
+  |bias| no worse than SA2.2's + 0.5 points and the worst year no worse; block-month Poisson deviance no worse;
+  in SA2.7, coverage 80 ± 5 % and width no larger; the paired bootstrap interval (by year and block) of the WAPE
+  difference excludes zero. Otherwise the report says "does not beat the factor" and SA2.2 is published.
 
-- **LightGBM (2026-11-15, [reports/02/baselines.md](../reports/02/baselines.md)):** no supera al factor en
-  ningún sentido con el criterio fijado; la capa `harmonized` sigue con SA2.2. VIIRS→MODIS estuvo cerca (celda:
-  WAPE bloque-mes 15,9 % vs 17,2 %, 12 de 14 años, pero sesgo −2,5 %; bloque-mes: bootstrap con límite +0,02).
-  La primera corrida de SA2.7 divergió numéricamente; se agregó `max_delta_step = 1` después de esa corrida (no
-  estaba en el diseño previo, aplica a los dos sentidos) y un control de predicciones. Abierto: grilla reducida
-  por tiempo. Sesgo del modelo de celda verificado ([reports/02/ml_bias_check.md](../reports/02/ml_bias_check.md)):
-  estructural en el total (en sus filas +0,06 % y −0,54 %), no en los años sueltos; el peor año de SA2.4 (2024)
-  es difícil también para SA2.2.
+- **LightGBM (2026-11-15, [reports/02/baselines.md](../reports/02/baselines.md)):** does not beat the factor in
+  either direction under the fixed criterion; the `harmonized` layer stays with SA2.2. VIIRS→MODIS came close
+  (cell: block-month WAPE 15.9 % vs 17.2 %, 12 of 14 years, but bias −2.5 %; block-month: bootstrap with limit
+  +0.02). The first SA2.7 run diverged numerically; `max_delta_step = 1` was added after that run (it was not in
+  the prior design, applies to both directions) along with a prediction check. Open: grid reduced for time. Cell
+  model bias verified ([reports/02/ml_bias_check.md](../reports/02/ml_bias_check.md)): structural in the total
+  (in its rows +0.06 % and −0.54 %), not in individual years; the worst SA2.4 year (2024) is hard for SA2.2 too.
 
-## Tareas
+## Tasks
 
-| ID | Tarea | Agente | Hecho cuando |
+| ID | Task | Agent | Done when |
 |---|---|---|---|
-| SA2.1 | VIIRS reagrupado a celdas de 1 km por día (una detección por celda), pares de pasos similares (Aqua ~ S-NPP) | Sonnet | Unit: N detecciones en una celda cuentan como 1. Hecho ✅ (2026-11-14; en 2020, de 71.819 celdas-día de Aqua solo 29.937 tienen S-NPP en la misma celda de 0,01°: la coincidencia exacta a 1 km es baja y SA2.4/SA2.7 van a necesitar vecindad) |
-| SA2.2 | Baseline: factor de escala MODIS/VIIRS por región y mes del año, en los dos sentidos | Sonnet | Unit con datos sintéticos de factor conocido. Hecho ✅ (2026-11-14; [reports/02/baselines.md](../reports/02/baselines.md)) |
-| SA2.3 | Ajuste de cuantiles por región | Sonnet | Unit: recupera la distribución objetivo en sintético. Hecho ✅ (2026-11-14; pierde contra SA2.2 en los dos sentidos) |
-| SA2.4 | LightGBM hacia MODIS: conteo MODIS-equivalente desde conteos VIIRS por confianza, FRP, día/noche, mes, latitud, cobertura del suelo | Sonnet implementa, opencode entrena | Error por año de test vs. SA2.2 y SA2.3. Hecho ✅ (2026-11-15): no supera al factor; celda falla el sesgo (−2,5 % vs +0,9 %), bloque-mes falla el bootstrap (+0,02) |
-| SA2.5 | Validación año afuera con separación y selección anidada (`docs/validation.md`) | Sonnet | Unit: ningún día de test en entrenamiento. Hecho ✅ (2026-11-14; año afuera con separación y origen móvil) |
-| SA2.6 | (postergado) Efecto de la deriva orbital de Terra y Aqua en los años recientes (sin verificar magnitud) | opencode | `reports/02/SA2.6.md` con cifras |
-| SA2.7 | Serie inversa: LightGBM con objetivo Poisson o Tweedie que estima conteos VIIRS por celda y día desde conteo y FRP de MODIS, (sin ángulo de escaneo: el archivo standard no trae `scan`), día/noche, mes, cobertura del suelo y focos de días vecinos; intervalos por regresión cuantílica | Sonnet implementa, opencode entrena | Error y cobertura de intervalos por año de test vs. SA2.2 inverso. Hecho ✅ (2026-11-15): no supera al factor (celda falla todas; bloque-mes falla 1, 4 y 7) |
-| SA2.8 | (postergado) Validación hacia atrás: entrenar con 2016 en adelante y evaluar en 2012–2015, para simular estimar el pasado y ver si la relación cambia con el tiempo | Sonnet | Tabla de error por región y año; unit: ningún año de test en entrenamiento |
-| SA2.9 | (postergado) Áreas quemadas MCD64A1 (2000–) como variable de SA2.7 para fuegos que MODIS no marcó como foco; Landsat solo si SA0.8 confirma acceso y cobertura | Sonnet escribe, opencode corre | Error de SA2.7 con y sin la variable |
-| SA2.10 | (postergado) Continuidad post-MODIS: calibración congelada con versión y fecha; ingesta de un año VIIRS nuevo actualiza las dos series sin recalibrar | Sonnet | Unit: agregar un año no cambia los valores previos |
-| SA2.11 | Serie final en dos escalas (MODIS-eq y VIIRS-eq) con banda de incertidumbre; manifiesto con método, versión de calibración, fuente y período | Sonnet | Capa publicada + e2e de carga. Hecho ✅ (2026-11-15; capa `harmonized` con calibración congelada `sf-2026.11.1` del factor SA2.2 y bandas conformales por bloque-mes y bloque-año; unit de API; el e2e de carga en la web queda para la fase 4; MODIS-eq desde NOAA-20 cuando terminen MODIS y S-NPP queda sin banda) |
+| SA2.1 | VIIRS regrouped into 1 km cells per day (one detection per cell), pairs of similar overpasses (Aqua ~ S-NPP) | Sonnet | Unit: N detections in one cell count as 1. Done ✅ (2026-11-14; in 2020, of 71,819 Aqua cell-days only 29,937 have S-NPP in the same 0.01° cell: exact coincidence at 1 km is low and SA2.4/SA2.7 will need a neighborhood) |
+| SA2.2 | Baseline: MODIS/VIIRS scale factor per region and month of the year, in both directions | Sonnet | Unit with synthetic data of known factor. Done ✅ (2026-11-14; [reports/02/baselines.md](../reports/02/baselines.md)) |
+| SA2.3 | Quantile matching per region | Sonnet | Unit: recovers the target distribution on synthetic data. Done ✅ (2026-11-14; loses to SA2.2 in both directions) |
+| SA2.4 | LightGBM toward MODIS: MODIS-equivalent count from VIIRS counts by confidence, FRP, day/night, month, latitude, land cover | Sonnet implements, opencode trains | Error per test year vs. SA2.2 and SA2.3. Done ✅ (2026-11-15): does not beat the factor; cell fails the bias (−2.5 % vs +0.9 %), block-month fails the bootstrap (+0.02) |
+| SA2.5 | Leave-one-year-out validation with gap and nested selection (`docs/validation.md`) | Sonnet | Unit: no test day in training. Done ✅ (2026-11-14; leave-one-year-out with gap and rolling origin) |
+| SA2.6 | (deferred) Effect of Terra and Aqua orbital drift in recent years (magnitude unverified) | opencode | `reports/02/SA2.6.md` with figures |
+| SA2.7 | Inverse series: LightGBM with Poisson or Tweedie objective that estimates VIIRS counts per cell and day from MODIS count and FRP, (no scan angle: the standard file carries no `scan`), day/night, month, land cover and hot spots of neighboring days; intervals by quantile regression | Sonnet implements, opencode trains | Error and interval coverage per test year vs. inverse SA2.2. Done ✅ (2026-11-15): does not beat the factor (cell fails all; block-month fails 1, 4 and 7) |
+| SA2.8 | (deferred) Backward validation: train from 2016 onward and evaluate on 2012–2015, to simulate estimating the past and see whether the relationship changes over time | Sonnet | Error table per region and year; unit: no test year in training |
+| SA2.9 | (deferred) MCD64A1 burned areas (2000–) as a SA2.7 variable for fires that MODIS did not flag as hot spots; Landsat only if SA0.8 confirms access and coverage | Sonnet writes, opencode runs | SA2.7 error with and without the variable |
+| SA2.10 | (deferred) Post-MODIS continuity: calibration frozen with version and date; ingesting a new VIIRS year updates both series without recalibrating | Sonnet | Unit: adding a year does not change previous values |
+| SA2.11 | Final series in two scales (MODIS-eq and VIIRS-eq) with uncertainty band; manifest with method, calibration version, source and period | Sonnet | Published layer + load e2e. Done ✅ (2026-11-15; `harmonized` layer with frozen calibration `sf-2026.11.1` of the SA2.2 factor and conformal bands per block-month and block-year; API unit; the web load e2e is left for phase 4; MODIS-eq from NOAA-20 once MODIS and S-NPP end has no band) |
 
-## Entregable
+## Deliverable
 
-Tabla de error por método, sentido y región, incluida la validación hacia atrás. Se publica el método que gane en
-test; si LightGBM no supera al factor de escala, se informa así y se usa el factor. Tendencia observada
-2000–hoy por región con su intervalo; ninguna proyección de décadas (requiere escenarios climáticos, fuera de
-alcance).
+Error table per method, direction and region, including backward validation. The method that wins on test is
+published; if LightGBM does not beat the scale factor, we report it and use the factor. Observed 2000–today trend
+per region with its interval; no projection of decades (it requires climate scenarios, out of scope).

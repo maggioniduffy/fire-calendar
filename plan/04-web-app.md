@@ -1,21 +1,21 @@
-# Fase 4 — App web
+# Phase 4 — Web app
 
-Estado: activa (SA4.8 al final) · Depende de: 0, 3 · Refs: `docs/design.md`
+Status: active (SA4.8 last) · Depends on: 0, 3 · Refs: `docs/design.md`
 
-## Objetivo
+## Goal
 
-La app del desafío con el layout del canvas de diseño: elegir área y período, ver el historial de fuego y
-descargarlo.
+The challenge app with the layout of the design canvas: choose area and period, see the fire history and download
+it.
 
-## Tareas
+## Tasks
 
-| ID | Tarea | Agente | Hecho cuando |
+| ID | Task | Agent | Done when |
 |---|---|---|---|
-| SA4.1 | Área: dibujar en el mapa, ingresar lat/lon + radio, "Usar mi ubicación" (pide permiso; radio por defecto ~230 km); vista inicial: provincia de Córdoba | Sonnet | e2e de cada modo; sin permiso queda Córdoba |
-| SA4.2 | Mapa deck.gl con focos (crudos o celdas según zoom) y el área seleccionada | Sonnet | e2e: cambia al mover el área |
-| SA4.3 | Calendario: heatmap año×mes con rampa secuencial apta para daltonismo; tooltip con conteo y fuente | Sonnet | e2e + vitest de escala de color |
-| SA4.4 | Anomalías: año×mes vs. mediana con rampa divergente azul/naranja; mes actual resaltado con el acento | Sonnet | e2e |
-| SA4.5 | Inspector: cifras de SA3.4, selector de serie: reportada por sensor, MODIS-equivalente o VIIRS-equivalente (2000–2011 marcado "estimado"), versión de calibración, fuente y período | Sonnet | e2e |
-| SA4.6 | Descargas CSV (focos y calendario) | Sonnet | e2e: el archivo baja con las columnas de SA3.6 |
-| SA4.8 | Vista "Dashboard" del área seleccionada (pestaña junto al mapa), gráficos enlazados entre sí y con el calendario: serie mensual armonizada con banda de incertidumbre y series por sensor; totales por año; estacionalidad (mediana y p10–p90 por mes con el año en curso encima); anomalía mensual; reparto día/noche y distribución de FRP; fase ENSO y sequía (si existe la fase 5). Cada gráfico con fuente y período, exportable en PNG y CSV | Sonnet | e2e: elegir área → gráficos con los mismos totales que SA3.4; vitest de escalas |
-| SA4.7 | Accesibilidad: contraste AA, teclado, foco visible, ancho de teléfono | Sonnet | Playwright + axe sin errores |
+| SA4.1 | Area: draw on the map, enter lat/lon + radius, "Use my location" (asks permission; default radius ~230 km); initial view: Córdoba province | Sonnet | e2e of each mode; without permission it stays on Córdoba |
+| SA4.2 | deck.gl map with hot spots (raw or cells depending on zoom) and the selected area | Sonnet | e2e: changes when the area moves |
+| SA4.3 | Calendar: year × month heatmap with a colorblind-safe sequential ramp; tooltip with count and source | Sonnet | e2e + vitest of the color scale |
+| SA4.4 | Anomalies: year × month vs. median with a blue/orange diverging ramp; current month highlighted with the accent | Sonnet | e2e |
+| SA4.5 | Inspector: SA3.4 figures, series selector: reported per sensor, MODIS-equivalent or VIIRS-equivalent (2000–2011 marked "estimated"), calibration version, source and period | Sonnet | e2e |
+| SA4.6 | CSV downloads (hot spots and calendar) | Sonnet | e2e: the file downloads with the SA3.6 columns |
+| SA4.8 | "Dashboard" view of the selected area (tab next to the map), charts linked to each other and to the calendar: harmonized monthly series with uncertainty band and per-sensor series; totals per year; seasonality (median and p10–p90 per month with the current year on top); monthly anomaly; day/night split and FRP distribution; ENSO phase and drought (if phase 5 exists). Each chart with source and period, exportable as PNG and CSV | Sonnet | e2e: choose area → charts with the same totals as SA3.4; vitest of scales |
+| SA4.7 | Accessibility: AA contrast, keyboard, visible focus, phone width | Sonnet | Playwright + axe with no errors |
