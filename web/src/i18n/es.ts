@@ -61,6 +61,14 @@ const es = {
   },
   map: {
     label: "Mapa de focos de calor",
+    hotspots: "{n} focos en el área",
+    noData: "Sin cobertura del sensor en este mes",
+    loading: "Cargando focos…",
+    error: "No se pudieron cargar los focos del mapa.",
+    legendCells: "Focos por celda de 0,1°",
+    legendDetections: "Detecciones individuales",
+    legendTruncated: "Se muestran {shown} de {total}",
+    legendEstimated: "Meses 2000–2011 de VIIRS equivalente: estimados",
   },
   dashboard: {
     pending: "Los gráficos del área llegan con la serie armonizada.",

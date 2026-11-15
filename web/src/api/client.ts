@@ -1,6 +1,9 @@
 import type {
   CalendarPayload,
   CalendarRequest,
+  CellsPayload,
+  CellsRequest,
+  DetectionsPayload,
   ExportRequest,
   StatsPayload,
   StatsRequest,
@@ -52,4 +55,17 @@ export async function postStats(req: StatsRequest, signal?: AbortSignal): Promis
 /** CSV download; the caller reads the body and `Content-Disposition` (SA4.6). */
 export function postExport(req: ExportRequest, signal?: AbortSignal): Promise<Response> {
   return post("/export.csv", req, signal);
+}
+
+/** Cells (0.1 degree) with counts for one month inside the area and the view window. */
+export async function getCells(req: CellsRequest, signal?: AbortSignal): Promise<CellsPayload> {
+  return (await post("/cells", req, signal)).json() as Promise<CellsPayload>;
+}
+
+/** Raw detections for one month in the view window (`req.bbox` required); `ApiError` 404 when unavailable. */
+export async function getDetections(
+  req: CellsRequest & { bbox: NonNullable<CellsRequest["bbox"]> },
+  signal?: AbortSignal,
+): Promise<DetectionsPayload> {
+  return (await post("/detections", req, signal)).json() as Promise<DetectionsPayload>;
 }

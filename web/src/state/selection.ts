@@ -1,4 +1,4 @@
-import type { ApiScale, CalendarRequest, StatsRequest } from "../api/types";
+import type { ApiScale, BBox, CalendarRequest, CellsRequest, StatsRequest } from "../api/types";
 
 /** [lon, lat] */
 export type LonLat = [number, number];
@@ -55,7 +55,7 @@ function intersectsArg([latMin, latMax, lonMin, lonMax]: Box): boolean {
   return !(latMax < a[0] || latMin > a[1] || lonMax < a[2] || lonMin > a[3]);
 }
 
-function circleBox(lat: number, lon: number, radiusKm: number): Box {
+export function circleBox(lat: number, lon: number, radiusKm: number): Box {
   const dlat = radiusKm / KM_PER_DEG_LAT;
   const dlon = radiusKm / (KM_PER_DEG_LAT * Math.max(Math.cos((lat * Math.PI) / 180), 1e-6));
   return [Math.max(lat - dlat, -90), Math.min(lat + dlat, 90), Math.max(lon - dlon, -180), Math.min(lon + dlon, 180)];
@@ -174,4 +174,36 @@ export function toRequest(state: SelectionState): CalendarRequest {
 
 export function toStatsRequest(state: SelectionState): StatsRequest {
   return toRequest(state); // `ref` stays unset until the chosen month drives the inspector (SA4.5)
+}
+
+/** Body of /cells and /detections: the area and scale of the selection plus the chosen month; null until set. */
+export function toCellsRequest(state: SelectionState, bbox?: BBox): CellsRequest | null {
+  if (!state.month) return null;
+  const { area, preset, scale } = toRequest(state);
+  const body: CellsRequest = { ...(area ? { area } : { preset }), scale, month: state.month };
+  return bbox ? { ...body, bbox } : body;
+}
+
+/** [west, south, east, north] of the selected area, for fitting the map. */
+export function areaBounds(area: Area, cordoba: readonly [number, number, number, number]): [number, number, number, number] {
+  if (area.kind === "preset") return [...cordoba];
+  if (area.kind === "circle") {
+    const [latMin, latMax, lonMin, lonMax] = circleBox(area.lat, area.lon, area.radiusKm);
+    return [lonMin, latMin, lonMax, latMax];
+  }
+  const lons = area.vertices.map((v) => v[0]);
+  const lats = area.vertices.map((v) => v[1]);
+  return [Math.min(...lons), Math.min(...lats), Math.max(...lons), Math.max(...lats)];
+}
+
+/** Ring [lon, lat] approximating a circle (for the outline polygon); 64 segments. */
+export function circleRing(lat: number, lon: number, radiusKm: number, n = 64): LonLat[] {
+  const dlat = radiusKm / KM_PER_DEG_LAT;
+  const dlon = radiusKm / (KM_PER_DEG_LAT * Math.max(Math.cos((lat * Math.PI) / 180), 1e-6));
+  const ring: LonLat[] = [];
+  for (let i = 0; i < n; i++) {
+    const a = (2 * Math.PI * i) / n;
+    ring.push([lon + dlon * Math.cos(a), lat + dlat * Math.sin(a)]);
+  }
+  return [...ring, ring[0]];
 }

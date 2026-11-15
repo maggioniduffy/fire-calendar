@@ -18,6 +18,8 @@ test.beforeEach(async ({ page }) => {
 });
 
 const lastBody = (api: ApiMock, path: string) => api.to(path).at(-1)!.body;
+/** /calendar and /stats requests (the map's /cells follow the same area but are checked in map.spec.ts). */
+const dataRequests = (api: ApiMock) => api.requests.filter((r) => r.path === "/calendar" || r.path === "/stats");
 const requested = (api: ApiMock, path: string) => () => api.to(path).length;
 
 async function mapPoint(page: Page, lon: number, lat: number): Promise<[number, number]> {
@@ -88,7 +90,7 @@ test("coordinates and radius: validates inline, then requests a circle", async (
   await apply.click();
   await expect(err).toHaveCount(0);
   await expect(page.getByTestId("area-name")).toHaveText("-31.42, -64.18 · 230 km");
-  await expect.poll(() => api.requests.filter((r) => "area" in r.body).length).toBe(2); // calendar + stats
+  await expect.poll(() => dataRequests(api).filter((r) => "area" in r.body).length).toBe(2); // calendar + stats
   expect(lastBody(api, "/calendar").area).toEqual({ type: "circle", lat: -31.42, lon: -64.18, radius_km: 230 });
   await expect(page.getByTestId("data-cells")).toHaveText("1573 celdas · 2005-01 – 2016-12");
 });
@@ -99,7 +101,7 @@ test("draw: map clicks add vertices and Enter closes the polygon", async ({ page
   await expect(page.getByTestId("draw-panel")).toHaveCount(0);
   await expect(page.getByTestId("area-name")).toHaveText("Área dibujada");
 
-  await expect.poll(() => api.requests.filter((r) => r.body.area?.type === "polygon").length).toBe(2);
+  await expect.poll(() => dataRequests(api).filter((r) => r.body.area?.type === "polygon").length).toBe(2);
   const area = lastBody(api, "/calendar").area as unknown as { geojson: { coordinates: number[][][] } };
   const ring = area.geojson.coordinates[0];
   expect(ring).toHaveLength(5);
@@ -131,7 +133,7 @@ test("draw: double click closes, Esc cancels, fewer than 3 vertices cannot close
   await page.mouse.click(x2, y2);
   await page.mouse.dblclick(x3, y3);
   await expect(page.getByTestId("area-name")).toHaveText("Área dibujada");
-  await expect.poll(() => api.requests.filter((r) => r.body.area?.type === "polygon").length).toBe(2);
+  await expect.poll(() => dataRequests(api).filter((r) => r.body.area?.type === "polygon").length).toBe(2);
 });
 
 test.describe("my location, permission granted", () => {
@@ -141,7 +143,7 @@ test.describe("my location, permission granted", () => {
     await page.getByTestId("area-location").click();
     await expect(page.getByTestId("area-name")).toHaveText("Mi ubicación");
     await expect(page.getByTestId("geo-message")).toHaveCount(0);
-    await expect.poll(() => api.requests.filter((r) => r.body.area?.type === "circle").length).toBe(2);
+    await expect.poll(() => dataRequests(api).filter((r) => r.body.area?.type === "circle").length).toBe(2);
     expect(lastBody(api, "/calendar").area).toEqual({
       type: "circle",
       lat: GEO.latitude,

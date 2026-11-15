@@ -62,6 +62,14 @@ const en: Messages = {
   },
   map: {
     label: "Hot spot map",
+    hotspots: "{n} hot spots in the area",
+    noData: "No sensor coverage this month",
+    loading: "Loading hot spots…",
+    error: "Could not load the map hot spots.",
+    legendCells: "Hot spots per 0.1° cell",
+    legendDetections: "Individual detections",
+    legendTruncated: "Showing {shown} of {total}",
+    legendEstimated: "VIIRS-equivalent months 2000–2011: estimated",
   },
   dashboard: {
     pending: "Area charts arrive with the harmonized series.",

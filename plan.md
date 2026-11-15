@@ -73,3 +73,6 @@ LightGBM (the scale factor stays), NRT.
   Córdoba preset, lat/lon + radius, drawn polygon and "Use my location" (230 km; denied stays on Córdoba). E2E run
   on synthetic API fixtures generated from the real app (`backend/scripts/web_fixtures.py`, drift test). The API
   has no "reported" scale yet (SA4.5).
+- 2026-11-15: SA4.2 done: `POST /cells` (cells of one month in the area, total equal to `/calendar`) and
+  `POST /detections` (capped, 404 without raw detections); map draws the area outline and cells, raw points at
+  zoom ≥ 8 when the server has them, overlay with month and area total.

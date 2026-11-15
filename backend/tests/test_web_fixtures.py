@@ -26,7 +26,12 @@ def test_fixtures_are_labelled_synthetic_and_cover_the_cases():
     index = json.loads((COMMITTED / "index.json").read_text())
     assert index["synthetic"] is True
     keys = index["requests"]
-    assert len(keys) == 12
+    assert len(keys) == 12 + 24  # /calendar + /stats, then /cells + /detections for 2 months
+    assert index["statuses"] and set(index["statuses"].values()) == {404}
+    assert all(k.startswith("POST /detections") for k in index["statuses"])
+    cells_key = "POST /cells area=preset:cordoba scale=viirs_eq month=2016-12"
+    cells = json.loads((COMMITTED / keys[cells_key]).read_text())
+    assert cells["month"] == "2016-12" and cells["cells"] and "SYNTHETIC" in cells["meta"]["source"]
     assert "POST /calendar area=preset:cordoba scale=viirs_eq" in keys
     assert "POST /stats area=circle:-31.42,-64.18,230 scale=modis_eq" in keys
     assert "POST /calendar area=polygon scale=viirs_eq" in keys

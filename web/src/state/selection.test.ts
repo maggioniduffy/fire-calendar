@@ -4,6 +4,9 @@ import {
   parseNumber,
   polygonAreaKm2,
   selectionReducer,
+  areaBounds,
+  circleRing,
+  toCellsRequest,
   toRequest,
   validateCircle,
   validatePolygon,
@@ -124,5 +127,34 @@ describe("selectionReducer", () => {
       { type: "setPreset" },
     ]);
     expect(s.area).toEqual(initialSelection.area);
+  });
+});
+
+describe("map helpers", () => {
+  it("builds the /cells body only once a month is chosen, without the period", () => {
+    expect(toCellsRequest(initialSelection)).toBeNull();
+    const s = run([{ type: "setMonth", month: "2016-12" }, { type: "setPeriod", period: { start: "2010-01" } }]);
+    expect(toCellsRequest(s)).toEqual({ preset: "cordoba", scale: "viirs_eq", month: "2016-12" });
+    expect(toCellsRequest(s, [-33, -30, -65, -62])).toEqual({
+      preset: "cordoba",
+      scale: "viirs_eq",
+      month: "2016-12",
+      bbox: [-33, -30, -65, -62],
+    });
+  });
+
+  it("bounds a circle and a polygon as [west, south, east, north]", () => {
+    const c = run([{ type: "setCircle", lat: -31.42, lon: -64.18, radiusKm: 111.195, source: "manual" }]);
+    const [w, s, e, n] = areaBounds(c.area, [-65.8, -35, -61.7, -29.5]);
+    expect(n - s).toBeCloseTo(2, 3);
+    expect((w + e) / 2).toBeCloseTo(-64.18, 3);
+    const p = run([{ type: "drawStart" }, ...box.map((v) => ({ type: "drawVertex", vertex: v }) as const), { type: "drawFinish" }]);
+    expect(areaBounds(p.area, [0, 0, 0, 0])).toEqual([-64.6, -32, -63.6, -31]);
+  });
+
+  it("closes the circle ring", () => {
+    const ring = circleRing(-31.42, -64.18, 230);
+    expect(ring).toHaveLength(65);
+    expect(ring[0]).toEqual(ring[64]);
   });
 });

@@ -6,7 +6,8 @@ import { join } from "node:path";
  * Serves the SYNTHETIC API fixtures (backend/scripts/web_fixtures.py) so e2e needs no backend.
  *
  * A request is matched by its canonical key (same format as `request_key` in the Python script):
- *   "POST /calendar area=preset:cordoba scale=viirs_eq [start=YYYY-MM] [end=YYYY-MM] [ref=YYYY-MM]"
+ *   "POST /calendar area=preset:cordoba scale=viirs_eq [month=YYYY-MM] [start=YYYY-MM] [end=YYYY-MM] [ref=YYYY-MM]"
+ * (`bbox` is not part of the key)
  * with areas `preset:<id>`, `circle:<lat 2dp>,<lon 2dp>,<radius>` and `polygon` (any vertices).
  * An unknown request answers 404 and is recorded; the auto fixture below fails the test on any of them.
  */
@@ -14,6 +15,8 @@ import { join } from "node:path";
 const DIR = join(import.meta.dirname, "fixtures/api");
 const index = JSON.parse(readFileSync(join(DIR, "index.json"), "utf8")) as {
   requests: Record<string, string>;
+  /** Non-200 answers by request key (e.g. 404 for /detections). */
+  statuses?: Record<string, number>;
 };
 
 interface ApiBody {
@@ -23,6 +26,8 @@ interface ApiBody {
   start?: string;
   end?: string;
   ref?: string;
+  month?: string;
+  bbox?: number[];
 }
 
 export function requestKey(path: string, body: ApiBody): string {
@@ -32,7 +37,7 @@ export function requestKey(path: string, body: ApiBody): string {
     area = `circle:${body.area.lat!.toFixed(2)},${body.area.lon!.toFixed(2)},${body.area.radius_km}`;
   } else area = "polygon";
   const parts = [`POST ${path}`, `area=${area}`, `scale=${body.scale ?? "viirs_eq"}`];
-  for (const k of ["start", "end", "ref"] as const) if (body[k]) parts.push(`${k}=${body[k]}`);
+  for (const k of ["month", "start", "end", "ref"] as const) if (body[k]) parts.push(`${k}=${body[k]}`);
   return parts.join(" ");
 }
 
@@ -71,7 +76,7 @@ export async function installApi(page: Page): Promise<ApiMock> {
         mock.unmatched.push(`${req.method()} ${path} ${key}`);
         return route.fulfill({ status: 404, json: { detail: `no fixture for ${key}` } });
       }
-      return route.fulfill({ status: 200, contentType: "application/json", body: readFileSync(join(DIR, file), "utf8") });
+      return route.fulfill({ status: index.statuses?.[key] ?? 200, contentType: "application/json", body: readFileSync(join(DIR, file), "utf8") });
     },
   );
   return mock;

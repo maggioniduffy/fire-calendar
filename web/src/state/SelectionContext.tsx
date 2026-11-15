@@ -42,6 +42,12 @@ export function SelectionProvider({ children, initial = initialSelection }: { ch
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
 
+  // The chosen month defaults to the end of the period the calendar covers, once the first data loads.
+  const loaded = fetched?.key === key && fetched.data.status === "ready" ? fetched.data.calendar.period.end : null;
+  useEffect(() => {
+    if (loaded && state.month === null) dispatch({ type: "setMonth", month: loaded });
+  }, [loaded, state.month]);
+
   const value = useMemo(() => {
     const data: AreaData = fetched?.key === key ? fetched.data : { status: "loading" };
     return { state, dispatch, data };
