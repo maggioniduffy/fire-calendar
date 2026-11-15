@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties, type Keyboard
 import type { CalendarPayload, EnsoBlock } from "../api/types";
 import { divergingColor, sequentialColor } from "../charts/scales";
 import { format } from "../i18n";
+import { statusView } from "../state/monthStatus";
 import { usePrefs, useT } from "../state/prefs";
 import { cellAt, ensoAt, ensoIndex, neighbour, ymKey, type CalendarCell, type CalendarGrid as Grid } from "./calendarModel";
 import "./Calendar.css";
@@ -12,6 +13,8 @@ interface Props {
   grid: Grid;
   mode: CalendarMode;
   meta: CalendarPayload["meta"];
+  /** Scale of the payload ("viirs_eq" | "modis_eq"): MODIS drift is only noted where MODIS counts are part of the figure. */
+  scale: string;
   /** ENSO block of the payload; null hides the phase strip. */
   enso: EnsoBlock | null;
   /** Chosen month "YYYY-MM" (already defaulted to the latest with data). */
@@ -36,7 +39,7 @@ export function monthName(lang: string, month: number, style: "long" | "narrow" 
   return new Intl.DateTimeFormat(lang, { month: style, timeZone: "UTC" }).format(new Date(Date.UTC(2001, month - 1, 1)));
 }
 
-export function CalendarGrid({ grid, mode, meta, enso, selected, onSelect }: Props) {
+export function CalendarGrid({ grid, mode, meta, scale, enso, selected, onSelect }: Props) {
   const t = useT();
   const { theme, lang } = usePrefs();
   const wrap = useRef<HTMLDivElement>(null);
@@ -87,6 +90,7 @@ export function CalendarGrid({ grid, mode, meta, enso, selected, onSelect }: Pro
   };
 
   const tipCell = tip ? cellAt(grid, tip.ym) : null;
+  const tipStatus = tipCell && tipCell.value !== null ? statusView(tipCell.statusInfo, scale, t) : null;
   const tipRatio = tipCell?.ratio ?? null;
 
   return (
@@ -123,19 +127,21 @@ export function CalendarGrid({ grid, mode, meta, enso, selected, onSelect }: Pro
               const c = cellAt(grid, ymKey(year, mi + 1));
               const color = colorOf(c);
               const isSel = c.ym === selected;
+              const prov = c.value !== null && c.statusInfo.provisional === true;
               const style: CSSProperties | undefined = color ? { backgroundColor: color } : undefined;
               return (
                 <div
                   key={c.ym}
                   role="gridcell"
-                  className={`cal-cell${color ? "" : " nodata"}${isSel ? " chosen" : ""}`}
+                  className={`cal-cell${color ? "" : " nodata"}${isSel ? " chosen" : ""}${prov ? " provisional" : ""}`}
                   style={style}
                   tabIndex={c.ym === roving ? 0 : -1}
                   aria-selected={isSel}
                   aria-label={
                     c.value === null
                       ? format(t.calendar.cellLabelNone, { month: label(c) })
-                      : format(t.calendar.cellLabel, { month: label(c), count: num(c.value) })
+                      : format(t.calendar.cellLabel, { month: label(c), count: num(c.value) }) +
+                        (prov ? `, ${t.status.cellProvisional}` : "")
                   }
                   aria-describedby={tip?.ym === c.ym ? "cal-tip" : undefined}
                   data-ym={c.ym}
@@ -143,6 +149,7 @@ export function CalendarGrid({ grid, mode, meta, enso, selected, onSelect }: Pro
                   data-ratio={c.ratio ?? ""}
                   data-color={color ?? ""}
                   data-status={c.status}
+                  data-provisional={prov}
                   onClick={() => c.value !== null && onSelect(c.ym)}
                   onKeyDown={(e) => onKeyDown(e, c)}
                   onMouseEnter={(e) => show(e.currentTarget, c.ym)}
@@ -211,6 +218,18 @@ export function CalendarGrid({ grid, mode, meta, enso, selected, onSelect }: Pro
               )}
             </>
           )}
+          {tipStatus?.provisional && (
+            <span data-testid="tip-provisional">
+              {t.status.provisionalTip}
+              {tipStatus.sourceText && (
+                <>
+                  {" · "}
+                  {t.status.sourceLevel}: <span data-testid="tip-source-level">{tipStatus.sourceText}</span>
+                </>
+              )}
+            </span>
+          )}
+          {tipStatus?.drift && <span data-testid="tip-drift">{t.status.drift}</span>}
           <span className="muted">
             {t.calendar.source}: {meta.source} · {t.calendar.period}: <span className="num">{meta.period}</span>
           </span>

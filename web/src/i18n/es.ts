@@ -61,6 +61,23 @@ const es = {
       boundaries: "Límites: {attribution}. Fuente: {source}, {license}.",
     },
   },
+  status: {
+    provisional: "Provisorio",
+    provisionalTip: "Provisorio (NRT, tiempo casi real): puede cambiar cuando llegue el procesamiento estándar",
+    provisionalFallbackNote: "Provisorio: algún satélite de este mes viene de tiempo casi real (NRT) y puede cambiar con el procesamiento estándar.",
+    sourceLevel: "Nivel de la fuente",
+    drift: "MODIS observado durante deriva orbital (causa sin verificar)",
+    legendProvisional: "Mes provisorio (NRT)",
+    legendDrift: "Meses con MODIS observado durante deriva orbital (causa sin verificar): se anota en el mensaje emergente, no cambia el color.",
+    chartProvisional: "Mes provisorio (punto hueco)",
+    cellProvisional: "provisorio",
+    levels: {
+      "country-sp": "procesamiento estándar (archivos por país de FIRMS)",
+      "api-sp": "procesamiento estándar (API de FIRMS)",
+      nrt: "tiempo casi real (NRT)",
+      mixed: "niveles mixtos",
+    },
+  },
   tabs: {
     label: "Vista",
     map: "Mapa",

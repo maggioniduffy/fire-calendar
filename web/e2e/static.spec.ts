@@ -85,3 +85,36 @@ test("axe: no WCAG 2 A/AA violations in static mode", async ({ page }) => {
   const r = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
   expect(r.violations.map((v) => ({ id: v.id, nodes: v.nodes.slice(0, 3).map((n) => n.target.join(" ")) }))).toEqual([]);
 });
+
+test("static mode: provisional month shows marker, tooltip, legend and inspector badge; a standard month does not", async ({ page }) => {
+  await open(page);
+  const cell = (ym: string) => page.locator(`[data-ym="${ym}"]`);
+  await expect(cell("2014-12")).toHaveAttribute("data-provisional", "true");
+  await expect(cell("2012-06")).toHaveAttribute("data-provisional", "false");
+  await expect(page.getByTestId("legend-provisional")).toContainText("Mes provisorio (NRT)");
+  await cell("2014-12").focus();
+  await expect(page.getByTestId("tip-provisional")).toContainText("Provisorio (NRT, tiempo casi real): puede cambiar cuando llegue el procesamiento estándar");
+  await expect(page.getByTestId("tip-source-level")).toHaveText("tiempo casi real (NRT)");
+  await cell("2014-12").focus();
+  await page.keyboard.press("Enter");
+  await expect(page.getByTestId("provisional-badge")).toHaveText("Provisorio");
+  await page.mouse.move(0, 0);
+  await cell("2012-06").click();
+  await expect(page.getByTestId("provisional-badge")).toHaveCount(0);
+  await cell("2012-06").hover();
+  await expect(page.getByTestId("tip-provisional")).toHaveCount(0);
+
+  await page.getByTestId("lang-en").click();
+  await expect(page.getByTestId("legend-provisional")).toContainText("Provisional month (NRT)");
+  await cell("2014-12").focus();
+  await expect(page.getByTestId("tip-provisional")).toContainText("Provisional (NRT, near real time): may change when standard processing arrives");
+  await cell("2014-12").focus();
+  await page.keyboard.press("Enter");
+  await expect(page.getByTestId("provisional-badge")).toHaveText("Provisional");
+
+  // MODIS-eq: drift line in the tooltip and a legend note.
+  await page.getByTestId("series-modis_eq").click();
+  await expect(page.getByTestId("legend-drift")).toContainText("MODIS observed during orbit drift (unverified cause)");
+  await cell("2014-05").hover();
+  await expect(page.getByTestId("tip-drift")).toHaveText("MODIS observed during orbit drift (unverified cause)");
+});

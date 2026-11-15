@@ -62,6 +62,23 @@ const en: Messages = {
       boundaries: "Boundaries: {attribution}. Source: {source}, {license}.",
     },
   },
+  status: {
+    provisional: "Provisional",
+    provisionalTip: "Provisional (NRT, near real time): may change when standard processing arrives",
+    provisionalFallbackNote: "Provisional: a satellite in this month comes from near real time (NRT) and may change with standard processing.",
+    sourceLevel: "Source level",
+    drift: "MODIS observed during orbit drift (unverified cause)",
+    legendProvisional: "Provisional month (NRT)",
+    legendDrift: "Months with MODIS observed during orbit drift (unverified cause): noted in the tooltip, the colour does not change.",
+    chartProvisional: "Provisional month (hollow point)",
+    cellProvisional: "provisional",
+    levels: {
+      "country-sp": "standard processing (FIRMS per-country files)",
+      "api-sp": "standard processing (FIRMS API)",
+      nrt: "near real time (NRT)",
+      mixed: "mixed levels",
+    },
+  },
   tabs: {
     label: "View",
     map: "Map",

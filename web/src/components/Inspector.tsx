@@ -8,6 +8,7 @@ import {
   formatPeriod,
   NO_VALUE,
 } from "../state/inspectorModel";
+import { statusView } from "../state/monthStatus";
 import { usePrefs, useT } from "../state/prefs";
 import { useSelection } from "../state/SelectionContext";
 import { Downloads } from "./Downloads";
@@ -39,6 +40,9 @@ function AreaFigures() {
   const estimatedNote = lang === "en" ? meta.estimated_note_en : meta.estimated_note_es;
   const column = model.row ? model.row[state.scale === "reported" ? "viirs_eq" : state.scale] : null;
   const mostActive = kf.most_active_month;
+  const status = statusView(model.row, state.scale, t);
+  const provisionalNote =
+    (lang === "en" ? meta.provisional_note_en : meta.provisional_note_es) || t.status.provisionalFallbackNote;
 
   return (
     <>
@@ -106,6 +110,12 @@ function AreaFigures() {
           <dt>{t.inspector.source}</dt>
           <dd data-testid="fig-source">{meta.source}</dd>
         </div>
+        {status.sourceText && (
+          <div className="row">
+            <dt>{t.status.sourceLevel}</dt>
+            <dd data-testid="fig-source-level">{status.sourceText}</dd>
+          </div>
+        )}
         <div className="row">
           <dt>{t.inspector.dataPeriod}</dt>
           <dd className="num" data-testid="fig-period">
@@ -119,6 +129,23 @@ function AreaFigures() {
           </dd>
         </div>
       </dl>
+      {status.provisional && (
+        <div className="stack" data-testid="provisional-box">
+          <p>
+            <span className="flag status-badge" data-testid="provisional-badge">
+              {t.status.provisional}
+            </span>
+          </p>
+          <p className="muted" data-testid="provisional-note">
+            {provisionalNote}
+          </p>
+        </div>
+      )}
+      {status.drift && (
+        <p className="muted" data-testid="drift-note">
+          {t.status.drift}
+        </p>
+      )}
       {!model.harmonized && (
         <p className="muted" data-testid="reported-note">
           {t.inspector.reportedNote}

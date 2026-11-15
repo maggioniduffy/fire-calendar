@@ -1,4 +1,4 @@
-import type { CalendarPayload, EnsoBlock, EnsoPhase, EqStatus, StatsPayload } from "../api/types";
+import type { CalendarPayload, EnsoBlock, EnsoPhase, EqStatus, MonthStatus, StatsPayload } from "../api/types";
 import { anomalyRatio } from "../charts/scales";
 
 export interface CalendarCell {
@@ -14,6 +14,8 @@ export interface CalendarCell {
   median: number | null;
   /** Signed relative departure from the median; null when it cannot be computed. */
   ratio: number | null;
+  /** Source status of the month (provisional, source level, MODIS drift); empty when the payload has none. */
+  statusInfo: MonthStatus;
 }
 
 export interface CalendarGrid {
@@ -23,6 +25,9 @@ export interface CalendarGrid {
   max: number;
   /** Latest month with data, "YYYY-MM", or null. */
   latest: string | null;
+  /** Some month with a value is provisional / observed during MODIS drift (decides which legend notes appear). */
+  hasProvisional: boolean;
+  hasDrift: boolean;
 }
 
 export const ymKey = (year: number, month: number) => `${year}-${String(month).padStart(2, "0")}`;
@@ -35,6 +40,8 @@ export function buildGrid(calendar: CalendarPayload, stats: StatsPayload): Calen
   const cells = new Map<string, CalendarCell>();
   let max = 0;
   let latest: string | null = null;
+  let hasProvisional = false;
+  let hasDrift = false;
   const years = new Set<number>();
   for (const row of calendar.months) {
     years.add(row.year);
@@ -50,16 +57,24 @@ export function buildGrid(calendar: CalendarPayload, stats: StatsPayload): Calen
       status: value === null ? "none" : row[statusCol],
       median,
       ratio: anomalyRatio(value, median),
+      statusInfo: {
+        provisional: row.provisional === true,
+        source_level: row.source_level ?? null,
+        source_levels: row.source_levels ?? null,
+        modis_drift: row.modis_drift === true,
+      },
     });
     if (value !== null) {
       max = Math.max(max, value);
+      hasProvisional ||= row.provisional === true;
+      hasDrift ||= row.modis_drift === true;
       if (latest === null || ym > latest) latest = ym;
     }
   }
-  if (years.size === 0) return { years: [], cells, max, latest };
+  if (years.size === 0) return { years: [], cells, max, latest, hasProvisional, hasDrift };
   const lo = Math.min(...years);
   const hi = Math.max(...years);
-  return { years: Array.from({ length: hi - lo + 1 }, (_, i) => lo + i), cells, max, latest };
+  return { years: Array.from({ length: hi - lo + 1 }, (_, i) => lo + i), cells, max, latest, hasProvisional, hasDrift };
 }
 
 /** The cell for "YYYY-MM", or an empty "no data" cell when the payload has no such month. */
@@ -67,7 +82,7 @@ export function cellAt(grid: CalendarGrid, ym: string): CalendarCell {
   const known = grid.cells.get(ym);
   if (known) return known;
   const [y, m] = ym.split("-").map(Number);
-  return { ym, year: y, month: m, value: null, status: "none", median: null, ratio: null };
+  return { ym, year: y, month: m, value: null, status: "none", median: null, ratio: null, statusInfo: {} };
 }
 
 /**
