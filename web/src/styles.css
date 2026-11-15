@@ -571,15 +571,15 @@ button {
 }
 
 .map-period { min-width: 0; }
-.map-period > .segmented { display: flex; width: 100%; min-width: 0; }
-.map-period > .segmented button { flex: 1 1 auto; min-width: 0; padding-inline: 4px; white-space: nowrap; }
+.map-period > .segmented { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; min-width: 0; box-sizing: border-box; }
+.map-period > .segmented button { min-width: 0; padding-inline: 2px; font-size: 12px; text-align: center; white-space: nowrap; overflow: hidden; }
 .map-period h3 { margin: 0; font-size: 14px; }
 .map-period .field-row { display: flex; min-width: 0; gap: var(--space-2); }
 .map-period .field-row label { display: grid; flex: 1 1 0; min-width: 0; gap: 4px; font-size: 12px; color: var(--muted); }
 .map-period input,
 .map-period select { width: 100%; min-width: 0; box-sizing: border-box; }
-.season-months { display: grid; min-width: 0; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; }
-.season-months button { min-width: 0; padding: 4px 2px; border: 1px solid var(--border); border-radius: var(--radius-1); background: var(--raised); color: var(--text); cursor: pointer; }
+.season-months { display: grid; min-width: 0; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.season-months button { min-width: 0; padding: 4px 0; font-size: 12px; text-align: center; border: 1px solid var(--border); border-radius: var(--radius-1); background: var(--raised); color: var(--text); cursor: pointer; }
 .season-months button[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); font-weight: 700; }
 .season-months button:focus-visible, .map-period select:focus-visible, .map-period input:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
 
