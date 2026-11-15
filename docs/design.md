@@ -57,7 +57,26 @@ section navigation.
   active months and a 5 px `--accent` playhead. Play advances month by month through the map and the inspector.
   El Niño / La Niña / Neutral legend.
 
-No Map / Dashboard tabs.
+### Dashboard tab
+
+The center card has two tabs, **Map** and **Dashboard** (decided 2026-11-15; the original wireframe had none). The
+Dashboard shows the selected area as a grid of chart cards on `--raised`, built only from the `/calendar` and
+`/stats` payloads:
+
+- A headline total for the period (`key_figures.total`), the cell count and, when it applies, the note that
+  VIIRS-eq / MODIS-eq months are estimated from the other sensor.
+- Harmonized monthly series with its uncertainty band (always labelled "unverified" for arbitrary areas) and the
+  per-sensor reported series; estimated months are dashed. Total per year (partial years drawn lighter).
+  Seasonality: the p10–p90 range (wide, light) and the "normal" band p25–p75 (narrower, on top; `--secondary` at 0.55
+  opacity) per calendar month, the median line above them and the latest year on top in `--accent` with a `--casing`
+  outline. Monthly anomaly: value minus the median of that calendar month, diverging
+  blue (below) / orange (above) around a neutral zero line.
+- Each card: title, source and period line (from `meta`), a legend, a one-line readout of the hovered or selected
+  month, and `CSV` / `PNG` buttons (the CSV holds exactly the plotted rows).
+- Charts are linked: hovering a month highlights it in every chart; clicking sets `selection.month`, which the
+  calendar uses too. Seasonality has no year of its own, so a click picks that month of the latest year.
+- Not shown, because no payload provides them yet: day/night split, FRP distribution, ENSO phase and drought. They
+  stay hidden (see "Only what works").
 
 ## Surfaces
 
@@ -103,7 +122,10 @@ IBM Plex Mono 400/500 with tabular numerals only for numbers, dates and units (c
 - 44 px targets, 8 px radius, no border. Neutrals on `--raised`; primary on `--ctrl` with `--on-ctrl`.
 - 18 px checkboxes with `accent-color: var(--ctrl)`; 40 px rows.
 - Segmented controls: `--raised` container with 10 px radius, active button `--ctrl` with `--on-ctrl` text.
-- Visible focus: 2 px ring in `--accent` with a 2 px offset.
+- Visible focus: 2 px ring in `--accent` with a 2 px offset and a `--casing` shadow filling the offset (the accent alone
+  has 1.9:1 against the light surface). Calendar cells use a `--text` ring because the chosen month already wears the accent.
+- Keyboard: drawing a polygon needs a pointer; the keyboard alternative is lat/lon + radius. The Dashboard has a month
+  stepper (previous / next) because its charts are pointer-selected.
 - Accent marks on the map and charts carry a `--casing` outline.
 
 ## Drag handles

@@ -152,6 +152,10 @@ def test_stats(full_client):
     assert "linear" in b["climatology"]["quantile_method"]
     assert an["value"] == 12 and an["median"] == 10.5 and an["n"] == 2
     assert len(b["climatology"]["months"]) == 12
+    first = b["climatology"]["months"][0]
+    assert {"median", "p10", "p25", "p75", "p90"} <= set(first)
+    assert first["p10"] <= first["p25"] <= first["median"] <= first["p75"] <= first["p90"]
+    assert an["p25"] <= an["median"] <= an["p75"]
     assert b["key_figures"]["most_active_month"]["value"] == 12
     json.dumps(b, allow_nan=False)
 

@@ -1,4 +1,4 @@
-import type { ApiScale, CalendarRequest, StatsRequest } from "../api/types";
+import type { ApiScale, BBox, CalendarRequest, CellsRequest, StatsRequest } from "../api/types";
 
 /** [lon, lat] */
 export type LonLat = [number, number];
@@ -10,7 +10,8 @@ export type Area =
 
 /**
  * Series choice. The API (`CalendarRequest.scale`) only knows `viirs_eq` and `modis_eq`: "reported" (per-sensor
- * counts, SA4.5) is kept in state but requests `viirs_eq` for now, which already carries the reported columns.
+ * counts, SA4.5) is kept in state and requests `viirs_eq`, whose `/calendar` months already carry both reported
+ * columns (no extra request; the inspector reads them per sensor).
  */
 export type UiScale = "viirs_eq" | "modis_eq" | "reported";
 
@@ -55,7 +56,7 @@ function intersectsArg([latMin, latMax, lonMin, lonMax]: Box): boolean {
   return !(latMax < a[0] || latMin > a[1] || lonMax < a[2] || lonMin > a[3]);
 }
 
-function circleBox(lat: number, lon: number, radiusKm: number): Box {
+export function circleBox(lat: number, lon: number, radiusKm: number): Box {
   const dlat = radiusKm / KM_PER_DEG_LAT;
   const dlon = radiusKm / (KM_PER_DEG_LAT * Math.max(Math.cos((lat * Math.PI) / 180), 1e-6));
   return [Math.max(lat - dlat, -90), Math.min(lat + dlat, 90), Math.max(lon - dlon, -180), Math.min(lon + dlon, 180)];
@@ -153,7 +154,7 @@ export function selectionReducer(state: SelectionState, action: SelectionAction)
   }
 }
 
-/** The API scale for a UI scale ("reported" requests viirs_eq until SA4.5 decides otherwise). */
+/** The API scale for a UI scale ("reported" requests viirs_eq: same answer, read per sensor). */
 export function apiScale(scale: UiScale): ApiScale {
   return scale === "modis_eq" ? "modis_eq" : "viirs_eq";
 }
@@ -172,6 +173,51 @@ export function toRequest(state: SelectionState): CalendarRequest {
   return { ...base, area: { type: "polygon", geojson: { type: "Polygon", coordinates: [ring] } } };
 }
 
-export function toStatsRequest(state: SelectionState): StatsRequest {
-  return toRequest(state); // `ref` stays unset until the chosen month drives the inspector (SA4.5)
+/**
+ * Same body plus `ref` (the chosen month) so the anomaly and key figures describe it; unset = latest month.
+ * `latest` (end of the calendar period, once known) lets the default month reuse the request without `ref`.
+ */
+export function toStatsRequest(state: SelectionState, latest?: string | null): StatsRequest {
+  const base = toRequest(state);
+  return state.month && state.month !== latest ? { ...base, ref: state.month } : base;
+}
+
+export const MONTH_PATTERN = /^\d{4}-(0[1-9]|1[0-2])$/;
+
+/** Initial state from the URL query: `?month=YYYY-MM` opens the inspector on that month (shareable; also lets e2e pick one). */
+export function selectionFromSearch(search: string): SelectionState {
+  const month = new URLSearchParams(search).get("month");
+  return month && MONTH_PATTERN.test(month) ? { ...initialSelection, month } : initialSelection;
+}
+
+/** Body of /cells and /detections: the area and scale of the selection plus the chosen month; null until set. */
+export function toCellsRequest(state: SelectionState, bbox?: BBox): CellsRequest | null {
+  if (!state.month) return null;
+  const { area, preset, scale } = toRequest(state);
+  const body: CellsRequest = { ...(area ? { area } : { preset }), scale, month: state.month };
+  return bbox ? { ...body, bbox } : body;
+}
+
+/** [west, south, east, north] of the selected area, for fitting the map. */
+export function areaBounds(area: Area, cordoba: readonly [number, number, number, number]): [number, number, number, number] {
+  if (area.kind === "preset") return [...cordoba];
+  if (area.kind === "circle") {
+    const [latMin, latMax, lonMin, lonMax] = circleBox(area.lat, area.lon, area.radiusKm);
+    return [lonMin, latMin, lonMax, latMax];
+  }
+  const lons = area.vertices.map((v) => v[0]);
+  const lats = area.vertices.map((v) => v[1]);
+  return [Math.min(...lons), Math.min(...lats), Math.max(...lons), Math.max(...lats)];
+}
+
+/** Ring [lon, lat] approximating a circle (for the outline polygon); 64 segments. */
+export function circleRing(lat: number, lon: number, radiusKm: number, n = 64): LonLat[] {
+  const dlat = radiusKm / KM_PER_DEG_LAT;
+  const dlon = radiusKm / (KM_PER_DEG_LAT * Math.max(Math.cos((lat * Math.PI) / 180), 1e-6));
+  const ring: LonLat[] = [];
+  for (let i = 0; i < n; i++) {
+    const a = (2 * Math.PI * i) / n;
+    ring.push([lon + dlon * Math.cos(a), lat + dlat * Math.sin(a)]);
+  }
+  return [...ring, ring[0]];
 }

@@ -7,6 +7,7 @@ from fastapi.responses import FileResponse, Response
 
 from firecal import paths
 from firecal.layers.manifest import LayerManifest, discover_layers
+from firecal.stages.calendar import cells as cal_cells
 from firecal.stages.calendar import export as cal_export
 from firecal.stages.calendar import service as cal_service
 from firecal.stages.calendar.store import LAYER_ID, SeriesStore
@@ -78,6 +79,14 @@ def create_app(processed_dir: Path | None = None, detections_dir: Path | None = 
     @api.post("/stats")
     def stats(req: cal_service.StatsRequest) -> dict:
         return run(cal_service.stats_payload, get_store(), req)
+
+    @api.post("/cells")
+    def cells(req: cal_cells.CellsRequest) -> dict:
+        return run(cal_cells.cells_payload, get_store(), req)
+
+    @api.post("/detections")
+    def detections(req: cal_cells.DetectionsRequest) -> dict:
+        return run(cal_cells.detections_payload, get_store(), req, detections_dir)
 
     @api.post("/export.csv")
     def export_csv(req: cal_export.ExportRequest) -> Response:

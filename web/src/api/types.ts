@@ -37,6 +37,13 @@ export interface ExportRequest extends CalendarRequest {
   kind?: "calendar" | "cells" | "detections";
 }
 
+/** Body of POST /cells and /detections: `month` is required, `bbox` is the view window (required by /detections). */
+export interface CellsRequest extends Omit<CalendarRequest, "start" | "end"> {
+  /** "YYYY-MM" */
+  month: string;
+  bbox?: BBox;
+}
+
 export interface Meta {
   layer: string;
   source: string;
@@ -134,6 +141,8 @@ export interface AnomalyPayload {
   value: number | null;
   median: number | null;
   p10: number | null;
+  p25: number | null;
+  p75: number | null;
   p90: number | null;
   abs_anomaly: number | null;
   pct_anomaly: number | null;
@@ -165,10 +174,53 @@ export interface StatsPayload {
   period: { start: string; end: string };
   scale: ApiScale;
   climatology: {
-    months: { month: number; n_years: number; median: number | null; p10: number | null; p90: number | null }[];
+    months: { month: number; n_years: number; median: number | null; p10: number | null; p25: number | null; p75: number | null; p90: number | null }[];
     baseline_years: number[];
     quantile_method: string;
   };
   anomaly: AnomalyPayload;
   key_figures: KeyFigures;
+}
+
+export interface MapCell {
+  cell_lat: number;
+  cell_lon: number;
+  /** Count in the chosen scale; > 0. */
+  value: number;
+  estimated: boolean;
+}
+
+/** POST /cells. `total` is the area's value for the month (same as /calendar), null without sensor coverage. */
+export interface CellsPayload {
+  meta: Meta;
+  area: AreaInfo;
+  /** Exterior rings [lon, lat] of a polygon area; null for a circle (drawn by the client). */
+  outline: number[][][] | null;
+  period: { start: string; end: string };
+  month: string;
+  scale: ApiScale;
+  bbox: BBox | null;
+  cells: MapCell[];
+  total: number | null;
+}
+
+export interface Detection {
+  lat: number;
+  lon: number;
+  frp: number | null;
+  sensor: string;
+  acq_date: string;
+  daynight: string | null;
+}
+
+/** POST /detections (404 when the server has no raw detections). */
+export interface DetectionsPayload {
+  meta: Meta;
+  month: string;
+  bbox: BBox | null;
+  points: Detection[];
+  total: number;
+  truncated: boolean;
+  max_points: number;
+  note: string;
 }

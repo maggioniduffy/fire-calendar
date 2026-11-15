@@ -20,6 +20,9 @@ def test_climatology_known_values():
     assert r["n_years"] == 5 and r["median"] == 3
     assert r["p10"] == pytest.approx(np.quantile([1, 2, 3, 4, 10], 0.1))
     assert r["p90"] == pytest.approx(np.quantile([1, 2, 3, 4, 10], 0.9))
+    assert r["p25"] == pytest.approx(np.quantile([1, 2, 3, 4, 10], 0.25)) == 2
+    assert r["p75"] == pytest.approx(np.quantile([1, 2, 3, 4, 10], 0.75)) == 4
+    assert c["p25"].iloc[0] <= c["median"].iloc[0] <= c["p75"].iloc[0]
     assert c.attrs["baseline_years"] == [2001, 2002, 2003, 2004, 2005]
     c2 = climatology(m, "modis_eq", baseline_years=[2001, 2002])
     assert c2.iloc[0]["median"] == 1.5
@@ -36,6 +39,8 @@ def test_anomaly_percentile_ties_and_exclusion():
     # baseline excludes 2006: [1,2,2,5,2]; value 2 -> below 1, ties 3 -> (1 + 1.5)/5*100 = 50
     assert a["n"] == 5 and a["median"] == 2 and a["percentile"] == pytest.approx(50.0)
     assert a["abs_anomaly"] == 0 and a["pct_anomaly"] == 0
+    assert a["p25"] == pytest.approx(np.quantile([1, 2, 2, 5, 2], 0.25))
+    assert a["p75"] == pytest.approx(np.quantile([1, 2, 2, 5, 2], 0.75))
     # a clim built with the reference year must not leak it
     leaky = climatology(m, "modis_eq", baseline_years=[2001, 2002, 2003, 2004, 2005, 2006])
     b = anomaly(m, "modis_eq", ref=(2006, 1), clim=leaky)
@@ -49,5 +54,6 @@ def test_pct_none_when_median_zero_and_nan_ref():
     a = anomaly(m, "modis_eq")
     assert a["median"] == 0 and a["pct_anomaly"] is None and a["abs_anomaly"] == 4
     assert a["percentile"] == 100.0
+    assert a["p25"] == 0 and a["p75"] == 0
     m2 = pd.concat([m, pd.DataFrame([{"year": 2005, "month": 2, "modis_eq": np.nan}])])
     assert anomaly(m2, "modis_eq", ref=(2005, 2))["value"] is None
