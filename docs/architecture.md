@@ -1,40 +1,40 @@
-# Arquitectura
+# Architecture
 
-Igual que clima-ideas, con el paquete `firecal`.
+Same as clima-ideas, with the `firecal` package.
 
-## Estructura
+## Structure
 
 ```
 backend/            uv, Python 3.12
   src/firecal/
-    io/             descargas e ingesta (FIRMS por país, FIRMS API, ONI)
-    stages/         grid/, harmonize/, calendar/, enso/  (una carpeta por fase)
-    layers/         escritura de capas + manifiesto
-    api/            FastAPI, solo lectura de data/processed
+    io/             downloads and ingestion (FIRMS per country, FIRMS API, ONI)
+    stages/         grid/, harmonize/, calendar/, enso/  (one folder per phase)
+    layers/         layer writing + manifest
+    api/            FastAPI, read-only over data/processed
     cli.py          `firecal <stage> <step>`
-  tests/            unit (rápidos) y slow (marcados)
+  tests/            unit (fast) and slow (marked)
 web/                pnpm, Vite, React, TypeScript, deck.gl
-  src/i18n/         es.ts y en.ts: todos los textos de UI
-  src/theme/        tokens (ver docs/design.md)
-  e2e/              Playwright, con fixtures falsos
-data/               raw/ interim/ processed/  (fuera de git)
-reports/            informes por fase (reports/NN/<ID>.md)
+  src/i18n/         es.ts and en.ts: all UI texts
+  src/theme/        tokens (see docs/design.md)
+  e2e/              Playwright, with fake fixtures
+data/               raw/ interim/ processed/  (out of git)
+reports/            per-phase reports (reports/NN/<ID>.md)
 Makefile            install, dev, test, lint
 ```
 
-## Flujo
+## Flow
 
-`io` descarga → `stages/*` calcula → `layers` publica en `data/processed/<layer_id>/` → API sirve → web dibuja.
-Cada paso es un comando CLI idempotente (`firecal <stage> <step>`).
+`io` downloads → `stages/*` computes → `layers` publishes to `data/processed/<layer_id>/` → API serves → web draws.
+Each step is an idempotent CLI command (`firecal <stage> <step>`).
 
-## Contrato de capas
+## Layer contract
 
 `data/processed/<layer_id>/manifest.json`:
 
 ```json
 {
   "id": "fire-grid",
-  "title": "Focos de calor por celda",
+  "title": "Hot spots per cell",
   "kind": "events | points | grid | series | polygons",
   "source": "NASA FIRMS (MODIS C6.1, VIIRS 375 m)",
   "period": "2000-11-01/2026-08-31",
@@ -45,23 +45,24 @@ Cada paso es un comando CLI idempotente (`firecal <stage> <step>`).
 }
 ```
 
-`experimental` es opcional. Tablas en Parquet/GeoParquet. La UI toma fuente y período del manifiesto. La API
-valida el manifiesto con pydantic y solo sirve archivos listados en `files`.
+`experimental` is optional. Tables in Parquet/GeoParquet. The UI takes source and period from the manifest. The API
+validates the manifest with pydantic and serves only files listed in `files`.
 
 ## API
 
 `GET /health` · `GET /layers` · `GET /layers/{id}` · `GET /layers/{id}/data` · `POST /calendar` ·
-`POST /stats` · `POST /export.csv` (fase 3).
+`POST /stats` · `POST /export.csv` (phase 3).
 
-## Publicación estática
+## Static publishing
 
-En línea no hay API: los resultados se precalculan por área (provincias y departamentos) y se suben como JSON a un
-bucket (Cloudflare R2) con rutas que imitan las de la API; la web estática los lee cuando el build tiene
-`VITE_DATA_URL` y, sin esa variable, usa `/api` como en local. Credenciales `R2_*` en el entorno o en `.env`.
+Online there is no API: results are precomputed per area (provinces and departments) and uploaded as JSON to a
+bucket (Cloudflare R2) with paths that mimic the API's; the static web reads them when the build has
+`VITE_DATA_URL` and, without that variable, uses `/api` as in local. `R2_*` credentials in the environment or in
+`.env`.
 
 ## Tests
 
-- Unit con datos sintéticos de resultado conocido (pytest, vitest).
-- e2e con capas falsas en `web/e2e/fixtures/` (Playwright), sin depender de datos reales.
-- `@pytest.mark.slow`: datos reales o corridas largas; fuera de CI.
+- Unit with synthetic data of known result (pytest, vitest).
+- e2e with fake layers in `web/e2e/fixtures/` (Playwright), without depending on real data.
+- `@pytest.mark.slow`: real data or long runs; outside CI.
 - CI (GitHub Actions): ruff, pytest, eslint, tsc, vitest, Playwright.

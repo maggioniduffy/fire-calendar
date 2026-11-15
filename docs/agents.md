@@ -1,20 +1,20 @@
-# Plantillas de delegación
+# Delegation templates
 
 ## Sonnet
 
 ```
 Task: plan/NN-x.md, <ID>. Read only that file and the refs it names.
 Allowed edit surfaces: <paths>
-Done when: <criterio de la tarea>
+Done when: <task criterion>
 Tests first when a deterministic test applies.
 Return: changed files, commands run with results.
 ```
 
-## Corridas largas (sesión en la nube u opencode)
+## Long runs (cloud session or opencode)
 
 ```bash
 opencode run --title "<ID>" "<prompt>"
 ```
 
-Prompt: objetivo, rutas en alcance, restricciones (no editar código fuera de alcance, no secretos),
-formato de respuesta, y archivo de salida en `reports/<fase>/<ID>.md`.
+Prompt: goal, paths in scope, constraints (do not edit code out of scope, no secrets), response format, and an
+output file at `reports/<phase>/<ID>.md`.

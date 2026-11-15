@@ -1,46 +1,45 @@
-# Fase 2 — Armonización MODIS–VIIRS
+# Phase 2 — MODIS–VIIRS harmonization
 
-Estado: activa (SA2.6, SA2.8, SA2.9 y SA2.10 postergadas) · Depende de: 1 · Refs: `docs/validation.md`
+Status: active (SA2.6, SA2.8, SA2.9 and SA2.10 deferred) · Depends on: 1 · Refs: `docs/validation.md`
 
-## Pregunta
+## Question
 
-¿Cómo convertir 2000–hoy en una sola serie donde el sensor de origen ya no importe, en las dos escalas y sin
-cortarse cuando MODIS deje de operar?
+How do we turn 2000–today into a single series where the source sensor no longer matters, in both scales and
+without breaking when MODIS stops operating?
 
-## Enfoque
+## Approach
 
-Solapamiento 2012–hoy: los dos sensores miden lo mismo. VIIRS ve más focos chicos por su resolución (375 m vs.
-1 km), y los horarios de paso difieren. Con ese período se calibra en los dos sentidos:
+2012–today overlap: both sensors measure the same thing. VIIRS sees more small hot spots because of its
+resolution (375 m vs. 1 km), and the overpass times differ. With that period we calibrate in both directions:
 
-- **Hacia MODIS:** VIIRS → "MODIS-equivalente". Serie larga y comparable con la literatura.
-- **Hacia VIIRS (serie inversa):** MODIS → "VIIRS-equivalente" para 2000–2011. Estima cuántos focos habría
-  registrado VIIRS en un área y período, con incertidumbre; no ubica focos individuales que MODIS no detectó.
-  En la UI dice "estimado", nunca "detectado".
-- **Continuidad:** cuando MODIS se apague, cada año nuevo de VIIRS (S-NPP, NOAA-20, NOAA-21 y siguientes JPSS,
-  sin verificar fechas) entra a las dos series con la calibración congelada.
+- **Toward MODIS:** VIIRS → "MODIS-equivalent". Long series, comparable with the literature.
+- **Toward VIIRS (inverse series):** MODIS → "VIIRS-equivalent" for 2000–2011. Estimates how many hot spots VIIRS
+  would have recorded in an area and period, with uncertainty; it does not locate individual hot spots that MODIS
+  did not detect. In the UI it says "estimated" (`estimado`), never "detected".
+- **Continuity:** when MODIS is switched off, each new year of VIIRS (S-NPP, NOAA-20, NOAA-21 and later JPSS,
+  dates unverified) enters both series with the calibration frozen.
 
-Supervisado, no aprendizaje por refuerzo: hay pares observados (MODIS y VIIRS, misma celda y día) y no hay
-agente, entorno ni recompensa.
+Supervised, not reinforcement learning: there are observed pairs (MODIS and VIIRS, same cell and day) and there is
+no agent, environment or reward.
 
-## Tareas
+## Tasks
 
-| ID | Tarea | Agente | Hecho cuando |
+| ID | Task | Agent | Done when |
 |---|---|---|---|
-| SA2.1 | VIIRS reagrupado a celdas de 1 km por día (una detección por celda), pares de pasos similares (Aqua ~ S-NPP) | Sonnet | Unit: N detecciones en una celda cuentan como 1 |
-| SA2.2 | Baseline: factor de escala MODIS/VIIRS por región y mes del año, en los dos sentidos | Sonnet | Unit con datos sintéticos de factor conocido |
-| SA2.3 | Ajuste de cuantiles por región | Sonnet | Unit: recupera la distribución objetivo en sintético |
-| SA2.4 | LightGBM hacia MODIS: conteo MODIS-equivalente desde conteos VIIRS por confianza, FRP, día/noche, mes, latitud, cobertura del suelo | Sonnet implementa, opencode entrena | Error por año de test vs. SA2.2 y SA2.3 |
-| SA2.5 | Validación año afuera con separación y selección anidada (`docs/validation.md`) | Sonnet | Unit: ningún día de test en entrenamiento |
-| SA2.6 | (postergado) Efecto de la deriva orbital de Terra y Aqua en los años recientes (sin verificar magnitud) | opencode | `reports/02/SA2.6.md` con cifras |
-| SA2.7 | Serie inversa: LightGBM con objetivo Poisson o Tweedie que estima conteos VIIRS por celda y día desde conteo y FRP de MODIS, ángulo de escaneo, día/noche, mes, cobertura del suelo y focos de días vecinos; intervalos por regresión cuantílica | Sonnet implementa, opencode entrena | Error y cobertura de intervalos por año de test vs. SA2.2 inverso |
-| SA2.8 | (postergado) Validación hacia atrás: entrenar con 2016 en adelante y evaluar en 2012–2015, para simular estimar el pasado y ver si la relación cambia con el tiempo | Sonnet | Tabla de error por región y año; unit: ningún año de test en entrenamiento |
-| SA2.9 | (postergado) Áreas quemadas MCD64A1 (2000–) como variable de SA2.7 para fuegos que MODIS no marcó como foco; Landsat solo si SA0.8 confirma acceso y cobertura | Sonnet escribe, opencode corre | Error de SA2.7 con y sin la variable |
-| SA2.10 | (postergado) Continuidad post-MODIS: calibración congelada con versión y fecha; ingesta de un año VIIRS nuevo actualiza las dos series sin recalibrar | Sonnet | Unit: agregar un año no cambia los valores previos |
-| SA2.11 | Serie final en dos escalas (MODIS-eq y VIIRS-eq) con banda de incertidumbre; manifiesto con método, versión de calibración, fuente y período | Sonnet | Capa publicada + e2e de carga |
+| SA2.1 | VIIRS regrouped into 1 km cells per day (one detection per cell), pairs of similar overpasses (Aqua ~ S-NPP) | Sonnet | Unit: N detections in one cell count as 1 |
+| SA2.2 | Baseline: MODIS/VIIRS scale factor per region and month of the year, in both directions | Sonnet | Unit with synthetic data of known factor |
+| SA2.3 | Quantile matching per region | Sonnet | Unit: recovers the target distribution on synthetic data |
+| SA2.4 | LightGBM toward MODIS: MODIS-equivalent count from VIIRS counts by confidence, FRP, day/night, month, latitude, land cover | Sonnet implements, opencode trains | Error per test year vs. SA2.2 and SA2.3 |
+| SA2.5 | Leave-one-year-out validation with gap and nested selection (`docs/validation.md`) | Sonnet | Unit: no test day in training |
+| SA2.6 | (deferred) Effect of Terra and Aqua orbital drift in recent years (magnitude unverified) | opencode | `reports/02/SA2.6.md` with figures |
+| SA2.7 | Inverse series: LightGBM with Poisson or Tweedie objective that estimates VIIRS counts per cell and day from MODIS count and FRP, scan angle, day/night, month, land cover and hot spots of neighboring days; intervals by quantile regression | Sonnet implements, opencode trains | Error and interval coverage per test year vs. inverse SA2.2 |
+| SA2.8 | (deferred) Backward validation: train from 2016 onward and evaluate on 2012–2015, to simulate estimating the past and see whether the relationship changes over time | Sonnet | Error table per region and year; unit: no test year in training |
+| SA2.9 | (deferred) MCD64A1 burned areas (2000–) as a SA2.7 variable for fires that MODIS did not flag as hot spots; Landsat only if SA0.8 confirms access and coverage | Sonnet writes, opencode runs | SA2.7 error with and without the variable |
+| SA2.10 | (deferred) Post-MODIS continuity: calibration frozen with version and date; ingesting a new VIIRS year updates both series without recalibrating | Sonnet | Unit: adding a year does not change previous values |
+| SA2.11 | Final series in two scales (MODIS-eq and VIIRS-eq) with uncertainty band; manifest with method, calibration version, source and period | Sonnet | Published layer + load e2e |
 
-## Entregable
+## Deliverable
 
-Tabla de error por método, sentido y región, incluida la validación hacia atrás. Se publica el método que gane en
-test; si LightGBM no supera al factor de escala, se informa así y se usa el factor. Tendencia observada
-2000–hoy por región con su intervalo; ninguna proyección de décadas (requiere escenarios climáticos, fuera de
-alcance).
+Error table per method, direction and region, including backward validation. The method that wins on test is
+published; if LightGBM does not beat the scale factor, we report it and use the factor. Observed 2000–today trend
+per region with its interval; no projection of decades (it requires climate scenarios, out of scope).

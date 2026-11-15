@@ -1,19 +1,19 @@
-# Fase 3 — Calendario y análisis por área
+# Phase 3 — Calendar and per-area analytics
 
-Estado: activa · Depende de: 2 · Refs: `docs/architecture.md` (API)
+Status: active · Depends on: 2 · Refs: `docs/architecture.md` (API)
 
-## Objetivo
+## Goal
 
-Para un área y un rango de fechas, todo lo que pide el desafío: calendario, meses y años más activos, anomalía
-del mes actual y CSV.
+For an area and a date range, everything the challenge asks for: calendar, most active months and years, anomaly
+of the current month, and CSV.
 
-## Tareas
+## Tasks
 
-| ID | Tarea | Agente | Hecho cuando |
+| ID | Task | Agent | Done when |
 |---|---|---|---|
-| SA3.1 | Área: polígono GeoJSON, o lat/lon + radio; validación de tamaño | Sonnet | Unit de área válida e inválida |
-| SA3.2 | Matriz año×mes de focos reportados por sensor y armonizados en las dos escalas (MODIS-eq, VIIRS-eq con 2000–2011 marcado como estimado) | Sonnet | Unit sobre grilla sintética |
-| SA3.3 | Climatología: mediana y p10–p90 por mes; anomalía del mes en curso (absoluta y en percentil) | Sonnet | Unit con valores conocidos |
-| SA3.4 | Cifras clave: mes y año más activos, total del período, comparación del mes actual con la mediana | Sonnet | Unit |
-| SA3.5 | Endpoints: `POST /calendar`, `POST /stats`, `POST /export.csv` | Sonnet | Unit de API + respuesta con fuente y período |
-| SA3.6 | CSV: focos crudos donde existen (Argentina), conteos por celda en el resto; matriz del calendario | Sonnet | Unit: columnas y filas esperadas |
+| SA3.1 | Area: GeoJSON polygon, or lat/lon + radius; size validation | Sonnet | Unit for valid and invalid area |
+| SA3.2 | Year × month matrix of hot spots reported per sensor and harmonized in both scales (MODIS-eq, VIIRS-eq with 2000–2011 marked as estimated) | Sonnet | Unit on synthetic grid |
+| SA3.3 | Climatology: median and p10–p90 per month; anomaly of the current month (absolute and in percentile) | Sonnet | Unit with known values |
+| SA3.4 | Key figures: most active month and year, period total, comparison of the current month with the median | Sonnet | Unit |
+| SA3.5 | Endpoints: `POST /calendar`, `POST /stats`, `POST /export.csv` | Sonnet | API unit + response with source and period |
+| SA3.6 | CSV: raw hot spots where they exist (Argentina), counts per cell elsewhere; calendar matrix | Sonnet | Unit: expected columns and rows |

@@ -1,132 +1,131 @@
-# Diseño
+# Design
 
-Fuente: canvas "Clima Ideas — Main page wireframe" (https://claude.ai/artifact/LPUfQ1KS8iZA9rkipwoi3Y),
-artboards "Mockup con datos de ejemplo" (`project/Mockup.dc.html`); los wireframes no son el objetivo. Reglas
-comunes con clima-ideas.
+Source: canvas "Clima Ideas — Main page wireframe" (https://claude.ai/artifact/LPUfQ1KS8iZA9rkipwoi3Y),
+artboard "Mockup con datos de ejemplo" (mockup with sample data; `project/Mockup.dc.html`); the wireframes are not
+the goal. Shared rules with clima-ideas. UI copy quoted below is the Spanish text; English lives in
+`web/src/i18n/en.ts`.
 
-## Reglas de UI
+## UI rules
 
-- Sin etiquetas, badges ni descripciones secundarias: jerarquía, color y forma explican.
-- Nunca blanco ni negro puros: claros con tono crema, oscuros con tono azul.
-- Mismo layout en ambos temas: mismas regiones y mismas cajas; solo cambian los tokens.
-- Acento reservado para lo que importa (mes actual, anomalía, selección).
-- Solo lo que funciona: no se muestran navegación, filtros ni botones sin acción; lo que todavía no está conectado
-  queda oculto.
-- Contraste mínimo WCAG AA.
+- No labels, badges or secondary descriptions: hierarchy, color and shape explain.
+- Never pure white or pure black: light themes with a cream tone, dark ones with a blue tone.
+- Same layout in both themes: same regions and same boxes; only the tokens change.
+- Accent reserved for what matters (current month, anomaly, selection).
+- Only what works: no navigation, filters or buttons without an action are shown; whatever is not wired up yet
+  stays hidden.
+- Minimum WCAG AA contrast.
 
 ## Layout
 
-### Barra superior
+### Top bar
 
-Mínimo 56 px, `--surface` con textura. De izquierda a derecha: marca del logo de 28 px (cuadrado redondeado
-`--ctrl` con una línea `--on-ctrl` y una línea base `--accent`); nombre de la app; `h1` con el área elegida
-("Córdoba"); "NASA Space Apps 2026 · Desafío CONAE" y el autor "Faustino Maggioni Duffy". A la derecha: nota de
-datos en mono 12 px `--text-muted` ("FIRMS hasta <fecha>"), selector de idioma y botón de tema de 44 px. Sin
-navegación de secciones.
+Minimum 56 px, `--surface` with texture. Left to right: 28 px logo mark (rounded square `--ctrl` with one
+`--on-ctrl` line and one `--accent` baseline); app name; `h1` with the chosen area ("Córdoba"); "NASA Space Apps
+2026 · Desafío CONAE" and the author "Faustino Maggioni Duffy". On the right: data note in 12 px mono
+`--text-muted` ("FIRMS hasta <date>", i.e. "FIRMS until <date>"), language selector and a 44 px theme button. No
+section navigation.
 
-### Panel izquierdo
+### Left panel
 
-`aside` de 240 px, una tarjeta:
+240 px `aside`, one card:
 
-- **Capas:** casillas de 18 px en filas de 40 px: focos MODIS, focos VIIRS, área seleccionada, localidades.
-- **Serie:** control segmentado (Reportada / MODIS-eq / VIIRS-eq) dentro de un contenedor `--raised` con radio
-  10 px; botón activo `--ctrl`.
-- **Fase ENSO:** control segmentado de 2×2 (Todas / El Niño / La Niña / Neutro) que filtra los meses activos.
-- **Período:** dos botones mono de 44 px (2000, 2026).
-- Al pie, fijada abajo, una línea de fuentes en 12 px `--text-muted`: "FIRMS MODIS C6.1 y VIIRS 375 m, NASA
-  LANCE; ONI NOAA CPC".
+- **Layers:** 18 px checkboxes in 40 px rows: MODIS hot spots, VIIRS hot spots, selected area, localities.
+- **Series:** segmented control (Reported / MODIS-eq / VIIRS-eq) inside a `--raised` container with 10 px radius;
+  active button `--ctrl`.
+- **ENSO phase:** 2×2 segmented control (All / El Niño / La Niña / Neutral) that filters the active months.
+- **Period:** two 44 px mono buttons (2000, 2026).
+- At the bottom, pinned, a sources line in 12 px `--text-muted`: "FIRMS MODIS C6.1 y VIIRS 375 m, NASA LANCE; ONI NOAA
+  CPC".
 
-### Columna principal
+### Main column
 
-- **Mapa:** tarjeta con flex 1 y mínimo 400 px de alto; mapa base monocromo con el relieve pizarra
-  (`--relief-0..3`) y `--water`; focos como marcas `--accent` con contorno `--casing`. Arriba a la derecha, una
-  tarjeta superpuesta con el mes elegido en mono 20 px y debajo una línea en 12 px `--text-muted` ("N focos en el
-  área"). Abajo a la izquierda, la leyenda, sin borde.
-- **Fila de tarjetas** bajo el mapa:
-  - **Inspector** (`1 1 300px`): `h2` "Área · mes", rango de fechas en `--text-muted`, y filas de 28 px con la
-    etiqueta a la izquierda y el valor mono a la derecha: focos del mes, mediana del mes, anomalía (percentil),
-    mes más activo, fase ENSO · ONI, fuente, período del dato. Al pie, un botón primario `--ctrl`.
-  - **Calendario** (`1.6 1 420px`): una oración con el hallazgo principal arriba; el heatmap año×mes; y el gráfico
-    de la serie contra la climatología: barras en `--text`, banda p25–p75 en `--secondary` con opacidad 0,55 y
-    los meses sobre p90 en `--accent` con contorno `--casing`.
-  - **Meses más activos** (`1 1 300px`): el conteo en mono `--text-muted` en el título; filas de 48 px con punto,
-    mes y lugar, conteo y fecha en mono; la fila elegida sobre `--raised` con el punto en `--accent`.
-- **Línea de tiempo** abajo: botones anterior / reproducir / siguiente de 44 px (reproducir sobre `--ctrl`); pista
-  2000–2026 con una banda de fase ENSO por año (Niño `--ctrl`, Niña `--border`, Neutro `--bg`), marcas `--accent`
-  en los meses más activos y cabezal `--accent` de 5 px. Reproducir avanza mes a mes por el mapa y el inspector.
-  Leyenda de Niño / Niña / Neutro.
+- **Map:** card with flex 1 and a 400 px minimum height; monochrome base map with the slate relief
+  (`--relief-0..3`) and `--water`; hot spots as `--accent` marks with a `--casing` outline. Top right, an overlay
+  card with the chosen month in 20 px mono and below it a 12 px `--text-muted` line ("N focos en el área", i.e.
+  "N hot spots in the area"). Bottom left, the legend, without a border.
+- **Row of cards** below the map:
+  - **Inspector** (`1 1 300px`): `h2` "Area · month", date range in `--text-muted`, and 28 px rows with the label on
+    the left and the mono value on the right: hot spots of the month, median of the month, anomaly (percentile),
+    most active month, ENSO phase · ONI, source, data period. At the bottom, a primary `--ctrl` button.
+  - **Calendar** (`1.6 1 420px`): one sentence with the main finding on top; the year × month heatmap; and the
+    chart of the series against the climatology: bars in `--text`, p25–p75 band in `--secondary` at 0.55 opacity
+    and months above p90 in `--accent` with a `--casing` outline.
+  - **Most active months** (`1 1 300px`): the count in mono `--text-muted` in the title; 48 px rows with dot, month
+    and place, count and date in mono; the chosen row on `--raised` with the dot in `--accent`.
+- **Timeline** at the bottom: previous / play / next 44 px buttons (play on `--ctrl`); 2000–2026 track with one
+  ENSO phase band per year (El Niño `--ctrl`, La Niña `--border`, Neutral `--bg`), `--accent` marks on the most
+  active months and a 5 px `--accent` playhead. Play advances month by month through the map and the inspector.
+  El Niño / La Niña / Neutral legend.
 
-Sin pestañas Mapa / Dashboard.
+No Map / Dashboard tabs.
 
-## Superficies
+## Surfaces
 
-- Sin bordes entre regiones. Fondo de página `--bg`, con 8 px de relleno y 8 px entre regiones.
-- Cada panel es una tarjeta `--surface` con radio 8 px y relleno 16 px.
-- Textura (clase `.tx`): en claro, puntos `radial-gradient(rgba(42,52,59,.09) .9px, transparent 1.3px)` a
-  5 × 5 px más un brillo diagonal `linear-gradient(135deg, rgba(255,255,255,.45) 0%, transparent 55%)`; en
-  oscuro, ninguno.
+- No borders between regions. Page background `--bg`, with 8 px padding and 8 px between regions.
+- Each panel is a `--surface` card with 8 px radius and 16 px padding.
+- Texture (class `.tx`): in light, dots `radial-gradient(rgba(42,52,59,.09) .9px, transparent 1.3px)` at 5 × 5 px
+  plus a diagonal shine `linear-gradient(135deg, rgba(255,255,255,.45) 0%, transparent 55%)`; in dark, none.
 
 ## Tokens
 
-Los valores viven en `web/src/theme/tokens.css` y `tokens.ts`; un test verifica que coincidan. Los nombres son los
-de clima-ideas.
+The values live in `web/src/theme/tokens.css` and `tokens.ts`; a test checks that they match. The names are those
+of clima-ideas.
 
-| Token | Claro | Oscuro | Uso |
+| Token | Light | Dark | Use |
 |---|---|---|---|
-| `--bg` | `#F1EEE6` | `#16212A` | Fondo de página |
-| `--surface` | `#F9F7F2` | `#1F2D37` | Tarjetas y barra superior |
-| `--raised` | `#EFECE4` | `#2A3A46` | Botones neutros, fila seleccionada |
-| `--border` | `#DDD8CD` | `#3E505B` | Trazos finos dentro de gráficos |
-| `--text` | `#2A343B` | `#ECE7DC` | Texto |
-| `--text-muted` | `#5F6468` | `#A3AEB4` | Texto secundario |
-| `--ctrl` | `#3E505B` | `#4D6372` | Control primario |
-| `--on-ctrl` | `#F5F2EA` | `#ECE7DC` | Texto sobre `--ctrl` |
-| `--accent` | `#8EB8E5` | `#FDDA0D` | Mes actual, anomalía, selección, foco |
-| `--secondary` | `#A4AF69` | `#A4AF69` | Banda "normal", climatología |
-| `--casing` | `#2A343B` | `#16212A` | Contorno de las marcas de acento |
-| `--water` | `#3A6E8F` | `#7FA9C6` | Ríos y lagos en el mapa base |
-| `--relief-0` | `#A7AEAF` | `#4E5F6A` | Relieve, bajo |
-| `--relief-1` | `#77848A` | `#7D8D96` | Relieve, medio |
-| `--relief-2` | `#4A5A64` | `#B3BEC4` | Relieve, alto |
-| `--relief-3` | `#2A343B` | `#ECE7DC` | Relieve, cumbres |
+| `--bg` | `#F1EEE6` | `#16212A` | Page background |
+| `--surface` | `#F9F7F2` | `#1F2D37` | Cards and top bar |
+| `--raised` | `#EFECE4` | `#2A3A46` | Neutral buttons, selected row |
+| `--border` | `#DDD8CD` | `#3E505B` | Thin strokes inside charts |
+| `--text` | `#2A343B` | `#ECE7DC` | Text |
+| `--text-muted` | `#5F6468` | `#A3AEB4` | Secondary text |
+| `--ctrl` | `#3E505B` | `#4D6372` | Primary control |
+| `--on-ctrl` | `#F5F2EA` | `#ECE7DC` | Text on `--ctrl` |
+| `--accent` | `#8EB8E5` | `#FDDA0D` | Current month, anomaly, selection, hot spot |
+| `--secondary` | `#A4AF69` | `#A4AF69` | "Normal" band, climatology |
+| `--casing` | `#2A343B` | `#16212A` | Outline of accent marks |
+| `--water` | `#3A6E8F` | `#7FA9C6` | Rivers and lakes on the base map |
+| `--relief-0` | `#A7AEAF` | `#4E5F6A` | Relief, low |
+| `--relief-1` | `#77848A` | `#7D8D96` | Relief, medium |
+| `--relief-2` | `#4A5A64` | `#B3BEC4` | Relief, high |
+| `--relief-3` | `#2A343B` | `#ECE7DC` | Relief, peaks |
 
-Espaciado `--space-1..6` (4, 8, 12, 16, 24, 32 px); radios 4, 8, 12 px.
+Spacing `--space-1..6` (4, 8, 12, 16, 24, 32 px); radii 4, 8, 12 px.
 
-## Tipografía
+## Typography
 
-IBM Plex Sans 400/500/600 para el cuerpo y los títulos (14 px / 1,4; títulos de tarjeta 14 px / 600, de página
-16 px / 600); IBM Plex Mono 400/500 con numerales tabulares solo para números, fechas y unidades (clase `.num`).
-Google Fonts en `index.html`.
+IBM Plex Sans 400/500/600 for body and headings (14 px / 1.4; card titles 14 px / 600, page titles 16 px / 600);
+IBM Plex Mono 400/500 with tabular numerals only for numbers, dates and units (class `.num`). Google Fonts in
+`index.html`.
 
-## Controles
+## Controls
 
-- Objetivos de 44 px, radio 8 px, sin borde. Neutros sobre `--raised`; primario sobre `--ctrl` con `--on-ctrl`.
-- Casillas de 18 px con `accent-color: var(--ctrl)`; filas de 40 px.
-- Controles segmentados: contenedor `--raised` con radio 10 px, botón activo `--ctrl` con texto `--on-ctrl`.
-- Foco visible: anillo de 2 px en `--accent` con 2 px de separación.
-- Las marcas de acento en mapa y gráficos llevan contorno `--casing`.
+- 44 px targets, 8 px radius, no border. Neutrals on `--raised`; primary on `--ctrl` with `--on-ctrl`.
+- 18 px checkboxes with `accent-color: var(--ctrl)`; 40 px rows.
+- Segmented controls: `--raised` container with 10 px radius, active button `--ctrl` with `--on-ctrl` text.
+- Visible focus: 2 px ring in `--accent` with a 2 px offset.
+- Accent marks on the map and charts carry a `--casing` outline.
 
-## Tiradores de arrastre
+## Drag handles
 
-- Hay tiradores para el ancho del panel izquierdo, el alto de la fila de tarjetas y el alto de la línea de tiempo,
-  ubicados en los huecos de 8 px entre regiones.
-- Arrastrar por debajo del mínimo del panel lo colapsa a 0: el panel queda oculto (`hidden`, fuera del orden de
-  tabulación) y el mapa ocupa el espacio. El tirador permanece en el borde para poder arrastrarlo de vuelta.
-- Teclado: las flechas redimensionan (16 px), Inicio colapsa, Fin maximiza, Enter o doble clic restablece el
-  tamaño por defecto. `aria-valuemin` es 0 y `aria-valuenow` es 0 cuando está colapsado. El mapa conserva al menos
-  320 × 200 px.
-- Tamaños y estado colapsado se guardan en `localStorage` (`panel-sizes`); las claves inválidas o ausentes vuelven
-  al defecto.
+- There are handles for the left panel width, the card row height and the timeline height, placed in the 8 px gaps
+  between regions.
+- Dragging below the panel's minimum collapses it to 0: the panel is hidden (`hidden`, out of the tab order) and
+  the map takes the space. The handle stays on the edge so it can be dragged back.
+- Keyboard: arrows resize (16 px), Home collapses, End maximizes, Enter or double click resets the default size.
+  `aria-valuemin` is 0 and `aria-valuenow` is 0 when collapsed. The map keeps at least 320 × 200 px.
+- Sizes and collapsed state are stored in `localStorage` (`panel-sizes`); invalid or missing keys fall back to the
+  default.
 
-## Pantallas angostas
+## Narrow screens
 
-En pantallas de hasta 800 px el panel izquierdo es un cajón. Las tarjetas se apilan debajo del mapa y la página se
-desplaza; no hay tiradores. Margen lateral de 16 px y sin desplazamiento horizontal.
+On screens up to 800 px the left panel is a drawer. The cards stack below the map and the page scrolls; there are
+no handles. 16 px side margin and no horizontal scrolling.
 
-## Rampas
+## Ramps
 
-- Calendario (conteo): secuencial de un solo tono que crece en luminosidad, validada para daltonismo
-  (se define en SA0.4).
-- Anomalía: divergente azul (menos que la mediana) / naranja (más), centro neutro `--raised`.
-- `--secondary` marca la banda "normal" (p25–p75).
-- Fase ENSO (como en la línea de tiempo del mockup): Niño `--ctrl`, Niña `--border`, Neutro `--bg`.
+- Calendar (count): single-hue sequential that grows in lightness, validated for color blindness (defined in
+  SA0.4).
+- Anomaly: diverging blue (less than the median) / orange (more), neutral `--raised` center.
+- `--secondary` marks the "normal" band (p25–p75).
+- ENSO phase (as in the mockup timeline): El Niño `--ctrl`, La Niña `--border`, Neutral `--bg`.

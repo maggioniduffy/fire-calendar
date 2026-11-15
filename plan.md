@@ -1,46 +1,46 @@
-# Plan: calendario de fuego armonizado MODIS + VIIRS
+# Plan: harmonized MODIS + VIIRS fire calendar
 
-Desafío de CONAE del NASA Space Apps Challenge 2026, "Harmonization of MODIS and VIIRS Hot Spots". No se compite;
-sin plazo. Autor: Faustino Maggioni Duffy.
+CONAE challenge of the NASA Space Apps Challenge 2026, "Harmonization of MODIS and VIIRS Hot Spots". Not
+competing; no deadline. Author: Faustino Maggioni Duffy.
 
-Producto: pipeline Python que arma una serie de focos de calor armonizada 2000–hoy para Argentina en dos escalas
-(MODIS-equivalente y VIIRS-equivalente, que sigue cuando MODIS se apague) y una app web con calendario año×mes,
-anomalías, fase ENSO y CSV descargable.
+Product: a Python pipeline that builds a harmonized hot-spot series 2000–today for Argentina in two scales
+(MODIS-equivalent and VIIRS-equivalent, which keeps going when MODIS is switched off) and a web app with a
+year × month calendar, anomalies, ENSO phase and downloadable CSV.
 
-Docs: [arquitectura](docs/architecture.md), [diseño](docs/design.md), [validación](docs/validation.md),
-[fuentes de datos](docs/research/data-sources.md), [delegación](docs/agents.md).
+Docs: [architecture](docs/architecture.md), [design](docs/design.md), [validation](docs/validation.md),
+[data sources](docs/research/data-sources.md), [delegation](docs/agents.md).
 
-## Fases
+## Phases
 
-| # | Fase | Archivo | Depende de | Estado |
+| # | Phase | File | Depends on | Status |
 |---|---|---|---|---|
-| 0 | Bases y acceso a datos | [plan/00-foundations.md](plan/00-foundations.md) | — | activa |
-| 1 | Datos FIRMS: descarga, filtros, grilla | [plan/01-data.md](plan/01-data.md) | 0 | activa |
-| 2 | Armonización MODIS–VIIRS + ML | [plan/02-harmonization.md](plan/02-harmonization.md) | 1 | activa (parte postergada) |
-| 3 | Calendario y análisis por área | [plan/03-calendar-analytics.md](plan/03-calendar-analytics.md) | 2 | activa |
-| 4 | App web | [plan/04-web-app.md](plan/04-web-app.md) | 0, 3 | activa |
-| 5 | ENSO y fuego (solo ENSO-lite) | [plan/05-enso-drought.md](plan/05-enso-drought.md) | 3, SA0.9 | activa (sequía postergada) |
-| 5b | Ríos atmosféricos y fuego | [plan/05b-atmospheric-rivers.md](plan/05b-atmospheric-rivers.md) | 4 | postergado |
-| 6 | Predicción experimental | [plan/06-ml-outlook.md](plan/06-ml-outlook.md) | 2, 5 | postergado |
-| 7 | Publicación | [plan/07-submission.md](plan/07-submission.md) | 4 | activa |
+| 0 | Foundations and data access | [plan/00-foundations.md](plan/00-foundations.md) | — | active |
+| 1 | FIRMS data: download, filters, grid | [plan/01-data.md](plan/01-data.md) | 0 | active |
+| 2 | MODIS–VIIRS harmonization + ML | [plan/02-harmonization.md](plan/02-harmonization.md) | 1 | active (part deferred) |
+| 3 | Calendar and per-area analytics | [plan/03-calendar-analytics.md](plan/03-calendar-analytics.md) | 2 | active |
+| 4 | Web app | [plan/04-web-app.md](plan/04-web-app.md) | 0, 3 | active |
+| 5 | ENSO and fire (ENSO-lite only) | [plan/05-enso-drought.md](plan/05-enso-drought.md) | 3, SA0.9 | active (drought deferred) |
+| 5b | Atmospheric rivers and fire | [plan/05b-atmospheric-rivers.md](plan/05b-atmospheric-rivers.md) | 4 | deferred |
+| 6 | Experimental prediction | [plan/06-ml-outlook.md](plan/06-ml-outlook.md) | 2, 5 | deferred |
+| 7 | Publication | [plan/07-submission.md](plan/07-submission.md) | 4 | active |
 
-## Orden
+## Order
 
 0 → (backend SA0.2/SA0.6 ∥ web SA0.4/SA0.5) → 1 → 2 → 3 → (4 ∥ 5 ENSO-lite) → 7.
 
-Si algo se demora, se recorta en este orden: pestaña Dashboard (SA4.8), análisis de rezagos SA5.5 (queda la fila
-de fase ENSO), LightGBM (queda el factor de escala), NRT.
+If something slips, cut in this order: Dashboard tab (SA4.8), lag analysis SA5.5 (the ENSO phase row stays),
+LightGBM (the scale factor stays), NRT.
 
-## Avance
+## Progress
 
-- 2026-11-14: repo separado de clima-ideas (antes `space-apps/` en la rama `claude/space-apps-fire-calendar-plan`).
-  Fuentes FIRMS verificadas. SA0.1 hecho (reglas del evento, ya sin efecto).
-- 2026-11-14: backend `firecal` (uv, Python 3.12), Makefile, CI backend, manifiesto + API (SA0.2 backend, SA0.3
-  backend, SA0.6), ONI y fase ENSO (SA0.9), descarga, ingesta, filtros y grilla FIRMS (SA1.1–SA1.4), todo con unit
-  tests sin red. La sesión en la nube no llega a FIRMS ni a CPC (proxy 403), así que la descarga real y SA1.7
-  quedan para una corrida local: `make install`, `cd backend && uv run firecal enso build`,
+- 2026-11-14: repo split from clima-ideas (formerly `space-apps/` on branch
+  `claude/space-apps-fire-calendar-plan`). FIRMS sources verified. SA0.1 done (event rules, no longer in effect).
+- 2026-11-14: `firecal` backend (uv, Python 3.12), Makefile, backend CI, manifest + API (SA0.2 backend, SA0.3
+  backend, SA0.6), ONI and ENSO phase (SA0.9), FIRMS download, ingestion, filters and grid (SA1.1–SA1.4), all with
+  unit tests and no network. The cloud session cannot reach FIRMS or CPC (proxy 403), so the real download and
+  SA1.7 are left for a local run: `make install`, `cd backend && uv run firecal enso build`,
   `uv run firecal firms download`, `ingest`, `grid`, `profile`.
-- 2026-11-14: se habilitaron FIRMS y CPC en el entorno de la nube y se corrió todo. ONI: 921 meses (1950-01 a
-  2026-09). FIRMS: 48 archivos 2000–2025; sin archivo standard 2026 todavía. SA1.1–SA1.4 y SA1.7 hechos
-  ([reports/01/SA1.7.md](reports/01/SA1.7.md)). Abierto para la fase 2: el código `version` de MODIS cambia en 2018
-  y 2023 (sin verificar qué implica).
+- 2026-11-14: FIRMS and CPC were enabled in the cloud environment and everything was run. ONI: 921 months (1950-01
+  to 2026-09). FIRMS: 48 files 2000–2025; no standard 2026 file yet. SA1.1–SA1.4 and SA1.7 done
+  ([reports/01/SA1.7.md](reports/01/SA1.7.md)). Open for phase 2: the MODIS `version` code changes in 2018 and
+  2023 (what that implies is unverified).
