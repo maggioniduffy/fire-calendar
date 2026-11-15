@@ -1,6 +1,6 @@
 # Phase 4 — Web app
 
-Status: active (SA4.10–SA4.14 opened 2026-11-15) · Depends on: 0, 3 · Refs: `docs/design.md`
+Status: done 2026-11-15 (SA4.10–SA4.14 added the same day) · Depends on: 0, 3 · Refs: `docs/design.md`
 
 ## Goal
 
