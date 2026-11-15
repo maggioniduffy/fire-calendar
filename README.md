@@ -142,6 +142,12 @@ Verified on 2026-11-14 unless marked otherwise; see [docs/research/data-sources.
 
 Everything modeled shows its source and period in the UI and in the layer manifests.
 
+## Use of AI tools
+
+Code, tests, documentation and analysis in this repository were written with an AI coding assistant (Claude Code,
+Anthropic), with the author planning each task and reviewing and validating the results. Commits made this way
+carry a `Co-Authored-By: Claude` trailer. No AI-generated images, video or audio are used.
+
 ## How to run
 
 Prerequisites:
