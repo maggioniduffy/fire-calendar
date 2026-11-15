@@ -9,7 +9,7 @@ Retrospective validation, not an alert system. 'MODIS-eq' means MODIS as in the 
 - **Route:** the direct NOAA-20 -> MODIS factor is published as the MODIS-eq route after MODIS. P5 on the pooled forward holdouts (10 cut-off x test-year cells): the chain does not beat the direct factor: pooled block-year WAPE chain 0.1250 >= direct 0.1233. Robustness: at least one of the cut-offs 2023 and 2024 agrees in sign with the pooled result.
 - **Error (forward holdouts, cut-offs 2021-2024, test years to 2025, pooled):** block-year WAPE 12.3 % and national bias -3.3 % for the published route (chain: 12.5 %, -0.8 %); block-month WAPE 20.6 %. Scored against observed MODIS, which drifts from 2022 (see unverified items).
 - **Coverage (nominal 80 %, rows with source > 0):** block-year 76.1 % (within 75-85 %), relative width 33.7 %; block-month 77.7 % (within 75-85 %).
-- **Frozen artifact on 2026 (P9, 2026 (4 months)):** the published route applied unchanged scores block-year WAPE 16.6 % and bias +4.5 % against a drifted MODIS; the same calendar months of 2022-2025 out of sample (forward holdouts) score 13.7 % and +4.8 %; Reported as is; it changes no decision.
+- **Frozen artifact on 2026 (P9, 2026 (4 months)):** the published route applied unchanged scores block-year WAPE 16.6 % and bias +4.5 % against a drifted MODIS; the same calendar months of 2022-2025 out of sample (forward holdouts) score 13.7 % and +4.8 %. Reported as is; it changes no decision.
 - `sf-2026.11.2` carries the route as pair `noaa20_to_modis` with route `direct`, fitted on 2018-05..2025-12 (92 months); `sf-2026.11.1` pairs are byte for byte unchanged.
 
 ## Design
