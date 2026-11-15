@@ -103,14 +103,14 @@ def request_key(path: str, body: dict) -> str:
     return " ".join(parts)
 
 
-def synthetic_rows() -> pd.DataFrame:
+def synthetic_rows(years=YEARS) -> pd.DataFrame:
     rng = np.random.default_rng(SEED)
     cells = [(la, lo) for la in GRID_LAT for lo in GRID_LON] + list(EXTRA)
     rows = []
-    for year in YEARS:
+    for year in years:
         for month in range(1, 13):
             season = 1.0 + 3.0 * np.exp(-(((month - 9) % 12) ** 2) / 6.0)  # peak around September
-            trend = 1.0 + 0.05 * (year - YEARS[0])
+            trend = 1.0 + 0.05 * (year - years[0])
             for i, (la, lo) in enumerate(cells):
                 n = int(rng.poisson(0.6 * season * trend * (1.5 if i % 3 == 0 else 0.7)))
                 if n == 0 and i != 0:
@@ -146,9 +146,9 @@ def bands(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     return out[0], out[1]
 
 
-def build_layer(processed: Path) -> None:
+def build_layer(processed: Path, years=YEARS) -> None:
     root = processed / "harmonized"
-    df = synthetic_rows()
+    df = synthetic_rows(years)
     (root / "series").mkdir(parents=True)
     for year, g in df.groupby("year"):
         g.to_parquet(root / "series" / f"{year}.parquet")
@@ -159,7 +159,8 @@ def build_layer(processed: Path) -> None:
             g.to_parquet(root / name / f"{y}.parquet")
     manifest = LayerManifest(
         id="harmonized", title="Harmonized fire series (SYNTHETIC)", kind="series", source=SOURCE,
-        period=PERIOD, license="synthetic, no real data", updated_at=datetime(2026, 1, 1, tzinfo=UTC),
+        period=f"{years[0]}-01-01/{years[-1]}-12-31", license="synthetic, no real data",
+        updated_at=datetime(2026, 1, 1, tzinfo=UTC),
         files=[f"series/{y}.parquet" for y in sorted(df["year"].unique())],
         method="synthetic", calibration_version="synthetic-1",
         notes={
