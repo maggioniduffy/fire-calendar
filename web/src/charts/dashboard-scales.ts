@@ -57,6 +57,8 @@ export interface MonthPoint {
   viirsReported: number | null;
   lo: number | null;
   hi: number | null;
+  /** The month comes (partly) from NRT: drawn with a hollow point. */
+  provisional: boolean;
 }
 
 /** Monthly rows of /calendar with the harmonized value (the payload's scale) and its band, in time order. */
@@ -79,6 +81,7 @@ export function monthlySeries(cal: CalendarPayload): MonthPoint[] {
         viirsReported: m.viirs_reported,
         lo: b?.lo ?? null,
         hi: b?.hi ?? null,
+        provisional: m.provisional === true,
       };
     })
     .sort((a, b) => a.index - b.index);

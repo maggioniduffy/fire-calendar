@@ -29,6 +29,8 @@ CELL_COLUMNS = [
     "year", "month", "cell_id", "cell_lat", "cell_lon", "modis_reported", "viirs_reported", "modis_eq",
     "viirs_eq", "modis_eq_estimated", "viirs_eq_estimated", "method", "calibration_version",
 ]  # fmt: skip
+# Status columns of newer series (absent in older layers); appended after CELL_COLUMNS when present.
+CELL_STATUS_COLUMNS = ["provisional", "source_level", "source_levels", "modis_drift"]
 DETECTION_COLUMNS = [
     "acq_datetime", "acq_date", "sensor", "satellite", "product", "daynight", "latitude", "longitude",
     "confidence_pct", "confidence_class", "frp", "type", "version",
@@ -118,7 +120,8 @@ def export_csv(
         df = _detections(r, detections_dir)
         df["source"] = prov["source"]
     elif kind == "cells":
-        df = load_rows(store, r).sort_values(["year", "month", "cell_id"])[CELL_COLUMNS]
+        rows = load_rows(store, r).sort_values(["year", "month", "cell_id"])
+        df = rows[CELL_COLUMNS + [c for c in CELL_STATUS_COLUMNS if c in rows]]
         for k in ("source", "period"):
             df[k] = prov[k]
     name = f"firecal_{kind}_{r.scale}_{fmt_ym(r.start)}_{fmt_ym(r.end)}.csv"

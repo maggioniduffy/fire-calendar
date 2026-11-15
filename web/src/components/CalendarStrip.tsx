@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import type { CalendarPayload } from "../api/types";
 import { divergingGradient, sequentialGradient } from "../charts/scales";
 import { format } from "../i18n";
+import { modisScale } from "../state/monthStatus";
 import { usePrefs, useT } from "../state/prefs";
 import { useSelection } from "../state/SelectionContext";
 import { CalendarGrid, monthName, type CalendarMode } from "./CalendarGrid";
@@ -104,11 +105,21 @@ export function CalendarStrip() {
           <span className="cal-legend-nodata">
             <span className="cal-swatch nodata" aria-hidden="true" /> {t.calendar.noData}
           </span>
+          {grid?.hasProvisional && (
+            <span className="cal-legend-nodata" data-testid="legend-provisional">
+              <span className="cal-swatch provisional" aria-hidden="true" /> {t.status.legendProvisional}
+            </span>
+          )}
+          {grid?.hasDrift && modisScale(calendar.scale) && (
+            <span className="cal-legend-note muted" data-testid="legend-drift">
+              {t.status.legendDrift}
+            </span>
+          )}
         </div>
         </div>
         <div className="cal-main">
           {grid && grid.years.length > 0 && (
-            <CalendarGrid grid={grid} mode={mode} meta={calendar.meta} enso={calendar.enso} selected={selected} onSelect={(month) => dispatch({ type: "setMonth", month })} />
+            <CalendarGrid grid={grid} mode={mode} scale={calendar.scale} enso={calendar.enso} selected={selected} onSelect={(month) => dispatch({ type: "setMonth", month })} />
           )}
           <EnsoLegend enso={calendar.enso} />
         </div>

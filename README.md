@@ -40,22 +40,44 @@ NOAA-20 and NOAA-21.
 Details: [plan/02-harmonization.md](plan/02-harmonization.md), [docs/validation.md](docs/validation.md),
 [reports/02/baselines.md](reports/02/baselines.md).
 
-- **Scales.** MODIS = Terra + Aqua. VIIRS = S-NPP only. NOAA-20 is never added to S-NPP; it enters through a
-  NOAA-20 to S-NPP transfer factor fitted from 2018-05 (national total 1.015), chained for continuity.
+- **Scales.** MODIS = Terra + Aqua. VIIRS = S-NPP only. NOAA-20 is never added to S-NPP; after S-NPP ends
+  (2026-11-02) it enters through a NOAA-20 to S-NPP transfer factor fitted from 2018-05 (national total 1.015).
+  NOAA-21 is used only as a whole-month fallback when NOAA-20 is missing. Satellites are never averaged.
 - **Scale factor (SA2.2).** Ratio of sums per 2.5° lat/lon block, month of the year and day/night, with shrinkage
   toward the national factor of the same month and day/night: `f = (M + k·f_national) / (V + k)`, where `k` is
   chosen inside the training set. Counts are detections after the filters (`type` 0, MODIS confidence >= 30,
   VIIRS nominal or high) summed from a 0.1° grid.
-- **Calibration** `sf-2026.11.1`: the SA2.2 factors and the conformal calibration, fitted on the full overlap
-  (2012-02 to 2025-12) and frozen.
+- **Calibration** `sf-2026.11.2`, frozen with its sha256 in `backend/calibrations/` (the build refuses a file that
+  does not match, and a version is never overwritten). It keeps every pair of `sf-2026.11.1` (fitted 2012-02 to
+  2025-12) byte for byte and adds NOAA-21 to S-NPP, NOAA-21 to NOAA-20 and the post-MODIS route.
 - **Bands.** Conformal intervals (nominal 80 %) per block-month and block-year, calibrated with nested
-  leave-one-year-out residuals. MODIS-eq obtained from NOAA-20 after MODIS and S-NPP end has no band.
+  leave-one-year-out residuals. Block-year bands of an incomplete year are flagged `partial_year` (coverage on
+  partial years unverified).
+- **After MODIS (SA2.10).** MODIS-eq after MODIS comes from a direct NOAA-20 to MODIS factor (2018-05 to 2025-12),
+  chosen over the chain NOAA-20 → S-NPP → MODIS by a rule fixed before the run; the difference is within noise
+  ([reports/02/SA2.10.md](reports/02/SA2.10.md)). Simulating MODIS being switched off (cut-offs 2021 to 2024, test
+  years to 2025): block-year WAPE 12.3 %, national bias −3.3 %, block-year band coverage 76.1 %. The frozen band,
+  tested once on January to April 2026, covered 72.1 % (coverage unverified; no fire-season month after 2025 is
+  validated yet). MODIS-eq of this route means MODIS as observed in 2018-05 to 2025-12, which includes the Terra
+  and Aqua orbit drift (Terra 2023+, Aqua 2024+, cause unverified, [reports/02/SA2.6.md](reports/02/SA2.6.md)).
+  When S-NPP ends the route changes and MODIS-eq can step by up to about 14 % (January daytime) with no change in
+  fire.
+- **Recent months.** 2026 comes from the FIRMS area API: standard processing first, then near real time (NRT,
+  marked provisional until standard processing replaces it). NRT rows have no `type`, so a static-source mask built
+  from the standard history replaces the `type` filter (national bias within 2.3 % on 2025,
+  [reports/01/SA1.6_nrt_mask.md](reports/01/SA1.6_nrt_mask.md)). Incomplete satellite-months are left out
+  ([reports/01/SA1.6_completeness.md](reports/01/SA1.6_completeness.md)).
+- **Drift and backward validation.** Dropping the drift years does not improve training on 2012 to 2015 for any
+  pair under the pre-registered rule ([reports/02/SA2.8.md](reports/02/SA2.8.md)). Observed MODIS from 2022 is
+  flagged "orbit drift (unverified cause)".
 - **2000 to 2011.** VIIRS did not exist yet; the VIIRS-equivalent series for those years is derived from MODIS and
   labelled "estimated" (`estimado`), never "detected".
 - **Baselines.** SA2.3 (quantile matching per region) was also run and loses to the factor in both directions.
 - **Machine learning.** LightGBM (SA2.4 toward MODIS, SA2.7 inverse series) was tested against the factor under a
   criterion fixed before the run. It does not beat the factor in either direction, so the published series uses the
   SA2.2 factor ([plan/02-harmonization.md](plan/02-harmonization.md), [reports/02/baselines.md](reports/02/baselines.md)).
+  Adding MCD64A1 burned area to the inverse-series model does not change that
+  ([reports/02/SA2.9.md](reports/02/SA2.9.md)).
 
 ### Error by method and direction
 
@@ -104,7 +126,12 @@ Verified on 2026-11-14 unless marked otherwise; see [docs/research/data-sources.
 | NASA FIRMS area API | Recent months (NRT and standard), needs a free MAP_KEY | `https://firms.modaps.eosdis.nasa.gov/api/area/csv/{MAP_KEY}/{SOURCE}/{west,south,east,north}/{DAY_RANGE}/{DATE}` |
 | NOAA CPC ONI | Monthly Oceanic Niño Index; El Niño >= +0.5, La Niña <= −0.5, Neutral between | https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt |
 
-- Standard FIRMS processing lags 2 to 3 months; on 2026-11-14 the standard series ended on 2025-12-31.
+- Standard FIRMS processing lags 2 to 3 months. On 2026-11-15 the per-country files ended on 2025-12-31; the area
+  API had standard processing to 2026-08-31 (MODIS) and 2026-07-31 (VIIRS) and NRT after that. The published series
+  runs to 2026-10, the last complete month, with the NRT months marked provisional. S-NPP ended on 2026-11-02.
+- NOAA-21 has no per-country files; its standard data comes from the area API (2023-03 onward).
+- NASA MCD64A1 C6.1 burned area (LP DAAC, needs a free Earthdata login) was used only in the SA2.9 test; its terms
+  beyond the catalogue record (no access constraints) are unverified.
 - Terms and citation: the repo records the data license as "NASA open data" in its layer manifests
   ([docs/architecture.md](docs/architecture.md)). The exact FIRMS and NOAA CPC terms of use and the preferred
   citation text are not stated in the repo: unverified. Check the FIRMS and CPC sites before reuse.

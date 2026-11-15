@@ -58,6 +58,11 @@ export interface Meta {
   alert_system: false;
   estimated_note_es: string;
   estimated_note_en: string;
+  /** Provisional (NRT) and MODIS orbit-drift notes; absent in payloads from before SA2.10. */
+  provisional_note_es?: string;
+  provisional_note_en?: string;
+  modis_drift_note_es?: string;
+  modis_drift_note_en?: string;
 }
 
 /** `describe()` in area.py. */
@@ -69,7 +74,21 @@ export type BBox = [number, number, number, number];
 
 export type EqStatus = "observed" | "estimated" | "none";
 
-export interface MonthRow {
+/** Processing level of the data behind a month; "mixed" when several levels were used. */
+export type SourceLevel = "country-sp" | "api-sp" | "nrt" | "mixed";
+
+/** Status of a month's source (SA2.10). Optional: older payloads do not carry it. */
+export interface MonthStatus {
+  /** Any satellite used in the month comes from NRT: the figure may change after standard processing. */
+  provisional?: boolean;
+  source_level?: SourceLevel | null;
+  /** Every level used, joined with "+", e.g. "api-sp+nrt". */
+  source_levels?: string | null;
+  /** MODIS observed during orbit drift (cause unverified). */
+  modis_drift?: boolean;
+}
+
+export interface MonthRow extends MonthStatus {
   year: number;
   month: number;
   modis_reported: number | null;
@@ -99,6 +118,8 @@ export interface YearRow {
   viirs_eq_complete: boolean;
   modis_eq_estimated_months: number;
   viirs_eq_estimated_months: number;
+  /** Months of the year flagged provisional (NRT). */
+  provisional_months?: number;
 }
 
 export interface BandRow {
@@ -219,7 +240,7 @@ export interface MapCell {
 }
 
 /** POST /cells. `total` is the area's value for the month (same as /calendar), null without sensor coverage. */
-export interface CellsPayload {
+export interface CellsPayload extends MonthStatus {
   meta: Meta;
   area: AreaInfo;
   /** Exterior rings [lon, lat] of a polygon area; null for a circle (drawn by the client). */

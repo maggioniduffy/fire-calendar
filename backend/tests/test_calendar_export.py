@@ -74,7 +74,8 @@ def test_calendar_csv(client):
     assert len(rows) == 4
     assert list(rows[0]) == [
         "year", "month", "modis_reported", "viirs_reported", "modis_eq", "viirs_eq", "cells",
-        "modis_eq_status", "viirs_eq_status", "source", "period", "method", "calibration_version",
+        "modis_eq_status", "viirs_eq_status", "provisional", "source_level", "source_levels",
+        "modis_drift", "source", "period", "method", "calibration_version",
     ]  # fmt: skip
     dec = next(x for x in rows if x["month"] == "12")
     assert (

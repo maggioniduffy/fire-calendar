@@ -210,6 +210,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -219,6 +221,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -439,6 +443,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -448,6 +454,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -668,6 +676,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -677,6 +687,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -897,6 +909,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -906,6 +920,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -1126,6 +1142,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -1135,6 +1153,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -1355,6 +1375,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -1364,6 +1386,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -1584,6 +1608,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -1593,6 +1619,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -1813,6 +1841,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -1822,6 +1852,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -2042,6 +2074,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -2051,6 +2085,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -2271,6 +2307,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -2280,6 +2318,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -2500,6 +2540,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -2509,6 +2551,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -2729,6 +2773,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -2738,6 +2784,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -2958,6 +3006,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -2967,6 +3017,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -3187,6 +3239,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -3196,6 +3250,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -3416,6 +3472,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -3425,6 +3483,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -3645,6 +3705,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -3654,6 +3716,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -3874,6 +3938,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -3883,6 +3949,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -4103,6 +4171,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -4112,6 +4182,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -4332,6 +4404,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -4341,6 +4415,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -4561,6 +4637,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -4570,6 +4648,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -4790,6 +4870,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -4799,6 +4881,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -5019,6 +5103,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -5028,6 +5114,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -5248,6 +5336,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -5257,6 +5347,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -5477,6 +5569,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -5486,6 +5580,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -5706,6 +5802,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -5715,6 +5813,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -5935,6 +6035,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -5944,6 +6046,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -6164,6 +6268,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -6173,6 +6279,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -6393,6 +6501,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -6402,6 +6512,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -6622,6 +6734,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -6631,6 +6745,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -6851,6 +6967,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -6860,6 +6978,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -7080,6 +7200,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -7089,6 +7211,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -7309,6 +7433,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -7318,6 +7444,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -7538,6 +7666,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -7547,6 +7677,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -7767,6 +7899,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -7776,6 +7910,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -7996,6 +8132,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -8005,6 +8143,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -8225,6 +8365,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -8234,6 +8376,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -8454,6 +8598,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -8463,6 +8609,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -8683,6 +8831,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -8692,6 +8842,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -8912,6 +9064,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -8921,6 +9075,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -9141,6 +9297,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -9150,6 +9308,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -9370,6 +9530,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -9379,6 +9541,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -9599,6 +9763,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -9608,6 +9774,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -9828,6 +9996,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -9837,6 +10007,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -10057,6 +10229,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -10066,6 +10240,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -10286,6 +10462,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -10295,6 +10473,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -10515,6 +10695,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -10524,6 +10706,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -10744,6 +10928,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -10753,6 +10939,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -10973,6 +11161,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -10982,6 +11172,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -11202,6 +11394,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -11211,6 +11405,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -11431,6 +11627,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -11440,6 +11638,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -11660,6 +11860,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -11669,6 +11871,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -11889,6 +12093,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -11898,6 +12104,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -12118,6 +12326,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -12127,6 +12337,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -12347,6 +12559,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -12356,6 +12570,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -12576,6 +12792,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -12585,6 +12803,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -12805,6 +13025,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -12814,6 +13036,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -13034,6 +13258,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -13043,6 +13269,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -13263,6 +13491,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -13272,6 +13502,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -13492,6 +13724,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -13501,6 +13735,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -13721,6 +13957,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -13730,6 +13968,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -13950,6 +14190,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -13959,6 +14201,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -14179,6 +14423,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -14188,6 +14434,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -14408,6 +14656,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -14417,6 +14667,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -14637,6 +14889,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -14646,6 +14900,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -14866,6 +15122,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -14875,6 +15133,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -15095,6 +15355,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -15104,6 +15366,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -15324,6 +15588,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -15333,6 +15599,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -15553,6 +15821,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -15562,6 +15832,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -15782,6 +16054,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -15791,6 +16065,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -16011,6 +16287,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -16020,6 +16298,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -16240,6 +16520,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -16249,6 +16531,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -16469,6 +16753,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -16478,6 +16764,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -16698,6 +16986,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -16707,6 +16997,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -16927,6 +17219,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -16936,6 +17230,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -17156,6 +17452,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -17165,6 +17463,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -17385,6 +17685,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -17394,6 +17696,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -17614,6 +17918,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -17623,6 +17929,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -17843,6 +18151,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -17852,6 +18162,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -18072,6 +18384,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -18081,6 +18395,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -18301,6 +18617,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -18310,6 +18628,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -18530,6 +18850,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -18539,6 +18861,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -18759,6 +19083,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -18768,6 +19094,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -18988,6 +19316,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -18997,6 +19327,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -19217,6 +19549,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -19226,6 +19560,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -19446,6 +19782,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -19455,6 +19793,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -19675,6 +20015,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -19684,6 +20026,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -19904,6 +20248,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -19913,6 +20259,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -20133,6 +20481,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -20142,6 +20492,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -20362,6 +20714,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -20371,6 +20725,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -20591,6 +20947,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -20600,6 +20958,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -20820,6 +21180,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -20829,6 +21191,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -21049,6 +21413,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -21058,6 +21424,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -21278,6 +21646,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -21287,6 +21657,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -21507,6 +21879,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -21516,6 +21890,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -21736,6 +22112,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -21745,6 +22123,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -21965,6 +22345,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -21974,6 +22356,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -22194,6 +22578,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -22203,6 +22589,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -22423,6 +22811,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -22432,6 +22822,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -22652,6 +23044,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -22661,6 +23055,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -22881,6 +23277,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -22890,6 +23288,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -23110,6 +23510,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -23119,6 +23521,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -23339,6 +23743,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -23348,6 +23754,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -23568,6 +23976,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -23577,6 +23987,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -23797,6 +24209,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -23806,6 +24220,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -24026,6 +24442,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -24035,6 +24453,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -24255,6 +24675,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -24264,6 +24686,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -24484,6 +24908,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -24493,6 +24919,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -24713,6 +25141,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -24722,6 +25152,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -24942,6 +25374,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -24951,6 +25385,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -25171,6 +25607,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -25180,6 +25618,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -25400,6 +25840,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -25409,6 +25851,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -25629,6 +26073,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -25638,6 +26084,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -25858,6 +26306,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -25867,6 +26317,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -26087,6 +26539,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -26096,6 +26550,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -26316,6 +26772,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -26325,6 +26783,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -26545,6 +27005,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -26554,6 +27016,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -26774,6 +27238,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -26783,6 +27249,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -27003,6 +27471,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -27012,6 +27482,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -27232,6 +27704,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -27241,6 +27715,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -27461,6 +27937,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -27470,6 +27948,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -27690,6 +28170,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -27699,6 +28181,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -27919,6 +28403,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -27928,6 +28414,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -28148,6 +28636,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -28157,6 +28647,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -28377,6 +28869,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -28386,6 +28880,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -28606,6 +29102,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -28615,6 +29113,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -28835,6 +29335,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -28844,6 +29346,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -29064,6 +29568,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -29073,6 +29579,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -29293,6 +29801,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -29302,6 +29812,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -29522,6 +30034,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -29531,6 +30045,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -29751,6 +30267,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -29760,6 +30278,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -29980,6 +30500,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -29989,6 +30511,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -30209,6 +30733,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -30218,6 +30744,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -30438,6 +30966,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -30447,6 +30977,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -30667,6 +31199,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -30676,6 +31210,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -30896,6 +31432,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -30905,6 +31443,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -31125,6 +31665,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -31134,6 +31676,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -31354,6 +31898,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -31363,6 +31909,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -31583,6 +32131,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -31592,6 +32142,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -31812,6 +32364,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -31821,6 +32375,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -32041,6 +32597,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -32050,6 +32608,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -32270,6 +32830,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -32279,6 +32841,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -32499,6 +33063,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -32508,6 +33074,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -32728,6 +33296,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -32737,6 +33307,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
@@ -32957,6 +33529,8 @@
     "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
     "layer": "harmonized",
     "method": "synthetic",
+    "modis_drift_note_en": "Observed MODIS from 2022: orbit drift (unverified cause).",
+    "modis_drift_note_es": "MODIS observado desde 2022: deriva orbital (causa sin verificar).",
     "notes": {
      "en": [
       "Synthetic test data: not real hot spots."
@@ -32966,6 +33540,8 @@
      ]
     },
     "period": "2005-01-01/2016-12-31",
+    "provisional_note_en": "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change when it is reprocessed with standard processing.",
+    "provisional_note_es": "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede cambiar cuando se reprocese con procesamiento estándar.",
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },

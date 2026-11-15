@@ -29,7 +29,7 @@ test("figures of the chosen month match the fixture (2015, VIIRS-eq observed)", 
   await expect(box.getByTestId("fig-anomaly")).toHaveText(`${pct} · percentil ${Math.round(s.anomaly.percentile)}`);
   const top = s.key_figures.most_active_month;
   await expect(box.getByTestId("fig-most-active")).toContainText(`${num(top.value)}`);
-  await expect(box.getByTestId("fig-source")).toHaveText(s.meta.source);
+  await expect(box.getByTestId("fig-source")).toContainText(s.meta.source);
   await expect(box.getByTestId("fig-source")).toContainText("SYNTHETIC");
   await expect(box.getByTestId("fig-period")).toHaveText("2005-01-01 – 2016-12-31");
   await expect(box.getByTestId("fig-calibration")).toHaveText(s.meta.calibration_version);

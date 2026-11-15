@@ -97,6 +97,8 @@ export interface LegendItem {
   label: string;
   /** CSS class of the swatch (see dashboard.css). */
   swatch: string;
+  /** "point": a hollow circle instead of the default bar swatch. */
+  kind?: "point";
 }
 
 export function Legend({ items }: { items: LegendItem[] }) {
@@ -105,7 +107,11 @@ export function Legend({ items }: { items: LegendItem[] }) {
       {items.map((it) => (
         <li key={it.swatch}>
           <svg width="22" height="10" aria-hidden="true">
-            <rect x="0" y="0" width="22" height="10" rx="2" className={it.swatch} />
+            {it.kind === "point" ? (
+              <circle cx="11" cy="5" r="3.5" className={it.swatch} />
+            ) : (
+              <rect x="0" y="0" width="22" height="10" rx="2" className={it.swatch} />
+            )}
           </svg>
           <span>{it.label}</span>
         </li>

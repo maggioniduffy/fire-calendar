@@ -37,6 +37,7 @@ export function MonthlyChart({ cal, source }: Props) {
   const hasModis = series.some((p) => p.modisReported !== null);
   const hasViirs = series.some((p) => p.viirsReported !== null);
   const hasBand = series.some((p) => p.lo !== null && p.hi !== null);
+  const hasProvisional = series.some((p) => p.provisional && p.value !== null);
   const hasEstimated = series.some((p) => p.status === "estimated");
   const d = t.dashboard.monthly;
   const unverified = !cal.band.verified;
@@ -48,6 +49,7 @@ export function MonthlyChart({ cal, source }: Props) {
 
   const legendItems: LegendItem[] = [{ label: `${d.harmonized} (${t.dashboard.seriesNames[cal.scale]})`, swatch: "sw-harmonized" }];
   if (hasEstimated) legendItems.push({ label: d.estimated, swatch: "sw-estimated" });
+  if (hasProvisional) legendItems.push({ label: t.status.chartProvisional, swatch: "sw-provisional", kind: "point" });
   if (hasBand) legendItems.push({ label: unverified ? `${d.band} (${d.bandUnverified})` : d.band, swatch: "sw-band" });
   if (hasModis) legendItems.push({ label: d.modisReported, swatch: "sw-modis" });
   if (hasViirs) legendItems.push({ label: d.viirsReported, swatch: "sw-viirs" });
@@ -59,6 +61,7 @@ export function MonthlyChart({ cal, source }: Props) {
   const readout = shown ? (
     <>
       {shown.key} · {d.harmonized} {fmt(shown.value)}
+      {shown.provisional ? ` (${t.status.provisional})` : ""}
       {shown.lo !== null && shown.hi !== null ? ` (${fmt(shown.lo)}–${fmt(shown.hi)})` : ""}
       {shown.modisReported !== null ? ` · ${d.modisReported} ${fmt(shown.modisReported)}` : ""}
       {shown.viirsReported !== null ? ` · ${d.viirsReported} ${fmt(shown.viirsReported)}` : ""}
@@ -158,6 +161,11 @@ export function MonthlyChart({ cal, source }: Props) {
             {runs(pts, dashed).map((r, i) => (
               <path key={`h${i}`} className={r.dashed ? "d-line d-line-harm d-dashed" : "d-line d-line-harm"} d={r.d} />
             ))}
+            {series
+              .filter((p) => p.provisional && p.value !== null)
+              .map((p) => (
+                <circle key={`p${p.key}`} className="d-point-provisional" data-month={p.key} cx={x(p.index)} cy={y(p.value!)} r={3.5} />
+              ))}
             {marker(sel, "d-sel", "sel")}
             {marker(hovered, "d-hover", "hov")}
           </svg>

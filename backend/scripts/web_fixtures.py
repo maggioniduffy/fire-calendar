@@ -117,6 +117,12 @@ def synthetic_rows(years=YEARS) -> pd.DataFrame:
                     continue
                 n = max(n, 1) if i == 0 else n  # every month keeps at least one row (sensor availability)
                 viirs = year >= VIIRS_FIRST_YEAR
+                # SYNTHETIC status: the last two months of the last year are NRT (provisional), the
+                # rest of that year is API standard processing, MODIS drift covers the last year,
+                # earlier years are country SP.
+                last = year == years[-1]
+                prov = last and month >= 11
+                level = "nrt" if prov else ("api-sp" if last else "country-sp")
                 vrep = float(rng.poisson(n * 1.8)) if viirs else np.nan
                 rows.append(
                     {
@@ -127,6 +133,8 @@ def synthetic_rows(years=YEARS) -> pd.DataFrame:
                         "modis_eq_estimated": False, "viirs_eq_estimated": not viirs,
                         "modis_sats": "terra", "viirs_source": "snpp" if viirs else "",
                         "method": "synthetic", "calibration_version": "synthetic-1",
+                        "provisional": prov, "source_level": level, "source_levels": level,
+                        "modis_drift": last,
                     }
                 )  # fmt: skip
     return pd.DataFrame(rows)

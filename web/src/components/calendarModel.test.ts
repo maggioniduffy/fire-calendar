@@ -89,3 +89,26 @@ describe("ENSO lookup by ym", () => {
     expect(ensoIndex(null).size).toBe(0);
   });
 });
+
+describe("buildGrid status", () => {
+  const prov = {
+    ...row(2007, 1, 30),
+    provisional: true,
+    source_level: "nrt" as const,
+    source_levels: "nrt",
+    modis_drift: true,
+  };
+  const g = buildGrid({ scale: "viirs_eq", months: [row(2006, 1, 10), prov] } as unknown as CalendarPayload, stats);
+  it("carries the month status into the cell and the grid flags", () => {
+    expect(cellAt(g, "2007-01").statusInfo).toEqual({ provisional: true, source_level: "nrt", source_levels: "nrt", modis_drift: true });
+    expect(cellAt(g, "2006-01").statusInfo.provisional).toBe(false);
+    expect(g.hasProvisional).toBe(true);
+    expect(g.hasDrift).toBe(true);
+  });
+  it("payloads without status leave every flag off", () => {
+    const old = buildGrid(calendar, stats);
+    expect(old.hasProvisional).toBe(false);
+    expect(old.hasDrift).toBe(false);
+    expect(cellAt(old, "2005-01").statusInfo.provisional).toBe(false);
+  });
+});

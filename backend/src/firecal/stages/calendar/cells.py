@@ -102,7 +102,8 @@ def cells_payload(store: SeriesStore, req: CellsRequest) -> dict:
     r = resolve(store, _month_request(req))
     rows = load_rows(store, r)
     month = r.start
-    total = calendar_matrix(rows, store.coverage(), month, month).iloc[0][r.scale]
+    mrow = calendar_matrix(rows, store.coverage(), month, month).iloc[0]
+    total = mrow[r.scale]
     value = rows[r.scale].fillna(0.0)
     keep = value > 0
     win = _window(req, r.area)
@@ -129,6 +130,9 @@ def cells_payload(store: SeriesStore, req: CellsRequest) -> dict:
             "bbox": list(win) if win else None,
             "cells": cells,
             "total": total,
+            "provisional": mrow["provisional"],
+            "source_level": mrow["source_level"],
+            "modis_drift": mrow["modis_drift"],
         }
     )
 

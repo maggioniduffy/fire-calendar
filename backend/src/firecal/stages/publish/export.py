@@ -185,6 +185,7 @@ def national_cells(store: PreloadedStore, out: Path) -> int:
     m = store.manifest
     df = store.national()
     groups = {k: g for k, g in df.groupby(["year", "month"])}
+    cov = store.coverage().set_index(["year", "month"])
     n = 0
     for y, mo in _months(
         (m.period_start.year, m.period_start.month), (m.period_end.year, m.period_end.month)
@@ -207,10 +208,24 @@ def national_cells(store: PreloadedStore, out: Path) -> int:
                 ]
             write_atomic(
                 out / "cells" / scale / f"{fmt_ym((y, mo))}.json",
-                dumps({"month": fmt_ym((y, mo)), "scale": scale, "cells": cells}),
+                dumps(
+                    {"month": fmt_ym((y, mo)), "scale": scale, "cells": cells, **_month_status(cov, y, mo)}
+                ),
             )
             n += 1
     return n
+
+
+def _month_status(cov: pd.DataFrame, y: int, mo: int) -> dict:
+    """Additive status of a month (see `SeriesStore.coverage`): provisional, source_level, modis_drift."""
+    if (y, mo) not in cov.index:
+        return {"provisional": False, "source_level": None, "modis_drift": False}
+    r = cov.loc[(y, mo)]
+    return {
+        "provisional": bool(r["provisional"]),
+        "source_level": None if r["source_level"] is None else str(r["source_level"]),
+        "modis_drift": bool(r["modis_drift"]),
+    }
 
 
 def _months(start: YM, end: YM):

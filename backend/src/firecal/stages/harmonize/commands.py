@@ -37,8 +37,8 @@ def evaluate_cmd(
 
     from firecal.stages.grid.filters import FilterConfig
     from firecal.stages.harmonize.evaluate import (
+        BASELINE_PAIRS,
         MAIN_PAIRS,
-        PAIRS,
         block_detail,
         national_factors,
         run_cv,
@@ -50,7 +50,7 @@ def evaluate_cmd(
     t0 = time.time()
     cube = build_cube(build_monthly_region_table())
     folds = {}
-    for pair in PAIRS:
+    for pair in BASELINE_PAIRS:
         folds[pair, "loyo"] = run_cv(
             cube,
             pair,
@@ -218,3 +218,36 @@ def burned_ml_cmd(
     typer.echo(str(out))
     peak_mb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
     typer.echo(f"runtime {time.time() - t0:.1f} s, peak RSS (main process) {peak_mb:.0f} MB")
+
+
+@harmonize_app.command("continuity")
+def continuity_cmd(
+    out: Annotated[Path, typer.Option(help="Markdown report path.")] = REPO_ROOT
+    / "reports"
+    / "02"
+    / "SA2.10.md",
+    base_version: Annotated[str, typer.Option(help="Frozen base calibration.")] = "sf-2026.11.1",
+    ext_version: Annotated[
+        str, typer.Option(help="Frozen extended calibration (P9 is skipped if absent).")
+    ] = "sf-2026.11.2",
+) -> None:
+    """SA2.10: forward holdouts (chain vs direct, P5), leave-one-year-out and the frozen-artifact check
+    (P9)."""
+    from firecal.stages.harmonize.continuity import frozen_check, noaa21_summary, run_continuity
+    from firecal.stages.harmonize.continuity_report import build_sa210_report
+    from firecal.stages.harmonize.series import frozen_paths, load_frozen
+
+    t0 = time.time()
+    base = load_frozen(base_version)
+    res = run_continuity(base.blocks, log=typer.echo)
+    ext = load_frozen(ext_version) if all(p.exists() for p in frozen_paths(ext_version)) else None
+    p9 = noaa21 = None
+    if ext is not None:
+        p9 = frozen_check(res.inputs.cube, base, ext, res.forward)
+        noaa21 = noaa21_summary(res.inputs.cube, ext)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(build_sa210_report(res, ext, p9, noaa21, dt.date.today()))
+    typer.echo(str(out))
+    typer.echo(f"P5 decision: {res.decision.route} ({res.decision.reason})")
+    peak_mb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+    typer.echo(f"runtime {time.time() - t0:.1f} s, peak RSS {peak_mb:.0f} MB")

@@ -28,6 +28,7 @@ from firecal.stages.harmonize.validation import leave_one_year_out, rolling_orig
 OVERLAP_START = ym_of(2012, 2)
 OVERLAP_END = ym_of(2025, 12)
 NOAA20_START = ym_of(2018, 5)
+NOAA21_START = ym_of(2023, 3)  # first NOAA-21 standard-processing month (FIRMS data availability)
 GAP_MONTHS = 6
 NOMINAL = 0.8
 
@@ -46,7 +47,13 @@ PAIRS: dict[str, Pair] = {
     "viirs_to_terra": Pair(("snpp",), ("terra",), label="S-NPP -> Terra"),
     "terra_to_viirs": Pair(("terra",), ("snpp",), label="Terra -> S-NPP"),
     "noaa20_to_snpp": Pair(("noaa20",), ("snpp",), NOAA20_START, label="NOAA-20 -> S-NPP"),
+    # SA2.10 (added after the baselines; the pair order above is the order of the earlier reports).
+    "noaa21_to_snpp": Pair(("noaa21",), ("snpp",), NOAA21_START, label="NOAA-21 -> S-NPP"),
+    "noaa21_to_noaa20": Pair(("noaa21",), ("noaa20",), NOAA21_START, label="NOAA-21 -> NOAA-20"),
+    "noaa20_to_modis": Pair(("noaa20",), MODIS_SATS, NOAA20_START, label="NOAA-20 -> MODIS (Terra+Aqua)"),
 }
+# The pairs of the SA2.2 / SA2.3 baseline reports (`harmonize evaluate`), unchanged by the SA2.10 additions.
+BASELINE_PAIRS = ("viirs_to_modis", "modis_to_viirs", "viirs_to_terra", "terra_to_viirs", "noaa20_to_snpp")
 MAIN_PAIRS = ("viirs_to_modis", "modis_to_viirs")
 METHODS = {"sf": "SA2.2 factor", "qm": "SA2.3 quantiles"}
 INTERVALS = {
@@ -338,7 +345,8 @@ def block_detail(folds: list[FoldOut], cube: Cube) -> pd.DataFrame:
 def national_factors(cube: Cube) -> pd.DataFrame:
     """In-sample national ratio of sums (target / source) over each pair's valid months."""
     rows = []
-    for name, pair in PAIRS.items():
+    for name in BASELINE_PAIRS:
+        pair = PAIRS[name]
         d = pair_data(cube, pair)
         if len(d.ym) == 0:
             continue

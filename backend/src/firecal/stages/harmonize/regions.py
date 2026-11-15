@@ -5,6 +5,7 @@ table sums the 0.1 degree grid counts (after the default `FilterConfig`) by bloc
 satellite. `Cube` is the dense (month, block, day/night) view that the baselines work on.
 """
 
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -15,7 +16,7 @@ import pyarrow.parquet as pq
 from firecal.paths import interim_dir
 
 BLOCK_DEG = 2.5
-SATELLITES = ("terra", "aqua", "snpp", "noaa20")
+SATELLITES = ("terra", "aqua", "snpp", "noaa20", "noaa21")
 DAYNIGHT = ("D", "N")
 MODIS_SATS = ("terra", "aqua")
 # Months with only part of the month observed (first month of a record that starts mid-month).
@@ -24,6 +25,10 @@ PARTIAL_MONTHS: dict[str, tuple[tuple[int, int], ...]] = {
     "snpp": ((2012, 1),),
     "noaa20": ((2018, 4),),
 }
+# The monthly table stops here unless told otherwise: the calibrations up to `sf-2026.11.1` and every
+# report that
+# predates the 2026 extension were built on months up to 2025-12 (the grid now also holds 2026 and NOAA-21).
+LEGACY_LAST_YM = 2025 * 12 + 11
 _SCALE = 1_000_000
 
 
@@ -69,13 +74,32 @@ def monthly_region_table(grid: pd.DataFrame, size: float = BLOCK_DEG) -> pd.Data
     return d.groupby(["block", "ym", "daynight", "satellite"], sort=True, as_index=False)["count"].sum()
 
 
-def build_monthly_region_table(grid_dir: Path | None = None, size: float = BLOCK_DEG) -> pd.DataFrame:
-    """Read the 0.1 degree grid one year at a time and return the long monthly region table."""
+def build_monthly_region_table(
+    grid_dir: Path | None = None,
+    size: float = BLOCK_DEG,
+    through: int | None = LEGACY_LAST_YM,
+) -> pd.DataFrame:
+    """Read the 0.1 degree grid one year at a time and return the long monthly region table.
+
+    Rows of processing level `nrt` are never included (provisional: they never enter a fit or a cube). Months
+    after `through` (a `ym` index; None = no limit) are left out, so the default reproduces the table that the
+    earlier results were built on even though the grid now holds 2026.
+    """
     grid_dir = grid_dir or interim_dir() / "firms" / "grid_0.1"
     parts = []
     for f in sorted(grid_dir.glob("year=*/part-0.parquet")):
-        df = pq.read_table(f, columns=["acq_date", "satellite", "daynight", "cell_lat", "cell_lon", "count"])
-        parts.append(monthly_region_table(df.to_pandas(), size))
+        year = int(f.parent.name.split("=")[1])
+        if through is not None and year * 12 > through:
+            continue
+        cols = ["acq_date", "satellite", "daynight", "cell_lat", "cell_lon", "count"]
+        has_level = "level" in pq.read_schema(f).names
+        df = pq.read_table(f, columns=cols + (["level"] if has_level else [])).to_pandas()
+        if has_level:
+            df = df[df["level"] != "nrt"]
+        if through is not None and len(df):
+            dates = pd.to_datetime(df["acq_date"])
+            df = df[(dates.dt.year * 12 + dates.dt.month - 1) <= through]
+        parts.append(monthly_region_table(df, size))
     if not parts:
         return monthly_region_table(pd.DataFrame())
     return (
@@ -125,7 +149,9 @@ class Cube:
         return m
 
 
-def build_cube(table: pd.DataFrame) -> Cube:
+def build_cube(table: pd.DataFrame, exclude: Mapping[str, Iterable[int]] | None = None) -> Cube:
+    """Dense cube of the long table. `exclude` maps a satellite to months (`ym`) that are not valid for it
+    (partial, in progress or provisional months): their counts stay in `data` but `valid` is False."""
     ym_all = np.arange(int(table["ym"].min()), int(table["ym"].max()) + 1)
     blocks = np.sort(table["block"].unique())
     data = {s: np.zeros((len(ym_all), len(blocks), 2)) for s in SATELLITES}
@@ -141,5 +167,24 @@ def build_cube(table: pd.DataFrame) -> Cube:
             v = ym_all >= int(table.loc[sel, "ym"].min())
         for y, m in PARTIAL_MONTHS.get(s, ()):
             v &= ym_all != ym_of(y, m)
+        if exclude and s in exclude:
+            v &= ~np.isin(ym_all, np.fromiter(exclude[s], dtype=np.int64))
         valid[s] = v
     return Cube(ym_all, blocks, data, valid)
+
+
+def restrict_blocks(cube: Cube, blocks: np.ndarray) -> Cube:
+    """The cube on exactly `blocks` (sorted ids), in that order; blocks absent from the cube are zero columns.
+
+    Counts of cube blocks not in `blocks` are dropped (a calibration indexes its factors on its own blocks).
+    """
+    blocks = np.asarray(blocks, dtype=np.int64)
+    pos = np.searchsorted(cube.blocks, blocks)
+    pos_c = np.clip(pos, 0, max(len(cube.blocks) - 1, 0))
+    present = (cube.blocks[pos_c] == blocks) if len(cube.blocks) else np.zeros(len(blocks), dtype=bool)
+    data = {}
+    for s, a in cube.data.items():
+        out = np.zeros((a.shape[0], len(blocks), 2))
+        out[:, present] = a[:, pos_c[present]]
+        data[s] = out
+    return Cube(cube.ym, blocks, data, dict(cube.valid))

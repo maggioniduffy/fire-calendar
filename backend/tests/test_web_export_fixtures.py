@@ -10,7 +10,8 @@ FIXTURES = Path(__file__).resolve().parents[2] / "web" / "e2e" / "fixtures" / "a
 # Literal lists repeated in web/e2e/download.spec.ts; this test keeps them equal to the backend.
 CALENDAR_HEADER = [
     "year", "month", "modis_reported", "viirs_reported", "modis_eq", "viirs_eq", "cells", "modis_eq_status",
-    "viirs_eq_status", "source", "period", "method", "calibration_version",
+    "viirs_eq_status", "provisional", "source_level", "source_levels", "modis_drift",
+    "source", "period", "method", "calibration_version",
 ]  # fmt: skip
 
 

@@ -69,3 +69,62 @@ def build_cmd(
     typer.echo(f"{root / 'manifest.json'}  period {manifest.period}  files {len(manifest.files)}")
     typer.echo(national_summary(root).round(0).to_string(index=False))
     typer.echo(f"runtime {time.time() - t0:.1f} s, peak RSS {_peak_mb():.0f} MB")
+
+
+@series_app.command("extend")
+def extend_cmd(
+    from_version: Annotated[str, typer.Option("--from", help="Frozen calibration to extend (untouched).")],
+    to_version: Annotated[str, typer.Option("--to", help="New calibration version label (never reused).")],
+    route: Annotated[
+        str, typer.Option(help="Post-MODIS route: 'auto' applies the P5 decision, or 'chain' / 'direct'.")
+    ] = "auto",
+) -> None:
+    """SA2.10: freeze `--to` = `--from` unchanged + NOAA-21 pairs + the post-MODIS route (P5), never on NRT
+    rows."""
+    from firecal.stages.harmonize.continuity import decide, load_inputs, run_forward
+    from firecal.stages.harmonize.route import ROUTE_PAIR, ROUTES
+    from firecal.stages.harmonize.series import (
+        LAYER_ID,
+        _pair_to_dict,
+        calibration_path,
+        extend_calibration,
+        freeze_calibration,
+        frozen_paths,
+        load_frozen,
+        save_calibration,
+        verified_frozen_sha,
+    )
+
+    if route != "auto" and route not in ROUTES:
+        raise typer.BadParameter(f"route must be auto, chain or direct, not {route!r}")
+    root = processed_dir() / LAYER_ID
+    for p in (*frozen_paths(to_version), calibration_path(to_version, root)):
+        if p.exists():
+            raise typer.BadParameter(f"version {to_version} already exists ({p}); pick a new version")
+    t0 = time.time()
+    base = load_frozen(from_version)
+    typer.echo(f"base {from_version} sha256 {verified_frozen_sha(from_version)} verified")
+    inp = load_inputs(base.blocks)
+    typer.echo(
+        f"cube months {inp.cube.ym[0]}..{inp.cube.ym[-1]}, detections outside base blocks "
+        f"{inp.dropped_counts:.0f}"
+    )
+    if route == "auto":
+        decision = decide(run_forward(inp.cube))
+        route = decision.route
+        typer.echo(f"P5 decision: {route} ({decision.reason})")
+    cal = extend_calibration(base, inp.cube, to_version, route)
+    for name, pc in base.pairs.items():
+        if _pair_to_dict(name, cal.pairs[name]) != _pair_to_dict(name, pc):
+            raise typer.BadParameter(f"pair {name} changed in the extension; refusing to freeze")
+    path = save_calibration(cal, root)
+    frozen = freeze_calibration(cal)
+    typer.echo(str(path))
+    typer.echo(f"frozen {frozen} sha256 {verified_frozen_sha(to_version)}")
+    for name, pc in cal.pairs.items():
+        extra = f" route={pc.route} legs={list(pc.legs)}" if pc.route else ""
+        typer.echo(f"{name}: k={pc.k} months={pc.n_months} {pc.start}..{pc.end}{extra}")
+    typer.echo(
+        f"{ROUTE_PAIR} route {cal.pairs[ROUTE_PAIR].route}; fitted {cal.fitted_start}..{cal.fitted_end}"
+    )
+    typer.echo(f"runtime {time.time() - t0:.1f} s, peak RSS {_peak_mb():.0f} MB")

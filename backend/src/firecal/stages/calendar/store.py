@@ -22,6 +22,15 @@ BLOCK_DEG = 2.5
 BBox = tuple[float, float, float, float]  # lat_min, lat_max, lon_min, lon_max
 Mask = Callable[[np.ndarray, np.ndarray], np.ndarray]
 YM = tuple[int, int]
+# Per-month status columns of the series (see `harmonize/series.py`): booleans are OR-ed over the month's
+# cells; the text ones are a single value per month (several distinct values: `mixed`).
+STATUS_TEXT = ("source_level", "source_levels")
+DRIFT_FROM_YEAR = 2022  # observed MODIS from this year is flagged (same rule as `harmonize/series.py`)
+
+
+def _one_level(v: pd.Series) -> str | None:
+    u = v.dropna().unique()
+    return None if len(u) == 0 else (u[0] if len(u) == 1 else "mixed")
 
 
 def month_index(ym: YM) -> int:
@@ -82,6 +91,7 @@ class SeriesStore:
         idx = pd.period_range(f"{a.year}-{a.month:02d}", f"{b.year}-{b.month:02d}", freq="M")
         base = pd.DataFrame({"year": idx.year.astype("int64"), "month": idx.month.astype("int64")})
         flags = ["modis_available", "viirs_available", "modis_eq_estimated", "viirs_eq_estimated"]
+        status = ["provisional", "modis_drift"]
         parts = []
         cols = [
             "year",
@@ -92,7 +102,10 @@ class SeriesStore:
             "viirs_eq_estimated",
         ]
         for p in sorted((self.root / "series").glob("*.parquet")):
-            d = pq.read_table(p, columns=cols).to_pandas()
+            # series built before the status columns existed lack them: flags False, source unknown
+            have = set(pq.read_schema(p).names)
+            extra = [c for c in (*status, *STATUS_TEXT) if c in have]
+            d = pq.read_table(p, columns=[*cols, *extra]).to_pandas()
             if d.empty:
                 continue
             g = (
@@ -101,10 +114,19 @@ class SeriesStore:
                     viirs_available=d["viirs_reported"].notna(),
                     modis_eq_estimated=d["modis_eq_estimated"].astype(bool),
                     viirs_eq_estimated=d["viirs_eq_estimated"].astype(bool),
+                    provisional=d["provisional"].astype(bool) if "provisional" in d else False,
+                    modis_drift=(
+                        d["modis_drift"].astype(bool)
+                        if "modis_drift" in d
+                        else d["modis_reported"].notna() & (d["year"] >= DRIFT_FROM_YEAR)
+                    ),
                 )
-                .groupby(["year", "month"], as_index=False)[flags]
+                .groupby(["year", "month"], as_index=False)[[*flags, *status]]
                 .max()
             )
+            keys = d.groupby(["year", "month"], as_index=False)
+            for c in STATUS_TEXT:
+                g[c] = keys[c].agg(_one_level)[c].to_numpy() if c in d else None
             parts.append(g)
         if parts:
             got = pd.concat(parts, ignore_index=True)
@@ -114,8 +136,10 @@ class SeriesStore:
             out = base.copy()
             for f in flags:
                 out[f] = False
-        for f in flags:
-            out[f] = out[f].fillna(False).astype(bool)
+        for f in (*flags, *status):
+            out[f] = out[f].fillna(False).astype(bool) if f in out else False
+        for c in STATUS_TEXT:
+            out[c] = out[c].astype(object).where(out[c].notna(), None) if c in out else None
         self._coverage = out
         return out
 

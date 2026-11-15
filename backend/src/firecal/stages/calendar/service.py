@@ -48,6 +48,16 @@ ESTIMATED_NOTE_EN = (
     "VIIRS-eq 2000-2011 is 'estimated' from MODIS: it was not detected by VIIRS (no VIIRS detections "
     "existed in those months)."
 )
+PROVISIONAL_NOTE_ES = (
+    "Provisional: algún satélite usado en ese mes viene de procesamiento casi en tiempo real (NRT) y puede "
+    "cambiar cuando se reprocese con procesamiento estándar."
+)
+PROVISIONAL_NOTE_EN = (
+    "Provisional: a satellite used in that month comes from near-real-time (NRT) processing and may change "
+    "when it is reprocessed with standard processing."
+)
+DRIFT_NOTE_ES = "MODIS observado desde 2022: deriva orbital (causa sin verificar)."
+DRIFT_NOTE_EN = "Observed MODIS from 2022: orbit drift (unverified cause)."
 REF_LABEL_ES = "último mes disponible (retrospectivo)"
 REF_LABEL_EN = "latest available month (retrospective)"
 REF_LABEL_CHOSEN_ES = "mes de referencia elegido (retrospectivo)"
@@ -215,6 +225,10 @@ def meta(store: SeriesStore) -> dict:
         "alert_system": False,
         "estimated_note_es": ESTIMATED_NOTE_ES,
         "estimated_note_en": ESTIMATED_NOTE_EN,
+        "provisional_note_es": PROVISIONAL_NOTE_ES,
+        "provisional_note_en": PROVISIONAL_NOTE_EN,
+        "modis_drift_note_es": DRIFT_NOTE_ES,
+        "modis_drift_note_en": DRIFT_NOTE_EN,
     }
 
 
