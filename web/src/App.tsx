@@ -3,6 +3,7 @@ import { TopBar } from "./components/TopBar";
 import { LeftPanel } from "./components/LeftPanel";
 import { Inspector } from "./components/Inspector";
 import { CalendarStrip } from "./components/CalendarStrip";
+import { Dashboard } from "./components/dashboard/Dashboard";
 import { loadLayers } from "./layers/loadLayers";
 import type { Hotspot, PointLayer } from "./layers/manifest";
 import { useT } from "./state/prefs";
@@ -71,7 +72,7 @@ export function App() {
           aria-labelledby="tab-dashboard"
           hidden={tab !== "dashboard"}
         >
-          <p className="muted">{t.dashboard.pending}</p>
+          <Dashboard />
         </div>
       </main>
       <Inspector

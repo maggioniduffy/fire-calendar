@@ -57,7 +57,25 @@ section navigation.
   active months and a 5 px `--accent` playhead. Play advances month by month through the map and the inspector.
   El Niño / La Niña / Neutral legend.
 
-No Map / Dashboard tabs.
+### Dashboard tab
+
+The center card has two tabs, **Map** and **Dashboard** (decided 2026-11-15; the original wireframe had none). The
+Dashboard shows the selected area as a grid of chart cards on `--raised`, built only from the `/calendar` and
+`/stats` payloads:
+
+- A headline total for the period (`key_figures.total`), the cell count and, when it applies, the note that
+  VIIRS-eq / MODIS-eq months are estimated from the other sensor.
+- Harmonized monthly series with its uncertainty band (always labelled "unverified" for arbitrary areas) and the
+  per-sensor reported series; estimated months are dashed. Total per year (partial years drawn lighter).
+  Seasonality: median and p10-p90 per calendar month (the only quantiles the payload has) with the latest year on top
+  in `--accent` with a `--casing` outline. Monthly anomaly: value minus the median of that calendar month, diverging
+  blue (below) / orange (above) around a neutral zero line.
+- Each card: title, source and period line (from `meta`), a legend, a one-line readout of the hovered or selected
+  month, and `CSV` / `PNG` buttons (the CSV holds exactly the plotted rows).
+- Charts are linked: hovering a month highlights it in every chart; clicking sets `selection.month`, which the
+  calendar uses too. Seasonality has no year of its own, so a click picks that month of the latest year.
+- Not shown, because no payload provides them yet: day/night split, FRP distribution, ENSO phase and drought. They
+  stay hidden (see "Only what works").
 
 ## Surfaces
 

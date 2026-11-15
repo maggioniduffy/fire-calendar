@@ -1,0 +1,294 @@
+/* Dashboard tab (SA4.8). Colours come from the design tokens; the few series colours with no token are local. */
+
+:root,
+:root[data-theme="light"] {
+  --dash-modis: #6B7A2A;
+  --dash-viirs: #3A6E8F;
+  --dash-neg: #3A6E8F; /* diverging blue: below the median */
+  --dash-pos: #C2631B; /* diverging orange: above the median */
+}
+
+:root[data-theme="dark"] {
+  --dash-modis: #A4AF69;
+  --dash-viirs: #7FA9C6;
+  --dash-neg: #7FA9C6;
+  --dash-pos: #E8963F;
+}
+
+.dashboard {
+  overflow: auto;
+}
+
+.dashboard-body {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.dash-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.dash-total {
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.dash-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: var(--space-4);
+}
+
+.dash-chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-3);
+  border-radius: var(--radius-2);
+  background: var(--raised);
+}
+
+.dash-chart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.dash-chart-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.dash-export {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.dash-source,
+.dash-note,
+.dash-readout {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.dash-readout {
+  min-height: 2.8em;
+}
+
+.dash-error {
+  color: var(--text);
+  font-size: 12px;
+}
+
+.dash-area {
+  min-width: 0;
+}
+
+.dash-area svg {
+  display: block;
+  max-width: 100%;
+  touch-action: pan-y;
+}
+
+.dash-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+}
+
+.dash-legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Chart marks (inside the SVG, so the PNG export inlines these computed values). */
+.d-grid {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.d-tick {
+  fill: var(--muted);
+  font: 400 11px var(--font-mono);
+}
+
+.d-line {
+  fill: none;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.d-line-harm {
+  stroke: var(--text);
+  stroke-width: 2;
+}
+
+.d-dashed {
+  stroke-dasharray: 5 4;
+}
+
+.d-line-modis {
+  stroke: var(--dash-modis);
+  stroke-width: 1.5;
+  stroke-dasharray: 2 3;
+}
+
+.d-line-viirs {
+  stroke: var(--dash-viirs);
+  stroke-width: 1.5;
+}
+
+.d-band {
+  fill: var(--muted);
+  fill-opacity: 0.3;
+}
+
+.d-band-range {
+  fill: var(--secondary);
+  fill-opacity: 0.55;
+}
+
+.d-line-median {
+  stroke: var(--text);
+  stroke-width: 2;
+}
+
+.d-line-latest {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
+
+.d-line-casing {
+  fill: none;
+  stroke: var(--casing);
+  stroke-width: 5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.d-dot-latest {
+  fill: var(--accent);
+  stroke: var(--casing);
+  stroke-width: 1.5;
+}
+
+.d-bar {
+  fill: var(--text);
+}
+
+.d-bar-partial {
+  fill-opacity: 0.5;
+}
+
+.d-bar-active {
+  fill: var(--accent);
+  fill-opacity: 1;
+  stroke: var(--casing);
+  stroke-width: 1.5;
+}
+
+.d-pos {
+  fill: var(--dash-pos);
+}
+
+.d-neg {
+  fill: var(--dash-neg);
+}
+
+.d-emph {
+  stroke: var(--casing);
+  stroke-width: 1.5;
+}
+
+.d-zero {
+  stroke: var(--text);
+  stroke-width: 1;
+}
+
+.d-sel-casing {
+  stroke: var(--casing);
+  stroke-width: 4;
+  opacity: 0.6;
+}
+
+.d-sel {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.d-hover {
+  stroke: var(--text);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.d-hover-tick {
+  stroke: var(--accent);
+  stroke-width: 2;
+  opacity: 0.8;
+}
+
+.d-year-hover,
+.d-month-hover {
+  fill: var(--accent);
+  fill-opacity: 0.18;
+}
+
+.d-hit {
+  fill: transparent;
+  cursor: pointer;
+}
+
+/* Legend swatches. */
+.sw-harmonized {
+  fill: var(--text);
+}
+.sw-estimated {
+  fill: var(--muted);
+}
+.sw-band {
+  fill: var(--muted);
+  fill-opacity: 0.3;
+}
+.sw-modis {
+  fill: var(--dash-modis);
+}
+.sw-viirs {
+  fill: var(--dash-viirs);
+}
+.sw-bar {
+  fill: var(--text);
+}
+.sw-bar-partial {
+  fill: var(--text);
+  fill-opacity: 0.5;
+}
+.sw-range {
+  fill: var(--secondary);
+  fill-opacity: 0.55;
+}
+.sw-median {
+  fill: var(--text);
+}
+.sw-latest {
+  fill: var(--accent);
+}
+.sw-pos {
+  fill: var(--dash-pos);
+}
+.sw-neg {
+  fill: var(--dash-neg);
+}
