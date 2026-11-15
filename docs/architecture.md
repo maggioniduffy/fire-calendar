@@ -45,8 +45,9 @@ Each step is an idempotent CLI command (`firecal <stage> <step>`).
 }
 ```
 
-`experimental` is optional. Tables in Parquet/GeoParquet. The UI takes source and period from the manifest. The API
-validates the manifest with pydantic and serves only files listed in `files`.
+`experimental` is optional. Modeled layers (harmonized series) add `method`, `calibration_version` and `notes`
+(lists per language `es`/`en`), also optional. Tables in Parquet/GeoParquet. The UI takes source and period from the
+manifest. The API validates the manifest with pydantic and serves only files listed in `files`.
 
 ## API
 

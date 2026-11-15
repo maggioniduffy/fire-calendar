@@ -16,7 +16,31 @@ Verified on 2026-11-14 except where it says "unverified".
   2025-12-31.
 - Columns and codes seen in the files (2026-11-14): `satellite` MODIS `Terra`/`Aqua`, VIIRS `N` (S-NPP) and `N20`
   (NOAA-20); `confidence` VIIRS `l`/`n`/`h`; `type` present. MODIS `version`: `6.2` (2000–2017), `6.03`
-  (2018–2022), `61.03` (2023–2025); VIIRS `2`. Meaning of those version codes: unverified.
+  (2018–2022), `61.03` (2023–2025); VIIRS `2`. See "MODIS version codes" below.
+
+### MODIS version codes (reviewed on 2026-11-14)
+
+Sources read: [FIRMS attributes](https://www.earthdata.nasa.gov/data/tools/firms/active-fire-data-attributes-modis-viirs),
+[FIRMS FAQ](https://www.earthdata.nasa.gov/data/tools/firms/faq) and the
+[MODIS C6/C6.1 user guide](https://earthdata.nasa.gov/s3fs-public/2023-09/MODIS_C6_C6.1_Fire_User_Guide_1.0.pdf).
+
+- Verified: `version` is the collection plus an origin suffix (URT, RT, NRT); no suffix means standard processing.
+  No Argentina year carries a suffix, so there are no NRT rows mixed in.
+- Verified (guide, sec. 2.1): between Collection 6 and 6.1 there were no algorithm or active-fire product changes;
+  the guide says they can be mixed freely and that FRP does not change.
+- Verified (guide, sec. 5.5): in MCD14ML, version 3 of the product keeps the format but brings a much improved
+  typing of hot spots ("typing of hot spots").
+- Unverified: that `6.03` is Collection 6 version 03 and `61.03` is Collection 6.1 version 03 (inferred from the
+  `VV` pattern); what exactly `6.2` is; which years were reprocessed in C6.1.
+- Measured in our files (MODIS Argentina, raw detections): the share of `type` 2 (other static land source) goes
+  from 0.3–1.9 % per year in 2000–2017 (`6.2`) to 2.6–5.8 % in 2018–2025 (`6.03` and `61.03`). It is consistent
+  with the typing change, cause unverified. Consequence: the `type == 0` filter (SA1.3) drops about 3–4 percentage
+  points more MODIS hot spots since 2018, a small artificial step in the filtered series that phase 2 has to
+  measure (stability table). No other change in `type` is seen in 2023.
+- The Aqua share of MODIS hot spots rises to 67–69 % in 2024–2025 (60–65 % in 2003–2023). This is only described;
+  the relation to Terra's orbital drift remains unverified.
+- The MODIS standard file (MCD14ML) carries no `scan` or `track` (guide, table 10); `scan` exists only in NRT.
+  The scan angle is not available as a variable for SA2.7 with these files.
 
 ## FIRMS area API (recent months)
 
@@ -31,7 +55,11 @@ Verified on 2026-11-14 except where it says "unverified".
 ## Continuity
 
 - Suomi NPP stopped producing in FIRMS on 2026-11-02 15:40 UTC. Post-MODIS continuity uses NOAA-20 and NOAA-21.
-- End of mission of Terra and Aqua and effect of orbital drift: unverified.
+- Terra and Aqua: per the Earthdata notice
+  ([MODIS to VIIRS transition](https://www.earthdata.nasa.gov/data/alerts-outages/transition-from-modis-viirs)),
+  they start shutting down operations in late 2026 or early 2027. Exact date and effect of orbital drift:
+  unverified.
+- S-NPP in FIRMS: available from 2012-01-20 to 2026-11-02 (FIRMS FAQ).
 
 ## ENSO
 

@@ -18,12 +18,17 @@ is copied into `docs/` so this repo reads on its own.
 | Role | Who | Does |
 |---|---|---|
 | Plan, orchestration, review | Opus (main session) | Splits tasks, delegates, reviews diffs and reports |
-| Implement and fix | Sonnet (subagent) | Code, unit tests (pytest, vitest) and e2e (Playwright) |
+| Implement and test | Sonnet (`builder` subagent) | Code, unit tests (pytest, vitest) and e2e (Playwright) |
+| Research and read | Haiku (`researcher` subagent) | Reading code, APIs and data sources, targeted unit tests |
+| Advisor | Fable (`advisor` subagent), until 2026-11-17 | Second opinion only on complex tasks or problems; does not edit |
 | Long runs and large data | cloud session or opencode | Downloads, pipeline, training, slow suites |
 
-Delegation templates: [docs/agents.md](docs/agents.md). Cycle per task: passed by reference
-(`plan/NN-*.md`, ID, allowed files, "done" criterion); the agent returns the result and the commands it ran with
-summarized output; Opus reviews `git status`, `git diff --stat` and one focused test.
+Before accepting a complex fix (numerical bug, validation failure, method change), Opus consults the `advisor`
+(Fable) while it is available and compares its diagnosis with the `builder`'s.
+
+The subagents are defined in `.claude/agents/`. Delegation templates: [docs/agents.md](docs/agents.md). Cycle per
+task: passed by reference (`plan/NN-*.md`, ID, allowed files, "done" criterion); the agent returns the result and
+the commands it ran with summarized output; Opus reviews `git status`, `git diff --stat` and one focused test.
 
 ## Scope
 
@@ -33,8 +38,8 @@ summarized output; Opus reviews `git status`, `git diff --stat` and one focused 
 
 ## Rules
 
-- Code, file names and commits in English (Conventional Commits). Documentation, plans and phases in English. UI in
-  Spanish first.
+- Code, file names, commits, documentation, plans, phases and reports in English (Conventional Commits). UI in
+  Spanish first, with full English.
 - Nothing invented: anything unverified is marked "unverified"; every modeled figure shows source and period.
 - ML only with a simple baseline next to it; if it does not beat the baseline, say so and use the baseline.
 - This is not an alert system. Everything is retrospective; phase 6 (deferred) would be "Experimental", with a

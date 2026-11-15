@@ -22,6 +22,11 @@ class LayerManifest(BaseModel):
     updated_at: datetime
     experimental: bool = False
     files: list[str] = Field(min_length=1)
+    # Optional provenance of modeled layers (harmonized series): method, frozen calibration version and
+    # notes keyed by language ("es", "en").
+    method: str | None = None
+    calibration_version: str | None = None
+    notes: dict[str, list[str]] | None = None
 
     @field_validator("period")
     @classmethod

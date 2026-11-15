@@ -16,8 +16,8 @@ Docs: [architecture](docs/architecture.md), [design](docs/design.md), [validatio
 |---|---|---|---|---|
 | 0 | Foundations and data access | [plan/00-foundations.md](plan/00-foundations.md) | — | active |
 | 1 | FIRMS data: download, filters, grid | [plan/01-data.md](plan/01-data.md) | 0 | active |
-| 2 | MODIS–VIIRS harmonization + ML | [plan/02-harmonization.md](plan/02-harmonization.md) | 1 | active (part deferred) |
-| 3 | Calendar and per-area analytics | [plan/03-calendar-analytics.md](plan/03-calendar-analytics.md) | 2 | active |
+| 2 | MODIS–VIIRS harmonization + ML | [plan/02-harmonization.md](plan/02-harmonization.md) | 1 | closed 2026-11-15 (part deferred) |
+| 3 | Calendar and per-area analytics | [plan/03-calendar-analytics.md](plan/03-calendar-analytics.md) | 2 | done (backend) |
 | 4 | Web app | [plan/04-web-app.md](plan/04-web-app.md) | 0, 3 | active |
 | 5 | ENSO and fire (ENSO-lite only) | [plan/05-enso-drought.md](plan/05-enso-drought.md) | 3, SA0.9 | active (drought deferred) |
 | 5b | Atmospheric rivers and fire | [plan/05b-atmospheric-rivers.md](plan/05b-atmospheric-rivers.md) | 4 | deferred |
@@ -44,3 +44,28 @@ LightGBM (the scale factor stays), NRT.
   to 2026-09). FIRMS: 48 files 2000–2025; no standard 2026 file yet. SA1.1–SA1.4 and SA1.7 done
   ([reports/01/SA1.7.md](reports/01/SA1.7.md)). Open for phase 2: the MODIS `version` code changes in 2018 and
   2023 (what that implies is unverified).
+- 2026-11-14: agent workflow in `.claude/agents/` (Opus orchestrates, Sonnet builds, Haiku researches, Fable
+  advises until 2026-11-17). Web in Makefile and CI with eslint (SA0.2, SA0.4, SA0.5, SA0.7 done; SA0.3 waits for
+  a PR). MODIS `version` codes reviewed in `docs/research/data-sources.md`: no algorithm change between C6 and
+  C6.1; more type 2 hot spots since 2018. Phase 2: baseline design decided, SA2.1, SA2.2, SA2.3 and SA2.5 done
+  ([reports/02/baselines.md](reports/02/baselines.md)): the scale factor wins. Next: inverse-series intervals with
+  real coverage, then SA2.4 and SA2.7 (LightGBM) against that baseline.
+- 2026-11-14: nested conformal intervals for SA2.2, with an additive bound for small predictions and
+  source-defined rows: 80 % coverage (nominal 80 %) in both directions, month-block and year-block; the worst
+  year-block year drops to 67–72 %. Only 0.3 % of VIIRS detections fall where MODIS saw nothing. LightGBM design
+  and publication criterion fixed in `plan/02-harmonization.md`; next: SA2.4 and SA2.7.
+- 2026-11-15: SA2.11 done: `harmonized` layer (`firecal series calibrate|build`) with the MODIS-eq and VIIRS-eq
+  series per 0.1° cell and month, 2000-11 to 2025-12, scale-factor method (calibration `sf-2026.11.1`) and
+  block bands. VIIRS-eq 2000–2011 marked "estimated"; 2000–2002 uses Terra's factor alone (extrapolation
+  unverified). LightGBM (SA2.4, SA2.7) in progress: if it passes the fixed criterion, it replaces the layer's
+  method.
+- 2026-11-15: phase 2 closed. LightGBM (SA2.4, SA2.7) does not beat the scale factor under the criterion fixed
+  before the run; SA2.2 is published (`harmonized` layer, calibration `sf-2026.11.1`). Phase 3 was done in
+  parallel in another session (branch `fm/phase-3-calendar`, merged here).
+- 2026-11-15: phase 3 done (SA3.1–SA3.6), on the published `harmonized` schema and not on the method: area
+  (circle or GeoJSON polygon, approximate Córdoba preset), year×month matrix, climatology, anomaly of the last
+  available month, key figures, `POST /calendar`, `/stats` and `/export.csv`. Area band = block band scaled by
+  the area fraction (unverified). Open: validate that band and the official Córdoba boundary.
+- 2026-11-15: LightGBM cell-model bias verified
+  ([reports/02/ml_bias_check.md](reports/02/ml_bias_check.md)): structural in the total (it comes from detections
+  outside its rows), not in individual years. The verdict does not change.

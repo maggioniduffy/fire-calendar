@@ -1,0 +1,359 @@
+"""SA2.2 / SA2.3 evaluation: leave-one-year-out with gap (and rolling origin) over the overlap period.
+
+Every score is on block-month totals (day and night summed) and on block-year totals, per test year and
+pooled.
+The rolling-origin control trains on every year before the test year.
+"""
+
+from dataclasses import dataclass, field
+
+import numpy as np
+import pandas as pd
+
+from firecal.stages.harmonize.intervals import conformal_intervals
+from firecal.stages.harmonize.metrics import summarize
+from firecal.stages.harmonize.quantile_map import fit_block_qmaps
+from firecal.stages.harmonize.regions import MODIS_SATS, Cube, block_origin, ym_of
+from firecal.stages.harmonize.scale_factor import (
+    K_GRID,
+    fit_factors,
+    jackknife_interval,
+    loyo_factor_stack,
+    predict_total,
+    select_k,
+    yearly_spread_interval,
+)
+from firecal.stages.harmonize.validation import leave_one_year_out, rolling_origin
+
+OVERLAP_START = ym_of(2012, 2)
+OVERLAP_END = ym_of(2025, 12)
+NOAA20_START = ym_of(2018, 5)
+GAP_MONTHS = 6
+NOMINAL = 0.8
+
+
+@dataclass(frozen=True)
+class Pair:
+    src: tuple[str, ...]
+    tgt: tuple[str, ...]
+    start: int = OVERLAP_START
+    label: str = ""
+
+
+PAIRS: dict[str, Pair] = {
+    "viirs_to_modis": Pair(("snpp",), MODIS_SATS, label="S-NPP -> MODIS (Terra+Aqua)"),
+    "modis_to_viirs": Pair(MODIS_SATS, ("snpp",), label="MODIS (Terra+Aqua) -> S-NPP"),
+    "viirs_to_terra": Pair(("snpp",), ("terra",), label="S-NPP -> Terra"),
+    "terra_to_viirs": Pair(("terra",), ("snpp",), label="Terra -> S-NPP"),
+    "noaa20_to_snpp": Pair(("noaa20",), ("snpp",), NOAA20_START, label="NOAA-20 -> S-NPP"),
+}
+MAIN_PAIRS = ("viirs_to_modis", "modis_to_viirs")
+METHODS = {"sf": "SA2.2 factor", "qm": "SA2.3 quantiles"}
+INTERVALS = {
+    "jackknife": "jackknife (factor)",
+    "yearly": "interannual dispersion",
+    "conformal": "conformal (relative residuals)",
+}
+# Fixed predicted-size bins for the pooled coverage-by-size table (reporting only, nothing is tuned on them).
+SIZE_EDGES = {
+    "block-month": (0.0, 1.0, 5.0, 20.0, 100.0, 500.0, np.inf),
+    "block-year": (0.0, 10.0, 50.0, 200.0, 1000.0, 5000.0, np.inf),
+}
+
+
+@dataclass(eq=False)
+class FoldOut:
+    pair: str
+    scheme: str
+    method: str
+    test_year: int
+    ym: np.ndarray
+    obs: np.ndarray  # (months, blocks)
+    pred: np.ndarray
+    src: np.ndarray
+    k: float | None = None
+    k_fallback: bool = False
+    intervals: dict[str, tuple[np.ndarray, np.ndarray]] = field(default_factory=dict)  # block-month
+    year_intervals: dict[str, tuple[np.ndarray, np.ndarray]] = field(default_factory=dict)  # block-year
+
+
+@dataclass(eq=False)
+class PairData:
+    ym: np.ndarray
+    dates: pd.DatetimeIndex
+    month_idx: np.ndarray
+    year_idx: np.ndarray
+    src: np.ndarray  # (months, blocks, 2)
+    tgt: np.ndarray
+
+
+def pair_data(cube: Cube, pair: Pair, end: int = OVERLAP_END) -> PairData:
+    sel = cube.select(pair.src + pair.tgt, pair.start, end)
+    return PairData(
+        cube.ym[sel],
+        cube.dates[sel],
+        cube.month_idx[sel],
+        cube.year[sel],
+        cube.total(pair.src)[sel],
+        cube.total(pair.tgt)[sel],
+    )
+
+
+def _folds(scheme: str, dates):
+    if scheme == "loyo":
+        return leave_one_year_out(dates, GAP_MONTHS)
+    if scheme == "rolling":
+        return rolling_origin(dates, 1)
+    raise ValueError(scheme)
+
+
+def run_cv(
+    cube: Cube,
+    pair_name: str,
+    scheme: str = "loyo",
+    k_grid=K_GRID,
+    with_intervals: bool = False,
+    with_conformal: bool = False,
+    end: int = OVERLAP_END,
+) -> list[FoldOut]:
+    """Both methods, one fold per test year. Training never includes the test year (nor the gap in `loyo`)."""
+    d = pair_data(cube, PAIRS[pair_name], end)
+    out: list[FoldOut] = []
+    if len(d.ym) == 0:
+        return out
+    src_tot, tgt_tot = d.src.sum(axis=-1), d.tgt.sum(axis=-1)
+    for fold in _folds(scheme, d.dates):
+        tr, te = fold.train, fold.test
+        if not tr.any() or not te.any():
+            continue
+        k, fb = select_k(d.src, d.tgt, d.dates, d.month_idx, tr, k_grid, GAP_MONTHS)
+        fac = fit_factors(d.src, d.tgt, d.month_idx, tr, k)
+        common = dict(pair=pair_name, scheme=scheme, test_year=fold.test_year, ym=d.ym[te], obs=tgt_tot[te])
+        sf = FoldOut(
+            method="sf",
+            pred=predict_total(fac, d.src[te], d.month_idx[te]),
+            src=src_tot[te],
+            k=k,
+            k_fallback=fb,
+            **common,
+        )
+        if with_intervals:
+            stack = loyo_factor_stack(d.src, d.tgt, d.dates, d.month_idx, tr, k, GAP_MONTHS)
+            sf.intervals["jackknife"] = jackknife_interval(stack, fac, d.src[te], d.month_idx[te])
+            sf.intervals["yearly"] = yearly_spread_interval(
+                d.src, d.tgt, d.year_idx, d.month_idx, tr, fac, d.src[te], d.month_idx[te]
+            )
+        if with_conformal:
+            cf = conformal_intervals(
+                d.src, d.tgt, d.dates, d.month_idx, tr, k, sf.pred, src_tot[te], GAP_MONTHS
+            )
+            sf.intervals["conformal"] = cf.month
+            sf.year_intervals["conformal"] = cf.year
+        out.append(sf)
+        qm = fit_block_qmaps(src_tot, tgt_tot, tr)
+        out.append(FoldOut(method="qm", pred=qm.apply(src_tot[te]), src=src_tot[te], **common))
+    return out
+
+
+def _block_year_totals(f: FoldOut) -> tuple[np.ndarray, np.ndarray]:
+    return f.obs.sum(axis=0), f.pred.sum(axis=0)
+
+
+def score_table(folds: list[FoldOut]) -> pd.DataFrame:
+    """One row per (pair, scheme, method, test_year or 'all', level) with the four metrics."""
+    rows = []
+    keys = sorted({(f.pair, f.scheme, f.method) for f in folds})
+    for pair, scheme, method in keys:
+        fs = [f for f in folds if (f.pair, f.scheme, f.method) == (pair, scheme, method)]
+        groups = [(f.test_year, [f]) for f in sorted(fs, key=lambda f: f.test_year)] + [("all", fs)]
+        for year, group in groups:
+            bm_o = np.concatenate([f.obs.ravel() for f in group])
+            bm_p = np.concatenate([f.pred.ravel() for f in group])
+            by = [_block_year_totals(f) for f in group]
+            by_o = np.concatenate([o for o, _ in by])
+            by_p = np.concatenate([p for _, p in by])
+            for level, o, p in (("block-month", bm_o, bm_p), ("block-year", by_o, by_p)):
+                rows.append(
+                    {"pair": pair, "scheme": scheme, "method": method, "test_year": year, "level": level}
+                    | summarize(o, p)
+                    | {"obs_total": float(o.sum()), "n": len(o)}
+                )
+    return pd.DataFrame(rows)
+
+
+def _level_arrays(f: FoldOut, name: str, level: str):
+    """Flat (lo, hi, obs, pred, src_active, any_active) of one fold at a level; None without the interval.
+
+    `src_active`: source count above zero (known at prediction time, the headline rows).
+    `any_active`: source or observed above zero (the earlier definition, kept for continuity).
+    """
+    if level == "block-month":
+        if name not in f.intervals:
+            return None
+        lo, hi = f.intervals[name]
+        obs, pred, src = f.obs, f.pred, f.src
+    else:
+        if name not in f.year_intervals:
+            return None
+        lo, hi = f.year_intervals[name]
+        obs, pred, src = f.obs.sum(axis=0), f.pred.sum(axis=0), f.src.sum(axis=0)
+    return [np.asarray(x).ravel() for x in (lo, hi, obs, pred, src > 0, (obs > 0) | (src > 0))]
+
+
+def _cov(lo, hi, obs, mask) -> tuple[int, int]:
+    c = (obs >= lo - 1e-9) & (obs <= hi + 1e-9) & mask
+    return int(c.sum()), int(mask.sum())
+
+
+def coverage_table(folds: list[FoldOut], nominal: float = NOMINAL, method: str = "sf") -> pd.DataFrame:
+    """Empirical coverage per (pair, scheme, interval, level, test year or 'all').
+
+    `coverage` / `rel_width` / `n`: rows with a source count above zero. `coverage_any`: rows with source or
+    observed above zero. Out of reach of the factor (source 0, observed > 0): `n_out` rows and `out_share` of
+    all target detections; the factor predicts 0 there and so do the intervals.
+    """
+    rows = []
+    sf = [f for f in folds if f.method == method]
+    acc_keys = ("c", "n", "ca", "na", "w", "p", "n_out", "o_out", "o_all", "n_pred0")
+    for level in ("block-month", "block-year"):
+        for name in INTERVALS:
+            for pair, scheme in sorted({(f.pair, f.scheme) for f in sf if _level_arrays(f, name, level)}):
+                fs = sorted(
+                    (f for f in sf if (f.pair, f.scheme) == (pair, scheme)), key=lambda f: f.test_year
+                )
+                fs = [f for f in fs if _level_arrays(f, name, level) is not None]
+                tot = dict.fromkeys(acc_keys, 0.0)
+                for f in fs:
+                    lo, hi, obs, pred, act, anyact = _level_arrays(f, name, level)
+                    c, n = _cov(lo, hi, obs, act)
+                    ca, na = _cov(lo, hi, obs, anyact)
+                    out = (~act) & (obs > 0)
+                    cur = {
+                        "c": c,
+                        "n": n,
+                        "ca": ca,
+                        "na": na,
+                        "w": float((hi - lo)[act].sum()),
+                        "p": float(pred[act].sum()),
+                        "n_out": int(out.sum()),
+                        "o_out": float(obs[out].sum()),
+                        "o_all": float(obs.sum()),
+                        "n_pred0": int((act & (pred == 0)).sum()),
+                    }
+                    for key in acc_keys:
+                        tot[key] += cur[key]
+                    rows.append(_cov_row(pair, scheme, name, level, f.test_year, cur, nominal))
+                rows.append(_cov_row(pair, scheme, name, level, "all", tot, nominal))
+    return pd.DataFrame(rows)
+
+
+def _cov_row(pair, scheme, name, level, year, t, nominal) -> dict:
+    nan = float("nan")
+    return {
+        "pair": pair,
+        "scheme": scheme,
+        "interval": name,
+        "level": level,
+        "test_year": year,
+        "n": int(t["n"]),
+        "coverage": t["c"] / t["n"] if t["n"] else nan,
+        "rel_width": t["w"] / t["p"] if t["p"] > 0 else nan,
+        "coverage_any": t["ca"] / t["na"] if t["na"] else nan,
+        "n_any": int(t["na"]),
+        "n_pred0": int(t["n_pred0"]),
+        "n_out": int(t["n_out"]),
+        "out_share": t["o_out"] / t["o_all"] if t["o_all"] > 0 else nan,
+        "nominal": nominal,
+    }
+
+
+def coverage_by_size(folds: list[FoldOut], name: str = "conformal", scheme: str = "loyo") -> pd.DataFrame:
+    """Pooled (all test years) coverage and relative width by predicted-size bin on source-active rows."""
+    rows = []
+    for pair in MAIN_PAIRS:
+        for level, edges in SIZE_EDGES.items():
+            parts = [
+                _level_arrays(f, name, level)
+                for f in folds
+                if f.method == "sf" and (f.pair, f.scheme) == (pair, scheme)
+            ]
+            parts = [p for p in parts if p is not None]
+            if not parts:
+                continue
+            lo, hi, obs, pred, act, _ = (np.concatenate([p[i] for p in parts]) for i in range(6))
+            for a, b in [(-1.0, 0.0)] + list(zip(edges[:-1], edges[1:], strict=True)):
+                sel = act & (pred == 0) if b == 0 else act & (pred > a) & (pred <= b)
+                n = int(sel.sum())
+                cov = (obs >= lo - 1e-9) & (obs <= hi + 1e-9)
+                rows.append(
+                    {
+                        "pair": pair,
+                        "level": level,
+                        "lo": a,
+                        "hi": b,
+                        "n": n,
+                        "coverage": float(cov[sel].mean()) if n else float("nan"),
+                        "rel_width": float((hi - lo)[sel].sum() / pred[sel].sum())
+                        if n and pred[sel].sum() > 0
+                        else float("nan"),
+                    }
+                )
+    return pd.DataFrame(rows)
+
+
+def block_detail(folds: list[FoldOut], cube: Cube) -> pd.DataFrame:
+    """Per-block scores pooled over the test years (leave-one-year-out, main directions)."""
+    lat0, lon0 = block_origin(cube.blocks)
+    rows = []
+    for pair in MAIN_PAIRS:
+        for method in METHODS:
+            fs = [f for f in folds if (f.pair, f.scheme, f.method) == (pair, "loyo", method)]
+            if not fs:
+                continue
+            obs = np.concatenate([f.obs for f in fs])
+            pred = np.concatenate([f.pred for f in fs])
+            by_o = np.stack([f.obs.sum(axis=0) for f in fs])
+            by_p = np.stack([f.pred.sum(axis=0) for f in fs])
+            for b, blk in enumerate(cube.blocks):
+                o, p = obs[:, b], pred[:, b]
+                if o.sum() == 0 and p.sum() == 0:
+                    continue
+                rows.append(
+                    {
+                        "pair": pair,
+                        "method": method,
+                        "block": int(blk),
+                        "lat_sw": float(lat0[b]),
+                        "lon_sw": float(lon0[b]),
+                        "obs_total": float(o.sum()),
+                        "pred_total": round(float(p.sum()), 1),
+                        "rel_bias": round(summarize(o, p)["bias"], 4),
+                        "wape_block_month": round(summarize(o, p)["wape"], 4),
+                        "wape_block_year": round(summarize(by_o[:, b], by_p[:, b])["wape"], 4),
+                    }
+                )
+    return pd.DataFrame(rows)
+
+
+def national_factors(cube: Cube) -> pd.DataFrame:
+    """In-sample national ratio of sums (target / source) over each pair's valid months."""
+    rows = []
+    for name, pair in PAIRS.items():
+        d = pair_data(cube, pair)
+        if len(d.ym) == 0:
+            continue
+        s, t = d.src.sum(axis=1), d.tgt.sum(axis=1)  # (months, 2)
+        rec = {
+            "pair": name,
+            "from": d.dates[0].strftime("%Y-%m"),
+            "to": d.dates[-1].strftime("%Y-%m"),
+            "months": len(d.ym),
+            "factor": float(t.sum() / s.sum()) if s.sum() > 0 else float("nan"),
+            "factor_day": float(t[:, 0].sum() / s[:, 0].sum()) if s[:, 0].sum() > 0 else float("nan"),
+            "factor_night": float(t[:, 1].sum() / s[:, 1].sum()) if s[:, 1].sum() > 0 else float("nan"),
+        }
+        for m in range(12):
+            sm = s[d.month_idx == m].sum()
+            rec[f"m{m + 1:02d}"] = float(t[d.month_idx == m].sum() / sm) if sm > 0 else float("nan")
+        rows.append(rec)
+    return pd.DataFrame(rows)
