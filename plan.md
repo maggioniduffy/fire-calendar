@@ -109,3 +109,8 @@ LightGBM (the scale factor stays), NRT.
   period, association note; hidden with a note when `enso` is null) and a "By ENSO phase" toggle in the dashboard
   seasonality (few-years points marked). Full e2e 59/59; one earlier a11y tab-order failure did not reproduce
   (possibly flaky, unverified). Next: phase 7 (README, deployed demo).
+- 2026-11-15: phase 7 started (branch `fm/phase-7-publication`). SA7.1 done: README in English with the problem,
+  the SA2.2 method and its error and coverage tables (copied from `reports/02/baselines.md`), sources and how to
+  run. Unverified: exact FIRMS and CPC terms, CARTO attribution text; no code license file yet. SA7.2 static
+  export designed in `plan/07-submission.md`; boundary candidate geoBoundaries ADM2 (IGN + OCHA ROLAC,
+  CC BY 3.0 IGO); its ADM1 file lacks Entre Ríos, so provinces are to be built from ADM2.
