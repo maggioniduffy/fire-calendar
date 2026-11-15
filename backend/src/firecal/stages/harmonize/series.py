@@ -964,7 +964,8 @@ NOTES_ES = [
     "Solo entran meses completos; el mes en curso nunca. En 2026 un mes con Terra o Aqua parcial no tiene "
     "MODIS observado: su MODIS-eq se estima desde VIIRS (marcado como estimado).",
     "Un año incompleto (el año en curso) tiene banda de bloque-año parcial (partial_year): cubre solo los "
-    "meses presentes y se actualiza al sumar meses; las filas mensuales ya publicadas no cambian.",
+    "meses presentes y se actualiza al sumar meses; las filas mensuales ya publicadas no cambian; "
+    "su cobertura en años parciales está sin verificar.",
 ]
 NOTES_EN = [
     "VIIRS-eq 2000-2011 (and January 2012) is 'estimated' from MODIS, never 'detected': it does not locate "
@@ -979,7 +980,8 @@ NOTES_EN = [
     "Only complete months enter; the month in progress never does. In 2026 a month with a partial Terra or "
     "Aqua has no observed MODIS: its MODIS-eq is estimated from VIIRS (flagged as estimated).",
     "An incomplete year (the current one) has a partial block-year band (partial_year): it covers only the "
-    "months present and is updated as months are added; monthly rows already published do not change.",
+    "months present and is updated as months are added; monthly rows already published do not change; "
+    "its coverage on partial years is unverified.",
 ]
 # Notes that depend on what the calibration carries / what the series contains.
 NOTE_NO_N20_MODIS_ES = (
@@ -991,20 +993,28 @@ NOTE_NO_N20_MODIS_EN = (
 NOTE_N20_MODIS_ES = (
     "Después del fin de MODIS (y de S-NPP), MODIS-eq = factor NOAA-20 a MODIS x conteo NOAA-20, con su "
     "propia banda conforme (bloque-mes y bloque-año) de esa ruta; mientras exista S-NPP se mantiene VIIRS a "
-    "MODIS. El MODIS de referencia es el del período de calibración (sin verificar contra el MODIS actual)."
+    "MODIS. El MODIS de referencia de esta ruta es el observado en 2018-05..2025-12 (incluye años con "
+    "deriva orbital, causa sin verificar). Banda nominal 80 %: cobertura medida 76 % en 2022-2025 fuera de "
+    "muestra; 72 % en enero-abril de 2026 (4 meses): cobertura sin verificar. Al terminar S-NPP la ruta "
+    "cambia y puede haber un escalón en MODIS-eq que no es un cambio en los focos."
 )
 NOTE_N20_MODIS_EN = (
     "After MODIS (and S-NPP) end, MODIS-eq = NOAA-20 to MODIS factor x NOAA-20 count, with that route's own "
     "conformal band (block-month and block-year); while S-NPP exists VIIRS to MODIS is kept. The reference "
-    "MODIS is the one of the calibration period (unverified against current MODIS)."
+    "MODIS of this route is the one observed in 2018-05..2025-12 (includes orbit-drift years, cause "
+    "unverified). Nominal 80 % band: measured coverage 76 % on 2022-2025 out of sample; 72 % on "
+    "January-April 2026 (4 months): coverage unverified. When S-NPP ends the route changes and a step in "
+    "MODIS-eq may appear that is not a change in fire."
 )
 NOTE_N21_ES = (
     "NOAA-21 solo se usa como respaldo de mes completo a nivel nacional cuando NOAA-20 no está completo "
-    "(factor NOAA-21 a S-NPP); nunca se promedia ni se suma con otro satélite."
+    "(factor NOAA-21 a S-NPP); nunca se promedia ni se suma con otro satélite. "
+    "MODIS-eq obtenido desde NOAA-21 no tiene banda."
 )
 NOTE_N21_EN = (
     "NOAA-21 is used only as a whole-month, national fallback when NOAA-20 is not complete "
-    "(NOAA-21 to S-NPP factor); it is never averaged or summed with another satellite."
+    "(NOAA-21 to S-NPP factor); it is never averaged or summed with another satellite. "
+    "MODIS-eq obtained from NOAA-21 has no band."
 )
 NOTE_NRT_ES = (
     "Meses provisionales: los meses con algún satélite usado en procesamiento casi en tiempo real (NRT) "
