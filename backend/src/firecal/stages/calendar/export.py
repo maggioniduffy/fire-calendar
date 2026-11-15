@@ -35,10 +35,11 @@ DETECTION_COLUMNS = [
 ]  # fmt: skip
 DETECTIONS_SOURCE = "NASA FIRMS (MODIS, VIIRS S-NPP, VIIRS NOAA-20); phase-1 filters applied"
 DETECTIONS_NOTE = (
-    "Raw detections exist only where the sensor observed. Months where the requested scale is estimated "
-    "(e.g. VIIRS-eq before 2012) have no raw points: use kind=cells to get their counts per cell. Points are selected by their own "
-    "location, cells by their center, so totals can differ slightly at the area edge; the series counts "
-    "S-NPP only as viirs_reported, while raw VIIRS rows include NOAA-20."
+    "Raw detections exist only where the sensor observed. Months where the requested scale is "
+    "estimated (e.g. VIIRS-eq before 2012) have no raw points: use kind=cells to get their counts "
+    "per cell. Points are selected by their own location, cells by their center, so totals can "
+    "differ slightly at the area edge; the series counts S-NPP only as viirs_reported, while raw "
+    "VIIRS rows include NOAA-20."
 )
 
 
