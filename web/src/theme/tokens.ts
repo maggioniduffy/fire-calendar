@@ -15,6 +15,8 @@ export const colorTokenNames = [
   "accent",
   "secondary",
   "casing",
+  "enso-nino",
+  "enso-nina",
 ] as const;
 
 export type ColorToken = (typeof colorTokenNames)[number];
@@ -32,6 +34,8 @@ export const colors: Record<ThemeName, Record<ColorToken, string>> = {
     accent: "#8EB8E5",
     secondary: "#A4AF69",
     casing: "#2A343B",
+    "enso-nino": "#C4552B",
+    "enso-nina": "#3F7FB5",
   },
   dark: {
     bg: "#16212A",
@@ -45,6 +49,8 @@ export const colors: Record<ThemeName, Record<ColorToken, string>> = {
     accent: "#FDDA0D",
     secondary: "#A4AF69",
     casing: "#16212A",
+    "enso-nino": "#E98A5C",
+    "enso-nina": "#6FA8DC",
   },
 };
 

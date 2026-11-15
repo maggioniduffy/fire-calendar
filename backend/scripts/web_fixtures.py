@@ -20,6 +20,7 @@ import pandas as pd
 from fastapi.testclient import TestClient
 
 from firecal.api.app import create_app
+from firecal.io import enso
 from firecal.layers.manifest import LayerManifest
 from firecal.stages.harmonize.regions import block_ids
 
@@ -77,6 +78,7 @@ specs request (`KEY_MONTHS`) for the rest, one file per area + scale: the reques
 `api.ts` picks the
 month entry (`/stats` with `ref` works the same, `ref=*`, for the Cordoba preset). The view window `bbox` is
 not part of the key, so each answer holds every cell of the area.
+`/calendar` answers carry the `enso` block built from a SYNTHETIC ONI (`ONI_RUNS`, all three phases).
 `/detections` answers 404 for every month: the synthetic server has no raw detections.
 A polygon request (any vertices) maps to the one polygon fixture.
 `index-inspector.json` adds the chosen-month stats (`ref`) and the `/export.csv` answers (status and
@@ -101,14 +103,14 @@ def request_key(path: str, body: dict) -> str:
     return " ".join(parts)
 
 
-def synthetic_rows() -> pd.DataFrame:
+def synthetic_rows(years=YEARS) -> pd.DataFrame:
     rng = np.random.default_rng(SEED)
     cells = [(la, lo) for la in GRID_LAT for lo in GRID_LON] + list(EXTRA)
     rows = []
-    for year in YEARS:
+    for year in years:
         for month in range(1, 13):
             season = 1.0 + 3.0 * np.exp(-(((month - 9) % 12) ** 2) / 6.0)  # peak around September
-            trend = 1.0 + 0.05 * (year - YEARS[0])
+            trend = 1.0 + 0.05 * (year - years[0])
             for i, (la, lo) in enumerate(cells):
                 n = int(rng.poisson(0.6 * season * trend * (1.5 if i % 3 == 0 else 0.7)))
                 if n == 0 and i != 0:
@@ -144,9 +146,9 @@ def bands(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     return out[0], out[1]
 
 
-def build_layer(processed: Path) -> None:
+def build_layer(processed: Path, years=YEARS) -> None:
     root = processed / "harmonized"
-    df = synthetic_rows()
+    df = synthetic_rows(years)
     (root / "series").mkdir(parents=True)
     for year, g in df.groupby("year"):
         g.to_parquet(root / "series" / f"{year}.parquet")
@@ -157,7 +159,8 @@ def build_layer(processed: Path) -> None:
             g.to_parquet(root / name / f"{y}.parquet")
     manifest = LayerManifest(
         id="harmonized", title="Harmonized fire series (SYNTHETIC)", kind="series", source=SOURCE,
-        period=PERIOD, license="synthetic, no real data", updated_at=datetime(2026, 1, 1, tzinfo=UTC),
+        period=f"{years[0]}-01-01/{years[-1]}-12-31", license="synthetic, no real data",
+        updated_at=datetime(2026, 1, 1, tzinfo=UTC),
         files=[f"series/{y}.parquet" for y in sorted(df["year"].unique())],
         method="synthetic", calibration_version="synthetic-1",
         notes={
@@ -166,6 +169,32 @@ def build_layer(processed: Path) -> None:
         },
     )  # fmt: skip
     (root / "manifest.json").write_text(manifest.model_dump_json())
+
+
+# SYNTHETIC ONI runs (first month, last month, ONI): long enough for the CPC rule (>= 5 months), so the
+# phases come out of `classify_phase`. Everything else is neutral (0.0). Not real ONI values.
+ONI_RUNS = (
+    ("2006-08", "2007-02", 1.1),  # El Nino
+    ("2007-07", "2008-05", -1.3),  # La Nina
+    ("2009-07", "2010-03", 1.4),  # El Nino
+    ("2010-06", "2011-04", -1.5),  # La Nina
+    ("2014-10", "2016-05", 1.6),  # El Nino
+    ("2016-08", "2017-02", -0.8),  # La Nina, runs past the fixture period
+)
+ONI_RANGE = ("2004-01", "2017-12")  # wider than the fixture period: months outside it must be dropped
+
+
+def build_enso(path: Path) -> None:
+    """A SYNTHETIC monthly ONI table (date, season, oni, above_threshold, phase) with all three phases."""
+    idx = pd.date_range(f"{ONI_RANGE[0]}-01", f"{ONI_RANGE[1]}-01", freq="MS")
+    oni = pd.Series(0.0, index=idx)
+    for first, last, value in ONI_RUNS:
+        oni[f"{first}-01" : f"{last}-01"] = value
+    df = pd.DataFrame({"date": idx, "season": "SYN", "oni": oni.to_numpy()})
+    df["above_threshold"] = enso.above_threshold(oni).to_numpy()
+    df["phase"] = enso.classify_phase(oni).to_numpy()
+    assert {"nino", "nina", "neutral"} <= set(df["phase"]), "the synthetic ONI must show all three phases"
+    enso.write_enso(df, path)
 
 
 def dump(obj) -> str:
@@ -249,10 +278,14 @@ def generate(out: Path) -> list[str]:
     responses: dict[str, dict] = {DETECTIONS_404: {"status": 404, "headers": {}}}
     with tempfile.TemporaryDirectory() as tmp:
         build_layer(Path(tmp))
-        client = TestClient(create_app(processed_dir=Path(tmp), detections_dir=Path(tmp) / "none"))
+        oni = Path(tmp) / "enso" / "oni_monthly.parquet"
+        build_enso(oni)
+        client = TestClient(
+            create_app(processed_dir=Path(tmp), detections_dir=Path(tmp) / "none", enso_path=oni)
+        )
         build_detections(Path(tmp) / "detections")
         with_detections = TestClient(
-            create_app(processed_dir=Path(tmp), detections_dir=Path(tmp) / "detections")
+            create_app(processed_dir=Path(tmp), detections_dir=Path(tmp) / "detections", enso_path=oni)
         )
         for area_name, area_body in AREAS.items():
             for scale in SCALES:

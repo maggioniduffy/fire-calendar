@@ -317,3 +317,58 @@
   margin-top: 0;
   min-width: var(--control);
 }
+
+/* Seasonality by ENSO phase: one median line per phase; hollow dots mark medians from fewer than 3 years. */
+.dash-toggle {
+  margin-top: 0;
+  align-self: flex-start;
+}
+
+.d-phase-line {
+  stroke-width: 2;
+}
+
+.d-phase-nino {
+  --phase: var(--enso-nino);
+}
+.d-phase-nina {
+  --phase: var(--enso-nina);
+}
+.d-phase-neutral {
+  --phase: var(--text);
+}
+
+.d-phase-line {
+  stroke: var(--phase);
+}
+
+.d-phase-neutral .d-phase-line {
+  stroke-dasharray: 5 4;
+}
+
+.d-phase-dot {
+  fill: var(--phase);
+  stroke: var(--casing);
+  stroke-width: 1;
+}
+
+.d-phase-dot.few {
+  fill: var(--surface);
+  stroke: var(--phase);
+  stroke-width: 2;
+}
+
+.sw-enso-nino {
+  fill: var(--enso-nino);
+}
+.sw-enso-nina {
+  fill: var(--enso-nina);
+}
+.sw-enso-neutral {
+  fill: var(--text);
+}
+.sw-few {
+  fill: var(--surface);
+  stroke: var(--text);
+  stroke-width: 2;
+}

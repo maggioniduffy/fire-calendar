@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
-import type { CalendarPayload } from "../api/types";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
+import type { CalendarPayload, EnsoBlock } from "../api/types";
 import { divergingColor, sequentialColor } from "../charts/scales";
 import { format } from "../i18n";
 import { usePrefs, useT } from "../state/prefs";
-import { cellAt, neighbour, ymKey, type CalendarCell, type CalendarGrid as Grid } from "./calendarModel";
+import { cellAt, ensoAt, ensoIndex, neighbour, ymKey, type CalendarCell, type CalendarGrid as Grid } from "./calendarModel";
 import "./Calendar.css";
 
 export type CalendarMode = "count" | "anomaly";
@@ -12,6 +12,8 @@ interface Props {
   grid: Grid;
   mode: CalendarMode;
   meta: CalendarPayload["meta"];
+  /** ENSO block of the payload; null hides the phase strip. */
+  enso: EnsoBlock | null;
   /** Chosen month "YYYY-MM" (already defaulted to the latest with data). */
   selected: string | null;
   onSelect: (ym: string) => void;
@@ -34,7 +36,7 @@ export function monthName(lang: string, month: number, style: "long" | "narrow" 
   return new Intl.DateTimeFormat(lang, { month: style, timeZone: "UTC" }).format(new Date(Date.UTC(2001, month - 1, 1)));
 }
 
-export function CalendarGrid({ grid, mode, meta, selected, onSelect }: Props) {
+export function CalendarGrid({ grid, mode, meta, enso, selected, onSelect }: Props) {
   const t = useT();
   const { theme, lang } = usePrefs();
   const wrap = useRef<HTMLDivElement>(null);
@@ -42,6 +44,7 @@ export function CalendarGrid({ grid, mode, meta, selected, onSelect }: Props) {
   const [tip, setTip] = useState<Tip | null>(null);
   const [sparse, setSparse] = useState(false);
   const nYears = grid.years.length;
+  const ensoByYm = useMemo(() => ensoIndex(enso), [enso]);
 
   // Thin the year labels when the columns are too narrow for them (full year stays in aria-label).
   useEffect(() => {
@@ -154,6 +157,34 @@ export function CalendarGrid({ grid, mode, meta, selected, onSelect }: Props) {
           </div>
         ))}
       </div>
+
+      {enso && (
+        <div
+          className="enso-strip"
+          role="group"
+          aria-label={format(t.calendar.enso.strip, { source: enso.source })}
+          data-testid="enso-strip"
+          style={{ "--years": nYears } as CSSProperties}
+        >
+          <span className="enso-title" aria-hidden="true">
+            {t.calendar.enso.title}
+          </span>
+          {grid.years.map((year) => (
+            <div className="enso-year" key={year} data-year={year}>
+              {Array.from({ length: 12 }, (_, mi) => {
+                const ym = ymKey(year, mi + 1);
+                const m = ensoAt(ensoByYm, ym);
+                const base = { month: label({ year, month: mi + 1 } as CalendarCell), source: enso.source, start: enso.period.start, end: enso.period.end };
+                const text =
+                  m.oni === null || m.phase === null
+                    ? format(t.calendar.enso.segNone, base)
+                    : format(t.calendar.enso.seg, { ...base, oni: m.oni.toLocaleString(lang, { minimumFractionDigits: 1, maximumFractionDigits: 2 }), phase: t.calendar.enso[m.phase] });
+                return <span key={ym} className="enso-seg" role="img" aria-label={text} title={text} data-enso-ym={ym} data-phase={m.phase ?? "none"} />;
+              })}
+            </div>
+          ))}
+        </div>
+      )}
 
       {tip && tipCell && (
         <div className={`cal-tip${tip.below ? " below" : ""}`} id="cal-tip" role="tooltip" data-testid="calendar-tooltip" style={{ left: tip.x, top: tip.y }}>

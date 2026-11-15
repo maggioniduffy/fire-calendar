@@ -19,7 +19,7 @@ Docs: [architecture](docs/architecture.md), [design](docs/design.md), [validatio
 | 2 | MODIS–VIIRS harmonization + ML | [plan/02-harmonization.md](plan/02-harmonization.md) | 1 | closed 2026-11-15 (part deferred) |
 | 3 | Calendar and per-area analytics | [plan/03-calendar-analytics.md](plan/03-calendar-analytics.md) | 2 | done (backend) |
 | 4 | Web app | [plan/04-web-app.md](plan/04-web-app.md) | 0, 3 | done (backend + web) |
-| 5 | ENSO and fire (ENSO-lite only) | [plan/05-enso-drought.md](plan/05-enso-drought.md) | 3, SA0.9 | active (drought deferred) |
+| 5 | ENSO and fire (ENSO-lite only) | [plan/05-enso-drought.md](plan/05-enso-drought.md) | 3, SA0.9 | ENSO-lite done (drought deferred) |
 | 5b | Atmospheric rivers and fire | [plan/05b-atmospheric-rivers.md](plan/05b-atmospheric-rivers.md) | 4 | deferred |
 | 6 | Experimental prediction | [plan/06-ml-outlook.md](plan/06-ml-outlook.md) | 2, 5 | deferred |
 | 7 | Publication | [plan/07-submission.md](plan/07-submission.md) | 4 | active |
@@ -99,3 +99,27 @@ LightGBM (the scale factor stays), NRT.
 - 2026-11-15: SA4.9 done: the calendar strip was clipped (fixed 22vh, 26 year rows). Grid turned sideways and a
   drag handle added (`StripResizer`). Arrow keys now follow the drawing: Left/Right = year, Up/Down = month.
   Checked: vitest, tsc, eslint and the calendar, shell and a11y e2e specs; the other e2e specs were not rerun.
+- 2026-11-15: SA5.2 done: `/calendar` carries an `enso` block (ONI and phase per month, NOAA CPC; medians,
+  p25 and p75 of hot spots per calendar month and phase). The session moved to the clima-ideas network and the real
+  pipeline was rebuilt (FIRMS 2000–2025, ONI to 2026-09). SA5.5 done ([reports/05/SA5.5.md](reports/05/SA5.5.md)),
+  design pre-registered with the advisor: Córdoba, VIIRS-eq, Jul–Oct season, n = 25: no association detectable
+  (max |rho| 0.35 at lag 2, family-wise p 0.30; detectable needs |rho| ≥ 0.50). Exploratory areas (NOA, Pampas,
+  Argentina) show small own p values but are not independent and are not the headline.
+- 2026-11-15: SA5.4 done, ENSO-lite closed. Calendar ENSO row (12 phase segments per year column, ONI, source and
+  period, association note; hidden with a note when `enso` is null) and a "By ENSO phase" toggle in the dashboard
+  seasonality (few-years points marked). Full e2e 59/59; one earlier a11y tab-order failure did not reproduce
+  (possibly flaky, unverified). Next: phase 7 (README, deployed demo).
+- 2026-11-15: phase 7 started (branch `fm/phase-7-publication`). SA7.1 done: README in English with the problem,
+  the SA2.2 method and its error and coverage tables (copied from `reports/02/baselines.md`), sources and how to
+  run. Unverified: exact FIRMS and CPC terms, CARTO attribution text; no code license file yet. SA7.2 static
+  export designed in `plan/07-submission.md`; boundary candidate geoBoundaries ADM2 (IGN + OCHA ROLAC,
+  CC BY 3.0 IGO); its ADM1 file lacks Entre Ríos, so provinces are to be built from ADM2.
+- 2026-11-15: SA7.2 built and tested, not yet deployed. `firecal boundaries fetch` (geoBoundaries ADM2 pinned to
+  commit 8ce2700, CC BY 3.0 IGO) and `firecal publish export`: 513 areas (24 provinces, 489 departments; Córdoba 26),
+  4197 files, 492 MB; 36 areas under 100 km² skipped; files equal the API on synthetic and real data. ADM1 is used
+  only to assign provinces and is wrong in places: 43 corrections hard-coded and listed in the manifest (Entre Ríos
+  department list and per-province counts unverified). Web static mode (`VITE_DATA_URL=/data`, region picker,
+  location -> province, attribution) with e2e 64/64. Hosting decided: Cloudflare Pages project `fire-calendar`
+  (created). The cloud session cannot upload (its proxy replaces wrangler's upload token), so deploy runs from the
+  manual `deploy-demo` workflow, which needs the CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID secrets and the
+  workflow on the default branch.

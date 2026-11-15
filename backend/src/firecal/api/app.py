@@ -2,10 +2,12 @@
 
 from pathlib import Path
 
+import pandas as pd
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse, Response
 
 from firecal import paths
+from firecal.io import enso as enso_io
 from firecal.layers.manifest import LayerManifest, discover_layers
 from firecal.stages.calendar import cells as cal_cells
 from firecal.stages.calendar import export as cal_export
@@ -13,7 +15,9 @@ from firecal.stages.calendar import service as cal_service
 from firecal.stages.calendar.store import LAYER_ID, SeriesStore
 
 
-def create_app(processed_dir: Path | None = None, detections_dir: Path | None = None) -> FastAPI:
+def create_app(
+    processed_dir: Path | None = None, detections_dir: Path | None = None, enso_path: Path | None = None
+) -> FastAPI:
     api = FastAPI(title="firecal", description="Read-only fire calendar API")
     cache: dict[str, object] = {}
 
@@ -38,6 +42,22 @@ def create_app(processed_dir: Path | None = None, detections_dir: Path | None = 
         except Exception as exc:
             raise HTTPException(status_code=503, detail="harmonized layer not built") from exc
         return cache["store"]  # type: ignore[return-value]
+
+    def get_enso() -> pd.DataFrame | None:
+        """ONI table, read once and re-read only when the file changes; None when it is missing."""
+        path = enso_path if enso_path is not None else enso_io.default_path()
+        try:
+            stamp = path.stat().st_mtime_ns
+        except OSError:
+            cache.pop("enso", None)
+            return None
+        if cache.get("enso_stamp") != stamp or "enso" not in cache:
+            try:
+                cache.update(enso_stamp=stamp, enso=enso_io.read_enso(path))
+            except Exception:
+                cache.pop("enso", None)
+                return None
+        return cache["enso"]  # type: ignore[return-value]
 
     def run(fn, *args):
         try:
@@ -74,7 +94,7 @@ def create_app(processed_dir: Path | None = None, detections_dir: Path | None = 
 
     @api.post("/calendar")
     def calendar(req: cal_service.CalendarRequest) -> dict:
-        return run(cal_service.calendar_payload, get_store(), req)
+        return run(cal_service.calendar_payload, get_store(), req, get_enso())
 
     @api.post("/stats")
     def stats(req: cal_service.StatsRequest) -> dict:

@@ -23,6 +23,7 @@ from firecal.stages.calendar.area import (
     describe,
 )
 from firecal.stages.calendar.climatology import anomaly, climatology, last_available
+from firecal.stages.calendar.enso_split import enso_block
 from firecal.stages.calendar.matrix import BAND_METHOD, annual, area_band, calendar_matrix
 from firecal.stages.calendar.stats import key_figures
 from firecal.stages.calendar.store import BLOCK_DEG, YM, SeriesStore
@@ -222,9 +223,17 @@ def area_matrix(store: SeriesStore, r: Resolved) -> tuple[pd.DataFrame, pd.DataF
     return rows, calendar_matrix(rows, store.coverage(), r.start, r.end)
 
 
-def calendar_payload(store: SeriesStore, req: CalendarRequest) -> dict:
+def calendar_payload(store: SeriesStore, req: CalendarRequest, enso: pd.DataFrame | None = None) -> dict:
+    """`enso`: the ONI table (`firecal.io.enso.read_enso`), or None when it is not built (`enso: null`)."""
     r = resolve(store, req)
     rows, matrix = area_matrix(store, r)
+    return calendar_payload_from(store, r, rows, matrix, enso)
+
+
+def calendar_payload_from(
+    store: SeriesStore, r: Resolved, rows: pd.DataFrame, matrix: pd.DataFrame, enso: pd.DataFrame | None
+) -> dict:
+    """The /calendar payload of an already resolved area (same result as `calendar_payload`)."""
     blocks = r.blocks
     bands = {
         w: store.load_bands(blocks, r.start, r.end, w)  # type: ignore[arg-type]
@@ -249,8 +258,43 @@ def calendar_payload(store: SeriesStore, req: CalendarRequest) -> dict:
                 "note_es": BAND_NOTE_ES,
                 "note_en": BAND_NOTE_EN,
             },
+            "enso": None if enso is None else enso_block(enso, matrix, r.scale, r.start, r.end),
         }
     )
+
+
+def stats_shared(store: SeriesStore, r: Resolved) -> dict:
+    """The /stats fields that do not depend on the reference month."""
+    return clean(
+        {
+            "meta": meta(store),
+            "area": describe(r.area),
+            "n_cells": len(r.cell_lat),
+            "period": {"start": fmt_ym(r.start), "end": fmt_ym(r.end)},
+            "scale": r.scale,
+        }
+    )
+
+
+def climatology_block(clim: pd.DataFrame) -> dict:
+    return clean(
+        {
+            "months": clim,
+            "baseline_years": clim.attrs["baseline_years"],
+            "quantile_method": clim.attrs["quantile_method"],
+        }
+    )
+
+
+def stats_for_ref(matrix: pd.DataFrame, col: str, ref: YM | None, clim: pd.DataFrame, chosen: bool) -> dict:
+    """`anomaly` and `key_figures` of a reference month, given its climatology (`chosen`: labels)."""
+    raw = anomaly(matrix, col, ref, clim)
+    anom = {
+        **raw,
+        "ref_label_es": REF_LABEL_CHOSEN_ES if chosen else REF_LABEL_ES,
+        "ref_label_en": REF_LABEL_CHOSEN_EN if chosen else REF_LABEL_EN,
+    }
+    return clean({"anomaly": anom, "key_figures": key_figures(matrix, col, clim, raw)})
 
 
 def stats_payload(store: SeriesStore, req: StatsRequest) -> dict:
@@ -260,26 +304,8 @@ def stats_payload(store: SeriesStore, req: StatsRequest) -> dict:
     ref = parse_ym(req.ref) if req.ref else last_available(matrix, col)
     base = list(range(req.baseline[0], req.baseline[1] + 1)) if req.baseline else None
     clim = climatology(matrix, col, baseline_years=base, exclude_years=[ref[0]] if ref else None)
-    raw = anomaly(matrix, col, ref, clim)
-    chosen = req.ref is not None
-    anom = {
-        **raw,
-        "ref_label_es": REF_LABEL_CHOSEN_ES if chosen else REF_LABEL_ES,
-        "ref_label_en": REF_LABEL_CHOSEN_EN if chosen else REF_LABEL_EN,
+    return {
+        **stats_shared(store, r),
+        "climatology": climatology_block(clim),
+        **stats_for_ref(matrix, col, ref, clim, chosen=req.ref is not None),
     }
-    return clean(
-        {
-            "meta": meta(store),
-            "area": describe(r.area),
-            "n_cells": len(r.cell_lat),
-            "period": {"start": fmt_ym(r.start), "end": fmt_ym(r.end)},
-            "scale": r.scale,
-            "climatology": {
-                "months": clim,
-                "baseline_years": clim.attrs["baseline_years"],
-                "quantile_method": clim.attrs["quantile_method"],
-            },
-            "anomaly": anom,
-            "key_figures": key_figures(matrix, col, clim, raw),
-        }
-    )

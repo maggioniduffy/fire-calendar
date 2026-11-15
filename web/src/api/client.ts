@@ -8,21 +8,16 @@ import type {
   StatsPayload,
   StatsRequest,
 } from "./types";
+import { ApiError } from "./errors";
+import { staticClient } from "./staticData";
 
 /** Base URL of the data API. `/api` is proxied to the backend in dev (vite.config.ts) and mocked in e2e. */
-export const BASE_URL: string = import.meta.env.VITE_DATA_URL ?? "/api";
+export const BASE_URL = "/api";
 
-/** The server answered with a non-2xx status. `detail` is FastAPI's message when present. */
-export class ApiError extends Error {
-  readonly status: number;
-  readonly detail: string | null;
-  constructor(status: number, detail: string | null) {
-    super(`API ${status}${detail ? `: ${detail}` : ""}`);
-    this.name = "ApiError";
-    this.status = status;
-    this.detail = detail;
-  }
-}
+/** Static data mode (SA7.2): precomputed JSON under `VITE_DATA_URL`, no API. */
+export const STATIC_MODE = Boolean(import.meta.env.VITE_DATA_URL);
+
+export { ApiError };
 
 async function post(path: string, body: unknown, signal?: AbortSignal): Promise<Response> {
   const res = await fetch(`${BASE_URL}${path}`, {
@@ -45,20 +40,24 @@ async function post(path: string, body: unknown, signal?: AbortSignal): Promise<
 }
 
 export async function postCalendar(req: CalendarRequest, signal?: AbortSignal): Promise<CalendarPayload> {
+  if (STATIC_MODE) return staticClient.postCalendar(req, signal);
   return (await post("/calendar", req, signal)).json() as Promise<CalendarPayload>;
 }
 
 export async function postStats(req: StatsRequest, signal?: AbortSignal): Promise<StatsPayload> {
+  if (STATIC_MODE) return staticClient.postStats(req, signal);
   return (await post("/stats", req, signal)).json() as Promise<StatsPayload>;
 }
 
 /** CSV download; the caller reads the body and `Content-Disposition` (SA4.6). */
 export function postExport(req: ExportRequest, signal?: AbortSignal): Promise<Response> {
+  if (STATIC_MODE) return staticClient.postExport(req, signal);
   return post("/export.csv", req, signal);
 }
 
 /** Cells (0.1 degree) with counts for one month inside the area and the view window. */
 export async function getCells(req: CellsRequest, signal?: AbortSignal): Promise<CellsPayload> {
+  if (STATIC_MODE) return staticClient.getCells(req, signal);
   return (await post("/cells", req, signal)).json() as Promise<CellsPayload>;
 }
 
@@ -67,5 +66,6 @@ export async function getDetections(
   req: CellsRequest & { bbox: NonNullable<CellsRequest["bbox"]> },
   signal?: AbortSignal,
 ): Promise<DetectionsPayload> {
+  if (STATIC_MODE) return staticClient.getDetections(req, signal);
   return (await post("/detections", req, signal)).json() as Promise<DetectionsPayload>;
 }

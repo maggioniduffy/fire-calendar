@@ -67,6 +67,49 @@ Sources read: [FIRMS attributes](https://www.earthdata.nasa.gov/data/tools/firms
 - Phase: El Niño ≥ +0.5, La Niña ≤ −0.5, Neutral in between. Clima-ideas reference implementation copied to
   [../reference/enso.py](../reference/enso.py).
 
+## Boundaries
+
+Used by the static export (SA7.2) for the province and department areas. Fetched with `firecal boundaries fetch`
+(idempotent; `data/raw/boundaries/`, sha256 sidecars and `boundaries.json`). Read on 2026-11-15.
+
+- Source: [geoBoundaries](https://www.geoboundaries.org) gbOpen, Argentina, simplified GeoJSON, repository
+  `wmgeolab/geoBoundaries` pinned to commit `8ce2700661a28ee944350e2b329bbabb58d2ff83` (`main` on 2026-11-15).
+  The files were built on 2023-12-12.
+  `raw.githubusercontent.com` serves Git LFS pointers for them; the real bytes come from
+  `https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/<commit>/releaseData/gbOpen/ARG/ADM{1,2}/geoBoundaries-ARG-ADM{1,2}_simplified.geojson`
+  (also works for the metadata JSON). The command checks the sha256 of both GeoJSON files against the pinned values.
+- ADM2 (departments, published): 525 features, sha256 `cedee8710e49d9017327fc1d4b2dc536e95a82317dc94c3bac8d9404af6bf771`,
+  source "Instituto Geografico Nacional and UNHCR, OCHA ROLAC" (boundary year 2020), license **CC BY 3.0 IGO**.
+  The metadata declares 526 units; the file has 525.
+- ADM1 (provinces, **lookup only, never published**): 23 features, sha256
+  `7cc9b00ba139e57f59611993d96d07eb84d955ed5bd6bd6f1dcb864e1baf549c`, source "geoBoundaries, Wikimedia" (boundary
+  year 2006), license CC BY 2.5 Generic.
+- Attribution required (geoBoundaries `CITATION-AND-USE`): "Administrative boundaries courtesy of
+  geoBoundaries.org" (the project asks to include the term "geoBoundaries" with a link to
+  https://www.geoboundaries.org). Per-file sources must also be cited. The metadata writes its URLs as
+  `https//host` (the colon is lost); the manifest restores it.
+- ADM2 has no province field. Departments are assigned to a province by their point on surface inside the ADM1
+  polygons, and the province geometry is the dissolve of its departments.
+
+ADM1 defects found (they decide how departments are assigned, see `backend/src/firecal/stages/publish/areas.py`):
+
+- "La Roja" is La Rioja (renamed). There is no Entre Ríos polygon, and the Buenos Aires polygon extends over it
+  (its bbox reaches latitude -30.15): the 17 Entre Ríos departments (matched by name inside an approximate Entre
+  Ríos bbox; list unverified against an official source) are assigned to `p-entre-rios`.
+- The polygon of Ciudad Autónoma de Buenos Aires is displaced and covers 11 Gran Buenos Aires partidos: only the
+  15 "Comuna N" departments go to the city.
+- Coarse borders put four departments in the wrong province; fixed by shapeID (Rivadavia, cabecera Selva, to
+  Santiago del Estero; Tafí del Valle and Juan B. Alberdi to Tucumán; Molinos to Salta). Found by comparing the
+  department count per province with the official division, which was not checked against a primary source
+  (unverified).
+- Avellaneda (Buenos Aires), Monte Hermoso and Ushuaia fall in no polygon: assigned to the province of the closest
+  assigned department (at most 0.1 degrees away).
+- Remaining count differences with the official division (unverified): Corrientes 24 (official 25, "San Luis del
+  Palmar" is not in ADM2 under that name) and Tierra del Fuego 2 departments in the data.
+- 15 of the 525 ADM2 features are comunas of the city. The export skips every area below the API minimum of
+  100 km2 and lists it in `manifest.json` (36 of 549: the 15 comunas, 15 Buenos Aires partidos (Gran Buenos Aires and
+  Pinamar), 2 of Mendoza, 3 of San Juan and Tucumán's Capital).
+
 ## Pending verification
 
 CONAE's Hot Spots Catalog and Thematic Viewer, SPI/SPEI (CHIRPS, ERA5, SPEIbase), Copernicus CEMS FWI, land cover

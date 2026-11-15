@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ApiError, postExport } from "../api/client";
+import { ApiError, postExport, STATIC_MODE } from "../api/client";
 import { filenameFromDisposition, saveBlob } from "../api/download";
 import { useT } from "../state/prefs";
 import { useSelection } from "../state/SelectionContext";
@@ -49,8 +49,13 @@ export function Downloads() {
     <div className="downloads stack" role="group" aria-label={t.download.group} data-testid="downloads">
       <div className="actions">
         {button("calendar")}
-        {detectionsAvailable && button("detections")}
+        {detectionsAvailable && !STATIC_MODE && button("detections")}
       </div>
+      {STATIC_MODE && (
+        <p className="muted" data-testid="download-static-note">
+          {t.download.staticNote}
+        </p>
+      )}
       {message && (
         <p className="muted" role="status" data-testid="download-message">
           {t.download[message]}

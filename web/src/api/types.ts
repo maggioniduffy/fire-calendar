@@ -21,6 +21,8 @@ export type AreaSpec = CircleArea | PolygonArea;
 export interface CalendarRequest {
   area?: AreaSpec;
   preset?: string;
+  /** Static mode only: id of a province or department (`areas.json`). */
+  region?: string;
   /** "YYYY-MM" */
   start?: string;
   end?: string;
@@ -110,6 +112,30 @@ export interface BandRow {
   verified: boolean;
 }
 
+export type EnsoPhase = "nino" | "nina" | "neutral";
+
+/** `enso` block of /calendar (enso_split.py): ONI per month inside the period and the per-phase seasonality. */
+export interface EnsoBlock {
+  source: string;
+  url: string;
+  definition: string;
+  /** Period of the ONI file, "YYYY-MM". */
+  period: { start: string; end: string };
+  months: { ym: string; oni: number | null; phase: EnsoPhase | null }[];
+  by_phase: {
+    month: number;
+    phase: EnsoPhase;
+    n_years: number;
+    median: number | null;
+    p25: number | null;
+    p75: number | null;
+    years: number[];
+  }[];
+  quantile_method: string;
+  note_es: string;
+  note_en: string;
+}
+
 export interface CalendarPayload {
   meta: Meta;
   area: AreaInfo;
@@ -128,6 +154,8 @@ export interface CalendarPayload {
     note_es: string;
     note_en: string;
   };
+  /** null when the server has no ONI file. */
+  enso: EnsoBlock | null;
 }
 
 export interface YM {

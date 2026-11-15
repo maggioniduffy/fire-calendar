@@ -111,6 +111,8 @@ def export_csv(
     if kind not in ("calendar", "cells", "detections"):
         raise ValueError(f"unknown kind {kind!r}")
     r = resolve(store, req)
+    if kind == "calendar":
+        return calendar_csv(store, r, area_matrix(store, r)[1])
     prov = provenance(store, kind)
     if kind == "detections":
         df = _detections(r, detections_dir)
@@ -119,9 +121,14 @@ def export_csv(
         df = load_rows(store, r).sort_values(["year", "month", "cell_id"])[CELL_COLUMNS]
         for k in ("source", "period"):
             df[k] = prov[k]
-    else:
-        df = area_matrix(store, r)[1]
-        for k in ("source", "period", "method", "calibration_version"):
-            df[k] = prov[k]
     name = f"firecal_{kind}_{r.scale}_{fmt_ym(r.start)}_{fmt_ym(r.end)}.csv"
     return df.to_csv(index=False), name
+
+
+def calendar_csv(store: SeriesStore, r: Resolved, matrix: pd.DataFrame) -> tuple[str, str]:
+    """CSV text and file name of `kind=calendar` for an already resolved area and its matrix."""
+    prov = provenance(store, "calendar")
+    df = matrix.copy()
+    for k in ("source", "period", "method", "calibration_version"):
+        df[k] = prov[k]
+    return df.to_csv(index=False), f"firecal_calendar_{r.scale}_{fmt_ym(r.start)}_{fmt_ym(r.end)}.csv"

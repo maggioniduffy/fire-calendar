@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { CalendarPayload, MonthRow, StatsPayload } from "../api/types";
-import { buildGrid, cellAt, neighbour } from "./calendarModel";
+import type { CalendarPayload, EnsoBlock, MonthRow, StatsPayload } from "../api/types";
+import { buildGrid, cellAt, ensoAt, ensoIndex, neighbour } from "./calendarModel";
 
 const row = (year: number, month: number, v: number | null, status: MonthRow["viirs_eq_status"] = "observed"): MonthRow => ({
   year,
@@ -61,5 +61,31 @@ describe("neighbour", () => {
     expect(neighbour(g, "2005-01", "ArrowUp")).toBeNull();
     expect(neighbour(g, "2007-12", "ArrowDown")).toBeNull();
     expect(neighbour(g, "2006-05", "x")).toBeNull();
+  });
+});
+
+describe("ENSO lookup by ym", () => {
+  const enso = {
+    months: [
+      { ym: "2010-01", oni: 1.5, phase: "nino" },
+      { ym: "2010-02", oni: -0.8, phase: "nina" },
+      { ym: "2010-03", oni: null, phase: "neutral" },
+    ],
+  } as unknown as EnsoBlock;
+
+  it("finds the phase and ONI of a month", () => {
+    const idx = ensoIndex(enso);
+    expect(ensoAt(idx, "2010-01")).toEqual({ ym: "2010-01", oni: 1.5, phase: "nino" });
+    expect(ensoAt(idx, "2010-02").phase).toBe("nina");
+  });
+
+  it("a month without ONI or outside the block has no phase", () => {
+    const idx = ensoIndex(enso);
+    expect(ensoAt(idx, "2010-03").phase).toBeNull();
+    expect(ensoAt(idx, "1999-07")).toEqual({ ym: "1999-07", oni: null, phase: null });
+  });
+
+  it("a null block gives an empty index", () => {
+    expect(ensoIndex(null).size).toBe(0);
   });
 });

@@ -1,5 +1,9 @@
 import { useEffect, useId, useState, type FormEvent } from "react";
 import { format } from "../i18n";
+import { STATIC_MODE } from "../api/client";
+import { getCatalog, staticClient } from "../api/staticData";
+import { provinceAtPoint } from "../state/regionPicker";
+import { RegionPicker } from "./RegionPicker";
 import { useSelection } from "../state/SelectionContext";
 import {
   DEFAULT_RADIUS_KM,
@@ -10,7 +14,7 @@ import {
 import { useT } from "../state/prefs";
 import { SeriesSection } from "./SeriesSection";
 
-type GeoMessage = "geoDenied" | "geoUnavailable" | "geoUnsupported" | AreaError;
+type GeoMessage = "geoDenied" | "geoUnavailable" | "geoUnsupported" | "geoOutside" | AreaError;
 
 /** Enter closes and Esc cancels the polygon being drawn. Capture phase so a focused button does not eat Enter. */
 function useDrawKeys(active: boolean, finish: () => void, cancel: () => void) {
@@ -71,6 +75,15 @@ export function LeftPanel() {
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
+        if (STATIC_MODE) {
+          // Point-in-polygon in the browser on the province outlines (fetched lazily); the point is sent nowhere.
+          const areas = getCatalog()?.areas ?? [];
+          provinceAtPoint(areas, coords.latitude, coords.longitude, (id) => staticClient.region(id).then((r) => r.outline))
+            .then((id) => (id ? dispatch({ type: "setRegion", id }) : setGeoMessage("geoOutside")))
+            .catch(() => setGeoMessage("geoUnavailable"))
+            .finally(() => setLocating(false));
+          return;
+        }
         setLocating(false);
         const error = validateCircle(coords.latitude, coords.longitude, DEFAULT_RADIUS_KM);
         if (error) return setGeoMessage(error);
@@ -95,6 +108,7 @@ export function LeftPanel() {
   const coordsActive = !draw.active && (coordsOpen || (area.kind === "circle" && area.source === "manual"));
   const drawActive = draw.active || area.kind === "polygon";
   const locationActive = !draw.active && !coordsOpen && area.kind === "circle" && area.source === "geolocation";
+  const boundaries = STATIC_MODE ? getCatalog()?.manifest.boundaries : undefined;
   const drawError = draw.error ? t.area.errors[draw.error] : null;
   const message = geoMessage ? t.area.errors[geoMessage] : null;
 
@@ -117,6 +131,9 @@ export function LeftPanel() {
         </button>
       </div>
       <div className="drawer-body stack" id={bodyId}>
+        {STATIC_MODE ? (
+          <RegionPicker onChoose={chooseArea} />
+        ) : (
         <div className="segmented stacked" role="group" aria-label={t.area.modes}>
           <button
             type="button"
@@ -156,6 +173,7 @@ export function LeftPanel() {
             {t.area.draw}
           </button>
         </div>
+        )}
 
         {coordsOpen && (
           <form className="stack" onSubmit={submitCoords} noValidate data-testid="coords-form">
@@ -269,6 +287,11 @@ export function LeftPanel() {
               </p>
               <p className="muted">{format(t.area.status.source, { source: data.calendar.meta.source })}</p>
             </>
+          )}
+          {boundaries && (
+            <p className="muted" data-testid="boundaries-attribution">
+              {format(t.area.status.boundaries, { attribution: boundaries.attribution, source: boundaries.source, license: boundaries.license })}
+            </p>
           )}
         </div>
       </div>

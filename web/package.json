@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:static": "tsc -b && VITE_DATA_URL=/data vite build",
     "preview": "vite preview",
     "typecheck": "tsc -b",
     "lint": "eslint .",

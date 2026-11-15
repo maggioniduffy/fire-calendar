@@ -5,6 +5,8 @@ export type LonLat = [number, number];
 
 export type Area =
   | { kind: "preset"; id: "cordoba" }
+  /** Static mode (SA7.2): a province or department of `areas.json`. */
+  | { kind: "region"; id: string }
   | { kind: "circle"; lat: number; lon: number; radiusKm: number; source: "manual" | "geolocation" }
   | { kind: "polygon"; vertices: LonLat[] };
 
@@ -108,7 +110,13 @@ export const initialSelection: SelectionState = {
   draw: emptyDraw,
 };
 
+/** Initial selection with another default area (static mode: the manifest's `default_area`). */
+export function withDefaultArea(area: Area, base: SelectionState = initialSelection): SelectionState {
+  return { ...base, area };
+}
+
 export type SelectionAction =
+  | { type: "setRegion"; id: string }
   | { type: "setPreset" }
   | { type: "setCircle"; lat: number; lon: number; radiusKm: number; source: "manual" | "geolocation" }
   | { type: "drawStart" }
@@ -123,6 +131,8 @@ export function selectionReducer(state: SelectionState, action: SelectionAction)
   switch (action.type) {
     case "setPreset":
       return { ...state, area: initialSelection.area, draw: emptyDraw };
+    case "setRegion":
+      return { ...state, area: { kind: "region", id: action.id }, draw: emptyDraw };
     case "setCircle": {
       if (validateCircle(action.lat, action.lon, action.radiusKm)) return state;
       const digits = action.source === "geolocation" ? 2 : 4; // ~1 km: enough for a 230 km circle
@@ -166,6 +176,7 @@ export function toRequest(state: SelectionState): CalendarRequest {
   if (period.start) base.start = period.start;
   if (period.end) base.end = period.end;
   if (area.kind === "preset") return { ...base, preset: area.id };
+  if (area.kind === "region") return { ...base, region: area.id };
   if (area.kind === "circle") {
     return { ...base, area: { type: "circle", lat: area.lat, lon: area.lon, radius_km: area.radiusKm } };
   }
@@ -185,22 +196,28 @@ export function toStatsRequest(state: SelectionState, latest?: string | null): S
 export const MONTH_PATTERN = /^\d{4}-(0[1-9]|1[0-2])$/;
 
 /** Initial state from the URL query: `?month=YYYY-MM` opens the inspector on that month (shareable; also lets e2e pick one). */
-export function selectionFromSearch(search: string): SelectionState {
+export function selectionFromSearch(search: string, base: SelectionState = initialSelection): SelectionState {
   const month = new URLSearchParams(search).get("month");
-  return month && MONTH_PATTERN.test(month) ? { ...initialSelection, month } : initialSelection;
+  return month && MONTH_PATTERN.test(month) ? { ...base, month } : base;
 }
 
 /** Body of /cells and /detections: the area and scale of the selection plus the chosen month; null until set. */
 export function toCellsRequest(state: SelectionState, bbox?: BBox): CellsRequest | null {
   if (!state.month) return null;
-  const { area, preset, scale } = toRequest(state);
-  const body: CellsRequest = { ...(area ? { area } : { preset }), scale, month: state.month };
+  const { area, preset, region, scale } = toRequest(state);
+  const where = area ? { area } : region ? { region } : { preset };
+  const body: CellsRequest = { ...where, scale, month: state.month };
   return bbox ? { ...body, bbox } : body;
 }
 
 /** [west, south, east, north] of the selected area, for fitting the map. */
-export function areaBounds(area: Area, cordoba: readonly [number, number, number, number]): [number, number, number, number] {
+export function areaBounds(
+  area: Area,
+  cordoba: readonly [number, number, number, number],
+  regionBBox?: BBox | null,
+): [number, number, number, number] {
   if (area.kind === "preset") return [...cordoba];
+  if (area.kind === "region") return regionBBox ? [regionBBox[2], regionBBox[0], regionBBox[3], regionBBox[1]] : [...cordoba];
   if (area.kind === "circle") {
     const [latMin, latMax, lonMin, lonMax] = circleBox(area.lat, area.lon, area.radiusKm);
     return [lonMin, latMin, lonMax, latMax];
