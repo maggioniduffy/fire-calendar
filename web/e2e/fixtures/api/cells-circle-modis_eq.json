@@ -139,7 +139,7 @@
    },
    "provisional": false,
    "scale": "modis_eq",
-   "source_level": null,
+   "source_level": "country-sp",
    "total": 44.0
   },
   "2015-09": {
@@ -299,7 +299,7 @@
    },
    "provisional": false,
    "scale": "modis_eq",
-   "source_level": null,
+   "source_level": "country-sp",
    "total": 70.0
   },
   "2016-12": {
@@ -396,16 +396,16 @@
     "retrospective": true,
     "source": "SYNTHETIC fixture, not real FIRMS data"
    },
-   "modis_drift": false,
+   "modis_drift": true,
    "month": "2016-12",
    "outline": null,
    "period": {
     "end": "2016-12",
     "start": "2016-12"
    },
-   "provisional": false,
+   "provisional": true,
    "scale": "modis_eq",
-   "source_level": null,
+   "source_level": "nrt",
    "total": 25.0
   }
  }
