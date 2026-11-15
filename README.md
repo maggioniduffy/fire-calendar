@@ -164,9 +164,11 @@ uv run firecal enso build         # download ONI, classify ENSO phases
 uv run firecal firms download     # yearly country CSVs (idempotent; --year-from, --year-to, --product)
 uv run firecal firms ingest       # raw CSV to parquet, unified schema
 uv run firecal firms grid         # filter detections, aggregate to a regular grid
-uv run firecal series calibrate   # fit and freeze the SA2.2 factors (default sf-2026.11.1)
-uv run firecal series build       # apply the calibration, publish series, bands and manifest
+uv run firecal series build --version sf-2026.11.2   # apply the frozen calibration, publish series, bands, manifest
 ```
+
+The calibrations are frozen and committed in `backend/calibrations/`; `firecal series calibrate --version <new>`
+fits and freezes a new one (an existing version is refused).
 
 Optional: `firecal harmonize evaluate` regenerates the error report, `firecal enso lite` the ENSO-lite analysis,
 `firecal firms profile` the data profile.
