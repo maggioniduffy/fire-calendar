@@ -384,7 +384,7 @@ def area_ingest_cmd(
     for r in fa.area_ingest(products=product, levels=level or fa.LEVELS, years=year):
         typer.echo(
             f"{r['product']} {r['level']} {r['year']} rows={r['rows']} "
-            f"(clip dropped {r['clip_rows_dropped_source']} of the source)"
+            f"(clip dropped {r['clip_rows_dropped']})"
         )
 
 

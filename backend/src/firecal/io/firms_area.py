@@ -548,9 +548,8 @@ def area_ingest(
         df, shas = read_source(src, raw)
         if df.empty:
             continue
-        rows_in = len(df)
+        before = df.groupby("year").size().to_dict()
         kept = clip_inside(df, geom)
-        dropped = rows_in - len(kept)
         for year, part in kept.groupby("year"):
             if ywanted and int(year) not in ywanted:
                 continue
@@ -563,8 +562,8 @@ def area_ingest(
                 "level": src.level,
                 "chunk_sha256": json.dumps(shas),
                 "boundary_sha256": geom_sha or "",
-                "rows_before_clip": str(rows_in),
-                "clip_rows_dropped": str(dropped),
+                "rows_before_clip": str(before[year]),
+                "clip_rows_dropped": str(before[year] - len(part)),
             }
             table = table.replace_schema_metadata(
                 {**(table.schema.metadata or {}), **{k: v.encode() for k, v in meta.items()}}
@@ -582,7 +581,7 @@ def area_ingest(
                     "level": src.level,
                     "year": int(year),
                     "rows": len(part),
-                    "clip_rows_dropped_source": dropped,
+                    "clip_rows_dropped": before[year] - len(part),
                 }
             )
     return report
