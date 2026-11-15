@@ -20,6 +20,7 @@ from firecal.stages.harmonize.evaluate import (
     score_table,
 )
 from firecal.stages.harmonize.intervals import MIN_PER_BIN, SMALL_MONTH, SMALL_YEAR
+from firecal.stages.harmonize.ml import MLResult
 from firecal.stages.harmonize.regions import Cube
 from firecal.stages.harmonize.stability import step_summary
 
@@ -45,6 +46,7 @@ class ReportInput:
     det_tables: dict[str, pd.DataFrame]
     cfg: FilterConfig
     run_date: dt.date
+    ml: "MLResult | None" = None  # SA2.4 / SA2.7 (optional, `--ml`)
 
 
 def md_table(headers: list[str], rows: list[list]) -> list[str]:
@@ -523,6 +525,11 @@ def build_report(inp: ReportInput) -> str:
         rows,
     )
     L.append("")
+
+    if inp.ml is not None:
+        from firecal.stages.harmonize.ml_report import ml_section
+
+        L += ml_section(inp.ml, [f for f in folds if f.method in ("sf", "qm")])
 
     L += ["## Notas", ""]
     L += [

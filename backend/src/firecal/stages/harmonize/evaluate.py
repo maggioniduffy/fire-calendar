@@ -205,7 +205,7 @@ def _cov(lo, hi, obs, mask) -> tuple[int, int]:
     return int(c.sum()), int(mask.sum())
 
 
-def coverage_table(folds: list[FoldOut], nominal: float = NOMINAL) -> pd.DataFrame:
+def coverage_table(folds: list[FoldOut], nominal: float = NOMINAL, method: str = "sf") -> pd.DataFrame:
     """Empirical coverage per (pair, scheme, interval, level, test year or 'all').
 
     `coverage` / `rel_width` / `n`: rows with a source count above zero. `coverage_any`: rows with source or
@@ -213,7 +213,7 @@ def coverage_table(folds: list[FoldOut], nominal: float = NOMINAL) -> pd.DataFra
     all target detections; the factor predicts 0 there and so do the intervals.
     """
     rows = []
-    sf = [f for f in folds if f.method == "sf"]
+    sf = [f for f in folds if f.method == method]
     acc_keys = ("c", "n", "ca", "na", "w", "p", "n_out", "o_out", "o_all", "n_pred0")
     for level in ("block-month", "block-year"):
         for name in INTERVALS:

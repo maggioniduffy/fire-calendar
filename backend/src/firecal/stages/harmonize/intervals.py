@@ -136,6 +136,26 @@ class InnerResiduals:
     used: np.ndarray  # boolean mask over all rows: rows that served as an inner test fold
 
 
+def collect_residuals(
+    parts: list[tuple[np.ndarray, np.ndarray, np.ndarray]], used: np.ndarray
+) -> InnerResiduals:
+    """Pool out-of-fold results: one (pred, obs, src) block-month triple of shape (rows, blocks) per fold.
+
+    Only rows with a source count above zero (known at prediction time) enter the block-month residuals; the
+    block-year totals of each inner fold keep the blocks whose year source is above zero.
+    """
+    pm, om, py, oy = [], [], [], []
+    for p, o, s_tot in parts:
+        keep = s_tot > 0
+        pm.append(p[keep])
+        om.append(o[keep])
+        py_, oy_, sy_ = p.sum(axis=0), o.sum(axis=0), s_tot.sum(axis=0)
+        py.append(py_[sy_ > 0])
+        oy.append(oy_[sy_ > 0])
+    cat = lambda xs: np.concatenate(xs) if xs else np.empty(0)  # noqa: E731
+    return InnerResiduals(cat(pm), cat(om), cat(py), cat(oy), used)
+
+
 def inner_residuals(
     src: np.ndarray,
     tgt: np.ndarray,
@@ -146,22 +166,14 @@ def inner_residuals(
     gap_months: int = 6,
 ) -> InnerResiduals:
     """Out-of-fold predictions of the inner leave-one-year-out inside `train`, with the outer fold's `k`."""
-    pm, om, py, oy = [], [], [], []
+    parts = []
     used = np.zeros(len(train), dtype=bool)
     for tr, te in inner_folds(dates, train, gap_months):
         fac = fit_factors(src, tgt, month_idx, tr, k)
         p = predict_total(fac, src[te], month_idx[te])
-        o = tgt[te].sum(axis=-1)
-        s_tot = src[te].sum(axis=-1)
-        keep = s_tot > 0  # only rows with a source count: what is known at prediction time
-        pm.append(p[keep])
-        om.append(o[keep])
-        py_, oy_, sy_ = p.sum(axis=0), o.sum(axis=0), s_tot.sum(axis=0)
-        py.append(py_[sy_ > 0])
-        oy.append(oy_[sy_ > 0])
+        parts.append((p, tgt[te].sum(axis=-1), src[te].sum(axis=-1)))
         used |= te
-    cat = lambda xs: np.concatenate(xs) if xs else np.empty(0)  # noqa: E731
-    return InnerResiduals(cat(pm), cat(om), cat(py), cat(oy), used)
+    return collect_residuals(parts, used)
 
 
 @dataclass(frozen=True, eq=False)
@@ -171,6 +183,30 @@ class ConformalOut:
     calib_month: BinnedConformal
     calib_year: BinnedConformal
     used: np.ndarray
+
+
+def conformal_from_residuals(
+    res: InnerResiduals,
+    test_pred: np.ndarray,
+    test_src: np.ndarray | None = None,
+    n_bins: int = N_BINS,
+    min_n: int = MIN_PER_BIN,
+    alpha: float = 1 - NOMINAL,
+    small_month: float = SMALL_MONTH,
+    small_year: float = SMALL_YEAR,
+) -> ConformalOut:
+    """Intervals for `test_pred` (rows, blocks) from out-of-fold residuals of any point predictor."""
+    cm = fit_binned(res.pred_month, res.obs_month, n_bins, min_n, alpha, small_month)
+    cy = fit_binned(res.pred_year, res.obs_year, n_bins, min_n, alpha, small_year)
+    act_m = None if test_src is None else test_src > 0
+    act_y = None if test_src is None else test_src.sum(axis=0) > 0
+    return ConformalOut(
+        month=cm.apply(test_pred, act_m),
+        year=cy.apply(test_pred.sum(axis=0), act_y),
+        calib_month=cm,
+        calib_year=cy,
+        used=res.used,
+    )
 
 
 def conformal_intervals(
@@ -195,14 +231,4 @@ def conformal_intervals(
     Omitted: every row counts as active.
     """
     res = inner_residuals(src, tgt, dates, month_idx, train, k, gap_months)
-    cm = fit_binned(res.pred_month, res.obs_month, n_bins, min_n, alpha, small_month)
-    cy = fit_binned(res.pred_year, res.obs_year, n_bins, min_n, alpha, small_year)
-    act_m = None if test_src is None else test_src > 0
-    act_y = None if test_src is None else test_src.sum(axis=0) > 0
-    return ConformalOut(
-        month=cm.apply(test_pred, act_m),
-        year=cy.apply(test_pred.sum(axis=0), act_y),
-        calib_month=cm,
-        calib_year=cy,
-        used=res.used,
-    )
+    return conformal_from_residuals(res, test_pred, test_src, n_bins, min_n, alpha, small_month, small_year)
