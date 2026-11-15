@@ -1,6 +1,6 @@
 # Fase 2 — Armonización MODIS–VIIRS
 
-Estado: activa (SA2.6, SA2.8, SA2.9 y SA2.10 postergadas) · Depende de: 1 · Refs: `docs/validation.md`
+Estado: cerrada el 2026-11-15 (SA2.6, SA2.8, SA2.9 y SA2.10 postergadas) · Depende de: 1 · Refs: `docs/validation.md`
 
 ## Pregunta
 
@@ -91,6 +91,13 @@ Todo lo de abajo es diseño; los supuestos sobre los datos quedan "sin verificar
   80 ± 5 % y ancho no mayor; el intervalo bootstrap pareado (por año y bloque) de la diferencia de WAPE excluye
   cero. Si no, el informe dice "no supera al factor" y se publica SA2.2.
 
+- **LightGBM (2026-11-15, [reports/02/baselines.md](../reports/02/baselines.md)):** no supera al factor en
+  ningún sentido con el criterio fijado; la capa `harmonized` sigue con SA2.2. VIIRS→MODIS estuvo cerca (celda:
+  WAPE bloque-mes 15,9 % vs 17,2 %, 12 de 14 años, pero sesgo −2,5 %; bloque-mes: bootstrap con límite +0,02).
+  La primera corrida de SA2.7 divergió numéricamente; se agregó `max_delta_step = 1` después de esa corrida (no
+  estaba en el diseño previo, aplica a los dos sentidos) y un control de predicciones. Abierto: grilla reducida
+  por tiempo; el sesgo negativo del modelo de celda puede ser estructural (sin verificar).
+
 ## Tareas
 
 | ID | Tarea | Agente | Hecho cuando |
@@ -98,10 +105,10 @@ Todo lo de abajo es diseño; los supuestos sobre los datos quedan "sin verificar
 | SA2.1 | VIIRS reagrupado a celdas de 1 km por día (una detección por celda), pares de pasos similares (Aqua ~ S-NPP) | Sonnet | Unit: N detecciones en una celda cuentan como 1. Hecho ✅ (2026-11-14; en 2020, de 71.819 celdas-día de Aqua solo 29.937 tienen S-NPP en la misma celda de 0,01°: la coincidencia exacta a 1 km es baja y SA2.4/SA2.7 van a necesitar vecindad) |
 | SA2.2 | Baseline: factor de escala MODIS/VIIRS por región y mes del año, en los dos sentidos | Sonnet | Unit con datos sintéticos de factor conocido. Hecho ✅ (2026-11-14; [reports/02/baselines.md](../reports/02/baselines.md)) |
 | SA2.3 | Ajuste de cuantiles por región | Sonnet | Unit: recupera la distribución objetivo en sintético. Hecho ✅ (2026-11-14; pierde contra SA2.2 en los dos sentidos) |
-| SA2.4 | LightGBM hacia MODIS: conteo MODIS-equivalente desde conteos VIIRS por confianza, FRP, día/noche, mes, latitud, cobertura del suelo | Sonnet implementa, opencode entrena | Error por año de test vs. SA2.2 y SA2.3 |
+| SA2.4 | LightGBM hacia MODIS: conteo MODIS-equivalente desde conteos VIIRS por confianza, FRP, día/noche, mes, latitud, cobertura del suelo | Sonnet implementa, opencode entrena | Error por año de test vs. SA2.2 y SA2.3. Hecho ✅ (2026-11-15): no supera al factor; celda falla el sesgo (−2,5 % vs +0,9 %), bloque-mes falla el bootstrap (+0,02) |
 | SA2.5 | Validación año afuera con separación y selección anidada (`docs/validation.md`) | Sonnet | Unit: ningún día de test en entrenamiento. Hecho ✅ (2026-11-14; año afuera con separación y origen móvil) |
 | SA2.6 | (postergado) Efecto de la deriva orbital de Terra y Aqua en los años recientes (sin verificar magnitud) | opencode | `reports/02/SA2.6.md` con cifras |
-| SA2.7 | Serie inversa: LightGBM con objetivo Poisson o Tweedie que estima conteos VIIRS por celda y día desde conteo y FRP de MODIS, (sin ángulo de escaneo: el archivo standard no trae `scan`), día/noche, mes, cobertura del suelo y focos de días vecinos; intervalos por regresión cuantílica | Sonnet implementa, opencode entrena | Error y cobertura de intervalos por año de test vs. SA2.2 inverso |
+| SA2.7 | Serie inversa: LightGBM con objetivo Poisson o Tweedie que estima conteos VIIRS por celda y día desde conteo y FRP de MODIS, (sin ángulo de escaneo: el archivo standard no trae `scan`), día/noche, mes, cobertura del suelo y focos de días vecinos; intervalos por regresión cuantílica | Sonnet implementa, opencode entrena | Error y cobertura de intervalos por año de test vs. SA2.2 inverso. Hecho ✅ (2026-11-15): no supera al factor (celda falla todas; bloque-mes falla 1, 4 y 7) |
 | SA2.8 | (postergado) Validación hacia atrás: entrenar con 2016 en adelante y evaluar en 2012–2015, para simular estimar el pasado y ver si la relación cambia con el tiempo | Sonnet | Tabla de error por región y año; unit: ningún año de test en entrenamiento |
 | SA2.9 | (postergado) Áreas quemadas MCD64A1 (2000–) como variable de SA2.7 para fuegos que MODIS no marcó como foco; Landsat solo si SA0.8 confirma acceso y cobertura | Sonnet escribe, opencode corre | Error de SA2.7 con y sin la variable |
 | SA2.10 | (postergado) Continuidad post-MODIS: calibración congelada con versión y fecha; ingesta de un año VIIRS nuevo actualiza las dos series sin recalibrar | Sonnet | Unit: agregar un año no cambia los valores previos |

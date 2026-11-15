@@ -16,7 +16,7 @@ Docs: [arquitectura](docs/architecture.md), [diseño](docs/design.md), [validaci
 |---|---|---|---|---|
 | 0 | Bases y acceso a datos | [plan/00-foundations.md](plan/00-foundations.md) | — | activa |
 | 1 | Datos FIRMS: descarga, filtros, grilla | [plan/01-data.md](plan/01-data.md) | 0 | activa |
-| 2 | Armonización MODIS–VIIRS + ML | [plan/02-harmonization.md](plan/02-harmonization.md) | 1 | activa (parte postergada) |
+| 2 | Armonización MODIS–VIIRS + ML | [plan/02-harmonization.md](plan/02-harmonization.md) | 1 | cerrada 2026-11-15 (parte postergada) |
 | 3 | Calendario y análisis por área | [plan/03-calendar-analytics.md](plan/03-calendar-analytics.md) | 2 | activa |
 | 4 | App web | [plan/04-web-app.md](plan/04-web-app.md) | 0, 3 | activa |
 | 5 | ENSO y fuego (solo ENSO-lite) | [plan/05-enso-drought.md](plan/05-enso-drought.md) | 3, SA0.9 | activa (sequía postergada) |
@@ -58,4 +58,6 @@ de fase ENSO), LightGBM (queda el factor de escala), NRT.
   por celda de 0,1° y mes, 2000-11 a 2025-12, método factor de escala (calibración `sf-2026.11.1`) y bandas por
   bloque. VIIRS-eq 2000–2011 marcado "estimado"; 2000–2002 usa el factor de Terra solo (sin verificar la
   extrapolación). LightGBM (SA2.4, SA2.7) en curso: si pasa el criterio fijado, reemplaza el método de la capa.
-
+- 2026-11-15: fase 2 cerrada. LightGBM (SA2.4, SA2.7) no supera al factor de escala con el criterio fijado antes
+  de la corrida; se publica SA2.2 (capa `harmonized`, calibración `sf-2026.11.1`). Fase 3 en curso en otra sesión
+  (rama `fm/phase-3-calendar`).

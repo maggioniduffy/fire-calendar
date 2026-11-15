@@ -1,6 +1,6 @@
 # SA2.2 y SA2.3 Baselines de armonización MODIS-VIIRS
 
-Corrida: 2026-11-14, con `firecal harmonize evaluate` (tablas generadas por código). Fuente: archivos por país (Argentina) de NASA FIRMS, procesamiento standard (MODIS, VIIRS S-NPP y NOAA-20; el detalle de cada versión de procesamiento está sin verificar).
+Corrida: 2026-11-15, con `firecal harmonize evaluate` (tablas generadas por código). Fuente: archivos por país (Argentina) de NASA FIRMS, procesamiento standard (MODIS, VIIRS S-NPP y NOAA-20; el detalle de cada versión de procesamiento está sin verificar).
 Período de los datos locales: 2000-11 a 2025-12; período de solapamiento usado: 2012-02 a 2025-12.
 Filtros: type en [0], confianza MODIS >= 30, clase VIIRS en ['nominal', 'high'] (`FilterConfig` por defecto). Conteo: detecciones tras el filtro, sumadas desde la grilla de 0,1°.
 
@@ -426,6 +426,269 @@ Cociente MODIS/S-NPP desde las detecciones, con el filtro por defecto (`type` = 
 | 2023 | 44095 | 45687 | 3.5 % | 0.300 | 0.296 | 4.6 % |
 | 2024 | 45453 | 47594 | 4.5 % | 0.338 | 0.338 | 4.3 % |
 | 2025 | 43860 | 45675 | 4.0 % | 0.294 | 0.294 | 4.0 % |
+
+## SA2.4 y SA2.7 vs. baseline
+
+LightGBM sobre el factor de escala de SA2.2 (el factor entra como offset: `init_score = log(f_bloque x fuente + eps)`), con las mismas métricas, los mismos pliegues (año afuera con 6 meses de separación y origen móvil) y la misma suma a bloque-mes y bloque-año que SA2.2. Todo es retrospectivo. El criterio de publicación estaba fijado en `plan/02-harmonization.md` antes de la corrida y no se tocó después de ver resultados.
+
+### Qué se corrió
+
+- **Modelo de celda** (candidato principal): filas de celda de 0,1° x mes x día/noche donde la **fuente** está activa en la celda o en su 3x3 (el diseño decía "algún sensor activo"; con el objetivo observado en test el conjunto de filas filtraría el objetivo y, entrenando solo con filas de objetivo activo, sesgaría hacia arriba las filas sin fuente; el cambio es una decisión de implementación, no del criterio). Las detecciones del objetivo en celdas-mes sin fuente en su 3x3 quedan fuera de alcance (como el origen = 0 de SA2.2): SA2.4 2.6 % de las detecciones del objetivo (2,565,798 filas), SA2.7 6.2 % de las detecciones del objetivo (1,671,420 filas).
+- **Variables** (todas de la fuente, conocidas al predecir): conteo, FRP, FRP por detección, conteo del otro período del día (día/noche), proporción de día/noche, es-noche, conteo en 3x3, total de la fuente en el bloque-mes y mes del año. Ablaciones: con proporción Terra/Aqua (solo MODIS como fuente: terra y aqua por separado, FRP por satélite y proporción de Terra; en VIIRS -> MODIS no existe, queda igual) y con lat/lon. El candidato principal es el modelo base sin proporción Terra/Aqua y sin lat/lon; las ablaciones no son candidatas.
+- **Offset:** fuente suavizada (3x3 en filas sin fuente) y reescalada por bloque-mes-día/noche para conservar el total de la fuente: sin ese reescalado el suavizado agrega masa y con cero árboles no se reproduciría SA2.2. Factores de las filas de entrenamiento: fuera de muestra (año afuera interno, con separación); los de las filas de test: ajustados en el entrenamiento externo.
+- **Modelo bloque-mes:** mismas ideas sobre filas bloque-mes x día/noche (muy regularizado, 3-7 hojas), segundo candidato.
+- **Objetivo y selección:** Poisson (Tweedie 1,2 solo en la grilla del modelo bloque-mes). Hiperparámetros por WAPE bloque-mes con año afuera interno dentro de cada entrenamiento externo; aprendizaje 0,1 en la celda y 0,05 en el bloque, `num_threads` = 2, semilla fija, `deterministic`.
+- **Grilla (reducida por tiempo):** celda: una estructura (31 hojas, mínimo 200 filas por hoja, L2 10) con 25/50/100 árboles a elegir; bloque-mes: 4 estructuras x 30/100/250 árboles. El diseño de evaluación (anidado, mismos pliegues) no se redujo. Las ablaciones reutilizan la configuración que eligió el modelo de celda base en el mismo pliegue.
+- **Intervalos:** esquema conformal anidado de SA2.2 (`intervals.py`) sobre las predicciones puntuales de LightGBM (residuos fuera de muestra de la configuración elegida); sin regresión cuantílica de LightGBM (diagnóstico opcional, no corrido).
+- **Corrida descartada y tope de hojas (no estaba en el diseño previo):** la primera corrida completa dio, en el modelo de celda de SA2.7, predicciones del orden de 1e18: hojas con pasos de Newton de decenas en escala log en filas sin fuente en su período día/noche (offset en el piso `eps`) pero con detecciones del objetivo. Se agregó `max_delta_step = 1` (tope a la salida de cada hoja, como máximo 0,1 en log por árbol con aprendizaje 0,1) **después** de esa primera corrida, para corregir una falla numérica; vale para los dos sentidos y para los dos modelos, y no estaba en el diseño fijado antes de correr. El criterio, las variables, los pliegues y la grilla no cambiaron. Antes del arreglo ya se habían visto los resultados de SA2.4 de esa corrida; el tope no se eligió midiéndolo contra ellos (valor único, sin probar otros). Además, una guarda detiene la corrida si alguna predicción (externa o interna) es no finita o supera 100 veces lo observado.
+- **Tiempo y memoria:** 31.3 min de reloj para esta parte, un proceso por sentido (2 hilos cada uno); memoria máxima sumada (PSS de los procesos) 2608 MB.
+
+### Criterio de publicación y veredicto
+
+Se publica LightGBM en un sentido solo si el candidato cumple las siete condiciones (la 6 solo en SA2.7): 1) WAPE bloque-mes con año afuera al menos 1 punto menor que SA2.2 y bloque-año no mayor; 2) menor WAPE bloque-mes en al menos 10 de 14 años de test; 3) mejora del mismo signo con origen móvil; 4) |sesgo| total no peor que el de SA2.2 + 0,5 puntos y el peor año no peor; 5) devianza de Poisson bloque-mes no peor; 6) cobertura conformal bloque-mes 80 +/- 5 % y ancho relativo no mayor; 7) el intervalo bootstrap pareado (años y bloques remuestreados por separado, 1000 remuestras, semilla 20261114, percentiles al 95 %) de la diferencia de WAPE bloque-mes excluye cero. Interpretaciones fijadas antes de la corrida: el "peor año" es un año de test del año afuera; la cobertura y el ancho son los de bloque-mes (la de bloque-año se informa, no es condición); "excluye cero" exige límite superior < 0. El veredicto del sentido es el del candidato principal (celda); el modelo bloque-mes tiene el suyo, por separado.
+
+**SA2.4: VIIRS (S-NPP) -> MODIS-equivalente - LightGBM celda (candidato principal): no supera al factor.**
+
+| Condición | Resultado | Detalle |
+|---|---|---|
+| 1. WAPE bloque-mes al menos 1 punto menor y bloque-año no mayor | cumple | bloque-mes -1.29 pts, bloque-año -0.73 pts |
+| 2. WAPE bloque-mes menor en al menos 10 de 14 años de test | cumple | 12 de 14 |
+| 3. Mejora del mismo signo con origen móvil | cumple | origen móvil -1.93 pts (11 años) |
+| 4. |sesgo| total no peor que SA2.2 + 0,5 puntos y el peor año no peor | NO cumple | total -2.52 % vs +0.93 %; peor año 12.4 % vs 11.4 % |
+| 5. Devianza de Poisson bloque-mes no peor | cumple | 4.985 vs 5.204 |
+| 7. Intervalo bootstrap pareado (año y bloque) de la diferencia de WAPE excluye cero | cumple | -1.29 pts [-3.76; -0.05] (95 %) |
+
+**SA2.4: VIIRS (S-NPP) -> MODIS-equivalente - LightGBM bloque-mes (segundo candidato): no supera al factor.**
+
+| Condición | Resultado | Detalle |
+|---|---|---|
+| 1. WAPE bloque-mes al menos 1 punto menor y bloque-año no mayor | cumple | bloque-mes -1.05 pts, bloque-año -0.97 pts |
+| 2. WAPE bloque-mes menor en al menos 10 de 14 años de test | cumple | 13 de 14 |
+| 3. Mejora del mismo signo con origen móvil | cumple | origen móvil -0.86 pts (11 años) |
+| 4. |sesgo| total no peor que SA2.2 + 0,5 puntos y el peor año no peor | cumple | total +0.14 % vs +0.93 %; peor año 9.3 % vs 11.4 % |
+| 5. Devianza de Poisson bloque-mes no peor | cumple | 4.450 vs 5.204 |
+| 7. Intervalo bootstrap pareado (año y bloque) de la diferencia de WAPE excluye cero | NO cumple | -1.05 pts [-2.97; +0.02] (95 %) |
+
+**SA2.7: MODIS -> VIIRS-equivalente (serie inversa) - LightGBM celda (candidato principal): no supera al factor.**
+
+| Condición | Resultado | Detalle |
+|---|---|---|
+| 1. WAPE bloque-mes al menos 1 punto menor y bloque-año no mayor | NO cumple | bloque-mes +0.63 pts, bloque-año +0.96 pts |
+| 2. WAPE bloque-mes menor en al menos 10 de 14 años de test | NO cumple | 4 de 14 |
+| 3. Mejora del mismo signo con origen móvil | NO cumple | origen móvil +0.48 pts (11 años) |
+| 4. |sesgo| total no peor que SA2.2 + 0,5 puntos y el peor año no peor | NO cumple | total -6.73 % vs -0.95 %; peor año 13.0 % vs 12.1 % |
+| 5. Devianza de Poisson bloque-mes no peor | NO cumple | 28.993 vs 27.713 |
+| 6. Cobertura 80 ± 5 % y ancho no mayor que SA2.2 | NO cumple | cobertura 80.1 %, ancho 0.671 vs SA2.2 0.621 |
+| 7. Intervalo bootstrap pareado (año y bloque) de la diferencia de WAPE excluye cero | NO cumple | +0.63 pts [-1.04; +1.92] (95 %) |
+
+**SA2.7: MODIS -> VIIRS-equivalente (serie inversa) - LightGBM bloque-mes (segundo candidato): no supera al factor.**
+
+| Condición | Resultado | Detalle |
+|---|---|---|
+| 1. WAPE bloque-mes al menos 1 punto menor y bloque-año no mayor | NO cumple | bloque-mes -0.49 pts, bloque-año -0.48 pts |
+| 2. WAPE bloque-mes menor en al menos 10 de 14 años de test | cumple | 11 de 14 |
+| 3. Mejora del mismo signo con origen móvil | cumple | origen móvil -0.39 pts (11 años) |
+| 4. |sesgo| total no peor que SA2.2 + 0,5 puntos y el peor año no peor | NO cumple | total -1.01 % vs -0.95 %; peor año 12.3 % vs 12.1 % |
+| 5. Devianza de Poisson bloque-mes no peor | cumple | 18.587 vs 27.713 |
+| 6. Cobertura 80 ± 5 % y ancho no mayor que SA2.2 | cumple | cobertura 80.3 %, ancho 0.610 vs SA2.2 0.621 |
+| 7. Intervalo bootstrap pareado (año y bloque) de la diferencia de WAPE excluye cero | NO cumple | -0.49 pts [-1.35; +0.22] (95 %) |
+
+Veredicto por sentido (candidato principal): SA2.4: no supera al factor; SA2.7: no supera al factor. Si no supera, se publica SA2.2.
+
+### SA2.4: VIIRS (S-NPP) -> MODIS-equivalente
+
+| Método | Sesgo b-mes | WAPE b-mes | WAPE b-año | MAE b-mes | Devianza b-mes | Años con menor WAPE b-mes que SA2.2 | WAPE b-mes origen móvil |
+|---|---|---|---|---|---|---|---|
+| SA2.2 factor | +0.9 % | 17.2 % | 10.1 % | 11.28 | 5.20 | - | 18.3 % |
+| LightGBM celda | -2.5 % | 15.9 % | 9.4 % | 10.43 | 4.98 | 12 de 14 | 16.3 % |
+| LightGBM bloque-mes | +0.1 % | 16.1 % | 9.1 % | 10.59 | 4.45 | 13 de 14 | 17.4 % |
+| LightGBM celda + lat/lon | -2.6 % | 15.3 % | 8.6 % | 10.08 | 4.70 | 13 de 14 | - |
+| Cero árboles (celda) | +1.3 % | 17.2 % | 10.1 % | 11.29 | 5.17 | - | 18.3 % |
+| Cero árboles (bloque-mes) | +0.9 % | 17.2 % | 10.1 % | 11.28 | 5.18 | - | 18.3 % |
+
+Año afuera, 14 años de test, todos juntos. La columna de origen móvil usa en todas las filas los mismos años (los del modelo de celda; el primero, con un solo año de entrenamiento, no admite año afuera interno y se omite).
+
+Error por año de test (año afuera):
+
+| Año | WAPE b-mes SA2.2 | celda | bloque | WAPE b-año SA2.2 | celda | bloque | Sesgo SA2.2 | celda | bloque | Menor b-mes (SA2.2 vs celda) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 2012 | 15.8 % | 15.6 % | 15.2 % | 9.9 % | 9.5 % | 8.6 % | -3.6 % | -4.1 % | -3.3 % | celda |
+| 2013 | 17.5 % | 15.0 % | 14.6 % | 8.7 % | 6.6 % | 5.9 % | +1.7 % | -3.2 % | -0.9 % | celda |
+| 2014 | 18.2 % | 18.0 % | 17.3 % | 11.5 % | 11.7 % | 10.2 % | -4.7 % | -6.9 % | -3.0 % | celda |
+| 2015 | 18.8 % | 19.5 % | 18.1 % | 12.8 % | 12.7 % | 12.1 % | -0.8 % | -2.5 % | +0.9 % | SA2.2 |
+| 2016 | 16.4 % | 15.4 % | 14.9 % | 9.5 % | 9.0 % | 7.7 % | -1.5 % | -4.9 % | -2.6 % | celda |
+| 2017 | 15.2 % | 15.0 % | 14.3 % | 8.7 % | 9.7 % | 8.8 % | -2.2 % | -4.6 % | -2.6 % | celda |
+| 2018 | 15.4 % | 15.6 % | 14.5 % | 8.6 % | 8.5 % | 8.0 % | +2.7 % | +1.1 % | +3.6 % | SA2.2 |
+| 2019 | 15.0 % | 14.0 % | 14.4 % | 7.9 % | 6.9 % | 7.6 % | -0.1 % | -3.2 % | +1.1 % | celda |
+| 2020 | 14.7 % | 13.2 % | 13.1 % | 8.7 % | 7.7 % | 7.9 % | +6.0 % | +2.7 % | +3.4 % | celda |
+| 2021 | 16.7 % | 14.6 % | 16.6 % | 9.2 % | 8.1 % | 9.4 % | +4.0 % | +0.5 % | +3.6 % | celda |
+| 2022 | 22.0 % | 17.0 % | 19.9 % | 15.0 % | 10.0 % | 12.1 % | +11.4 % | +2.0 % | +5.6 % | celda |
+| 2023 | 17.0 % | 16.1 % | 16.8 % | 7.6 % | 9.0 % | 7.4 % | -2.3 % | -5.7 % | -1.2 % | celda |
+| 2024 | 19.6 % | 19.2 % | 20.0 % | 12.3 % | 13.8 % | 12.5 % | -10.2 % | -12.4 % | -9.3 % | celda |
+| 2025 | 20.3 % | 19.4 % | 20.2 % | 12.3 % | 12.4 % | 12.2 % | -1.5 % | -5.0 % | -0.9 % | celda |
+
+Intervalos conformales anidados (nominal 80 %, año afuera, filas con fuente > 0):
+
+| Nivel | Método | n | Cobertura | Ancho relativo | Detecciones fuera de alcance |
+|---|---|---|---|---|---|
+| block-month | SA2.2 factor | 9129 | 80.2 % | 0.585 | 0.0 % |
+| block-month | LightGBM celda | 9129 | 80.2 % | 0.567 | 0.0 % |
+| block-month | LightGBM bloque-mes | 9129 | 80.3 % | 0.564 | 0.0 % |
+| block-year | SA2.2 factor | 924 | 80.6 % | 0.352 | 0.0 % |
+| block-year | LightGBM celda | 924 | 80.6 % | 0.333 | 0.0 % |
+| block-year | LightGBM bloque-mes | 924 | 81.1 % | 0.320 | 0.0 % |
+
+Verificación de cero árboles (el offset solo debe reproducir los totales por bloque de SA2.2; dentro de ~1 %). Por bloque se miran los bloques con al menos 1000 detecciones predichas por SA2.2 en los años de test juntos; la diferencia viene del piso `eps` del offset (suma una masa chica en filas sin fuente):
+
+| Modelo | Total / total SA2.2 | Máx. dif. relativa por bloque | Bloques con dif. > 1 % | WAPE b-mes cero árboles | WAPE b-mes SA2.2 |
+|---|---|---|---|---|---|
+| Cero árboles (celda) | 1.0033 | 1.8 % | 8 de 42 | 17.2 % | 17.2 % |
+| Cero árboles (bloque-mes) | 1.0000 | 0.0 % | 0 de 42 | 17.2 % | 17.2 % |
+
+### SA2.7: MODIS -> VIIRS-equivalente (serie inversa)
+
+| Método | Sesgo b-mes | WAPE b-mes | WAPE b-año | MAE b-mes | Devianza b-mes | Años con menor WAPE b-mes que SA2.2 | WAPE b-mes origen móvil |
+|---|---|---|---|---|---|---|---|
+| SA2.2 factor | -0.9 % | 17.9 % | 10.6 % | 39.03 | 27.71 | - | 18.4 % |
+| LightGBM celda | -6.7 % | 18.6 % | 11.6 % | 40.41 | 28.99 | 4 de 14 | 18.9 % |
+| LightGBM bloque-mes | -1.0 % | 17.4 % | 10.1 % | 37.96 | 18.59 | 11 de 14 | 18.0 % |
+| LightGBM celda + proporción Terra/Aqua | -6.8 % | 18.4 % | 11.6 % | 40.14 | 28.78 | 4 de 14 | - |
+| LightGBM celda + lat/lon | -6.8 % | 17.8 % | 11.3 % | 38.87 | 27.79 | 7 de 14 | - |
+| Cero árboles (celda) | -0.9 % | 17.9 % | 10.6 % | 39.03 | 27.28 | - | 18.4 % |
+| Cero árboles (bloque-mes) | -0.9 % | 17.9 % | 10.6 % | 39.03 | 26.79 | - | 18.4 % |
+
+Año afuera, 14 años de test, todos juntos. La columna de origen móvil usa en todas las filas los mismos años (los del modelo de celda; el primero, con un solo año de entrenamiento, no admite año afuera interno y se omite).
+
+Error por año de test (año afuera):
+
+| Año | WAPE b-mes SA2.2 | celda | bloque | WAPE b-año SA2.2 | celda | bloque | Sesgo SA2.2 | celda | bloque | Menor b-mes (SA2.2 vs celda) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 2012 | 18.7 % | 17.0 % | 17.7 % | 12.7 % | 10.6 % | 11.5 % | +5.3 % | -3.4 % | +4.7 % | celda |
+| 2013 | 17.9 % | 18.6 % | 16.9 % | 8.6 % | 10.8 % | 7.4 % | -2.2 % | -9.2 % | -1.9 % | SA2.2 |
+| 2014 | 20.0 % | 19.8 % | 19.0 % | 13.3 % | 13.3 % | 12.1 % | +4.1 % | -6.4 % | +3.2 % | celda |
+| 2015 | 19.4 % | 19.8 % | 18.1 % | 13.4 % | 13.5 % | 11.3 % | -0.0 % | -9.2 % | -1.1 % | SA2.2 |
+| 2016 | 16.5 % | 18.1 % | 15.2 % | 9.5 % | 9.3 % | 7.3 % | +0.1 % | -1.3 % | +1.2 % | SA2.2 |
+| 2017 | 16.7 % | 16.3 % | 15.5 % | 9.1 % | 10.0 % | 9.0 % | +1.5 % | -5.0 % | +0.2 % | celda |
+| 2018 | 16.6 % | 17.6 % | 16.1 % | 8.9 % | 11.5 % | 8.7 % | -2.6 % | -9.3 % | -3.1 % | SA2.2 |
+| 2019 | 17.4 % | 18.4 % | 16.8 % | 10.1 % | 12.6 % | 9.9 % | -2.3 % | -9.8 % | -2.7 % | SA2.2 |
+| 2020 | 14.7 % | 15.1 % | 13.9 % | 8.6 % | 9.6 % | 8.6 % | -3.1 % | -3.5 % | -3.1 % | SA2.2 |
+| 2021 | 17.4 % | 19.9 % | 17.5 % | 8.3 % | 11.4 % | 8.4 % | -3.6 % | -10.1 % | -4.1 % | SA2.2 |
+| 2022 | 19.8 % | 22.8 % | 20.9 % | 13.9 % | 17.6 % | 14.5 % | -10.7 % | -13.0 % | -9.1 % | SA2.2 |
+| 2023 | 18.2 % | 18.5 % | 18.2 % | 8.2 % | 9.0 % | 7.4 % | +2.3 % | -7.5 % | +1.6 % | SA2.2 |
+| 2024 | 23.3 % | 21.4 % | 23.1 % | 15.4 % | 12.0 % | 15.5 % | +12.1 % | +3.1 % | +12.3 % | celda |
+| 2025 | 19.9 % | 20.1 % | 20.3 % | 12.4 % | 11.0 % | 12.4 % | +0.1 % | -8.8 % | +0.1 % | SA2.2 |
+
+Intervalos conformales anidados (nominal 80 %, año afuera, filas con fuente > 0):
+
+| Nivel | Método | n | Cobertura | Ancho relativo | Detecciones fuera de alcance |
+|---|---|---|---|---|---|
+| block-month | SA2.2 factor | 7527 | 80.1 % | 0.621 | 0.3 % |
+| block-month | LightGBM celda | 7527 | 80.1 % | 0.671 | 0.3 % |
+| block-month | LightGBM bloque-mes | 7527 | 80.3 % | 0.610 | 0.3 % |
+| block-year | SA2.2 factor | 859 | 80.7 % | 0.371 | 0.0 % |
+| block-year | LightGBM celda | 859 | 80.1 % | 0.367 | 0.0 % |
+| block-year | LightGBM bloque-mes | 859 | 80.6 % | 0.343 | 0.0 % |
+
+Verificación de cero árboles (el offset solo debe reproducir los totales por bloque de SA2.2; dentro de ~1 %). Por bloque se miran los bloques con al menos 1000 detecciones predichas por SA2.2 en los años de test juntos; la diferencia viene del piso `eps` del offset (suma una masa chica en filas sin fuente):
+
+| Modelo | Total / total SA2.2 | Máx. dif. relativa por bloque | Bloques con dif. > 1 % | WAPE b-mes cero árboles | WAPE b-mes SA2.2 |
+|---|---|---|---|---|---|
+| Cero árboles (celda) | 1.0007 | 0.4 % | 0 de 45 | 17.9 % | 17.9 % |
+| Cero árboles (bloque-mes) | 1.0000 | 0.0 % | 0 de 45 | 17.9 % | 17.9 % |
+
+### Configuración elegida por año de test (año afuera)
+
+| Sentido | Año | Celda | Bloque-mes |
+|---|---|---|---|
+| SA2.7 | 2012 | poisson-31 / 25 árboles | tweedie-7 / 100 árboles |
+| SA2.7 | 2013 | poisson-31 / 25 árboles | tweedie-7 / 100 árboles |
+| SA2.7 | 2014 | poisson-31 / 25 árboles | tweedie-7 / 100 árboles |
+| SA2.7 | 2015 | poisson-31 / 25 árboles | tweedie-7 / 100 árboles |
+| SA2.7 | 2016 | poisson-31 / 100 árboles | tweedie-7 / 100 árboles |
+| SA2.7 | 2017 | poisson-31 / 100 árboles | tweedie-7 / 100 árboles |
+| SA2.7 | 2018 | poisson-31 / 25 árboles | tweedie-7 / 100 árboles |
+| SA2.7 | 2019 | poisson-31 / 25 árboles | tweedie-7 / 100 árboles |
+| SA2.7 | 2020 | poisson-31 / 25 árboles | tweedie-7 / 100 árboles |
+| SA2.7 | 2021 | poisson-31 / 25 árboles | tweedie-7 / 100 árboles |
+| SA2.7 | 2022 | poisson-31 / 25 árboles | tweedie-7 / 100 árboles |
+| SA2.7 | 2023 | poisson-31 / 25 árboles | tweedie-7 / 100 árboles |
+| SA2.7 | 2024 | poisson-31 / 100 árboles | tweedie-7 / 100 árboles |
+| SA2.7 | 2025 | poisson-31 / 100 árboles | tweedie-7 / 100 árboles |
+| SA2.4 | 2012 | poisson-31 / 100 árboles | tweedie-7 / 250 árboles |
+| SA2.4 | 2013 | poisson-31 / 100 árboles | tweedie-7 / 250 árboles |
+| SA2.4 | 2014 | poisson-31 / 100 árboles | tweedie-7 / 250 árboles |
+| SA2.4 | 2015 | poisson-31 / 100 árboles | tweedie-7 / 250 árboles |
+| SA2.4 | 2016 | poisson-31 / 100 árboles | tweedie-7 / 250 árboles |
+| SA2.4 | 2017 | poisson-31 / 100 árboles | tweedie-7 / 250 árboles |
+| SA2.4 | 2018 | poisson-31 / 100 árboles | tweedie-7 / 250 árboles |
+| SA2.4 | 2019 | poisson-31 / 100 árboles | tweedie-7 / 250 árboles |
+| SA2.4 | 2020 | poisson-31 / 100 árboles | tweedie-7 / 250 árboles |
+| SA2.4 | 2021 | poisson-31 / 100 árboles | tweedie-7 / 250 árboles |
+| SA2.4 | 2022 | poisson-31 / 100 árboles | poisson-7 / 250 árboles |
+| SA2.4 | 2023 | poisson-31 / 100 árboles | tweedie-7 / 250 árboles |
+| SA2.4 | 2024 | poisson-31 / 100 árboles | tweedie-7 / 250 árboles |
+| SA2.4 | 2025 | poisson-31 / 100 árboles | tweedie-7 / 250 árboles |
+
+### Importancia de variables (ganancia, modelo de celda base)
+
+Ganancia normalizada a 1 por pliegue y promediada sobre los pliegues con año afuera. Describe qué variables usó el modelo; no es un efecto causal ni una importancia por permutación.
+
+SA2.4: VIIRS (S-NPP) -> MODIS-equivalente:
+
+| Variable | Ganancia media |
+|---|---|
+| frp_per_det | 47.1 % |
+| n3 | 18.9 % |
+| dn_share | 16.0 % |
+| src_cnt | 7.0 % |
+| is_night | 6.6 % |
+| month | 1.5 % |
+| block_src | 1.5 % |
+| src_cnt_other | 1.1 % |
+| src_frp | 0.1 % |
+
+SA2.7: MODIS -> VIIRS-equivalente (serie inversa):
+
+| Variable | Ganancia media |
+|---|---|
+| n3 | 66.9 % |
+| dn_share | 16.7 % |
+| src_cnt | 6.8 % |
+| is_night | 3.4 % |
+| src_cnt_other | 3.4 % |
+| frp_per_det | 1.3 % |
+| block_src | 0.8 % |
+| month | 0.5 % |
+| src_frp | 0.1 % |
+
+### Notas sobre el ajuste y el sesgo
+
+- Árboles en el borde inferior de la grilla (25), modelo de celda, año afuera: SA2.7 10 de 14 pliegues; SA2.4 0 de 14 pliegues. Si la elección cae en el borde, la grilla pudo quedar corta hacia menos árboles.
+- Cero árboles: la tabla de verificación da el número real. El piso `eps` del offset suma, como cota superior, eps x filas de celda = SA2.4 2,566 detecciones en todo el período (todas las filas, años de test y de entrenamiento); SA2.7 1,671 detecciones en todo el período (todas las filas, años de test y de entrenamiento), frente a los totales por bloque de SA2.2; es la causa de la diferencia con el ~1 % del diseño en los bloques chicos. No se tocó `eps` después de ver resultados de test.
+- El sesgo del modelo de celda puede ser estructural (**sin verificar**): se entrena con los objetivos dentro de las filas candidatas pero se evalúa contra todos los objetivos, y entre 2,6 % (SA2.4) y 6,2 % (SA2.7) de las detecciones del objetivo caen fuera de las filas. Es una explicación posible, no cambia el veredicto.
+
+### SA2.4 celda: cambio por el tope de hojas (primera corrida vs. esta)
+
+| Año | WAPE b-mes primera corrida | WAPE b-mes con tope | Cambio (puntos) |
+|---|---|---|---|
+| 2012 | 15.6 % | 15.6 % | +0.01 |
+| 2013 | 14.9 % | 15.0 % | +0.11 |
+| 2014 | 18.1 % | 18.0 % | -0.09 |
+| 2015 | 19.5 % | 19.5 % | +0.02 |
+| 2016 | 15.0 % | 15.4 % | +0.43 |
+| 2017 | 15.0 % | 15.0 % | -0.02 |
+| 2018 | 15.6 % | 15.6 % | -0.02 |
+| 2019 | 14.0 % | 14.0 % | -0.03 |
+| 2020 | 13.1 % | 13.2 % | +0.09 |
+| 2021 | 14.6 % | 14.6 % | -0.01 |
+| 2022 | 16.9 % | 17.0 % | +0.09 |
+| 2023 | 16.1 % | 16.1 % | +0.03 |
+| 2024 | 19.2 % | 19.2 % | +0.01 |
+| 2025 | 19.4 % | 19.4 % | -0.01 |
+
+Cambio máximo absoluto: 0.43 puntos. Se esperaba menos de ~0,2 puntos: **se movió más, se marca.**
+
+Notas: la causa de cualquier diferencia entre modelos está **sin verificar**; las tablas solo describen. Los resultados valen para Argentina, 2012-02 a 2025-12 (solapamiento S-NPP/MODIS) y para el conteo tras `FilterConfig` por defecto. La serie inversa estima conteos que habría registrado VIIRS por celda-mes, con incertidumbre; no ubica focos individuales.
 
 ## Notas
 
