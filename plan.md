@@ -73,3 +73,8 @@ LightGBM (the scale factor stays), NRT.
   Córdoba preset, lat/lon + radius, drawn polygon and "Use my location" (230 km; denied stays on Córdoba). E2E run
   on synthetic API fixtures generated from the real app (`backend/scripts/web_fixtures.py`, drift test). The API
   has no "reported" scale yet (SA4.5).
+- 2026-11-15: SA4.3 + SA4.4 done: calendar card with the year × month heatmap (count, single-hue violet ramp) and
+  the anomaly view against the `/stats` climatology median (blue/orange, neutral `--raised`), tooltip with count,
+  source and period, keyboard grid. Scales in `web/src/charts/scales.ts`. Cells with no data are hatched. The
+  light-theme ramp darkens with the count (dark theme lightens), a deviation from "grows in lightness" in
+  `docs/design.md` for the cream theme.
