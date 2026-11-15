@@ -211,6 +211,7 @@ def select_config(
             preds, _ = fit_predict(rs, cols, cfg, itr, off_tr, ite, off_te, cfg.iters, seed)
             for it, p in preds.items():
                 dense = aggregate(rs, ite, p)[te]
+                _guard("inner " + cfg.name, dense, obs[te])
                 err[ci, it] = err.get((ci, it), 0.0) + float(np.abs(dense - obs[te]).sum())
                 oof.setdefault((ci, it), []).append((te, dense))
         tot += float(obs[te].sum())

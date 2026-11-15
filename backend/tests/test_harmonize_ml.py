@@ -26,7 +26,7 @@ YEARS = range(2013, 2019)
 R_LOW, R_HIGH = 0.1, 0.6
 
 
-def synth_grid(seed=0, ratio_by_frp=True, poison_year=None, poison_gap=6):
+def synth_grid(seed=0, ratio_by_frp=True, poison_year=None, poison_gap=6, thin=1.0, modis_night=1.0):
     """Two 2.5 degree blocks of 6x6 cells. S-NPP is the source; Terra + Aqua the target.
 
     The target mean is `mu * ratio`, where the ratio is high for high FRP-per-detection cells. The share of
@@ -64,6 +64,10 @@ def synth_grid(seed=0, ratio_by_frp=True, poison_year=None, poison_gap=6):
                 s = rng.poisson(mu * share)
                 t_terra = rng.poisson(mu * share * ratio * 0.5)
                 t_aqua = rng.poisson(mu * share * ratio * 0.5)
+                if dn == "N" and modis_night < 1.0:
+                    t_terra, t_aqua = rng.binomial(t_terra, modis_night), rng.binomial(t_aqua, modis_night)
+                if thin < 1.0:
+                    t_terra, t_aqua = rng.binomial(t_terra, thin), rng.binomial(t_aqua, thin)
                 if gap:
                     s, t_terra, t_aqua = s * 50, t_terra * 50, t_aqua * 50
                 if in_year:
@@ -280,24 +284,48 @@ def test_report_section_renders_with_verdicts_and_ablations():
     assert "Cobertura" in text
 
 
-def test_rows_at_the_offset_floor_with_target_do_not_diverge():
-    """Regression: leaves of rows with no source (offset at eps) but target detections once gave raw ~ +45."""
-    from firecal.stages.harmonize.ml import fit_predict, lgb_params
+def test_inverse_direction_rows_at_the_offset_floor_stay_bounded(monkeypatch):
+    """Regression: rows with no MODIS (offset at eps) but VIIRS detections once gave raw ~ +45 (SA2.7)."""
+    import firecal.stages.harmonize.ml as ml
 
-    rng = np.random.default_rng(0)
-    n = 4000
-    x = rng.random((n, 3)).astype(np.float32)
-    zero_src = x[:, 0] < 0.5
-    y = np.where(zero_src, rng.poisson(3.0, n), 0).astype(float)
-    off_tr = np.full(n, np.log(1e-3))
-    from firecal.stages.harmonize.ml_features import RowSet
+    grid = synth_grid(seed=3, thin=0.15, ratio_by_frp=False)
+    cube, prep = setup(grid, "modis_to_viirs")
+    cfg = GBMConfig("d", num_leaves=15, min_data=20, lr=0.1, l2=1.0, iters=(100,))
+    d, rs = prep.d, prep.cells
+    assert (rs.s_off == 0).mean() > 0.1  # many rows at the floor
+    assert rs.y[rs.s_off == 0].sum() > 0  # and with target detections
 
-    rs = RowSet(
-        x, ("a", "b", "c"), y, np.zeros(n, int), np.zeros(n, int), np.zeros(n, int), np.zeros(n), 1, 1
+    folds, _ = run_ml_cv(
+        prep, "loyo", (cfg,), (cfg,), ablations=False, with_intervals=False, only_years={2015}
     )
-    cfg = GBMConfig("d", num_leaves=15, min_data=50, lr=0.1, iters=(100,))
-    assert lgb_params(cfg)["max_delta_step"] > 0
-    idx = np.arange(n)
-    pred, _ = fit_predict(rs, np.arange(3), cfg, idx, off_tr, idx, off_tr, (100,))
-    assert np.isfinite(pred[100]).all() and pred[100].max() < 50
-    assert pred[100][zero_src].mean() > 0.01  # the lift is learned, bounded
+    by = {f.method: f for f in folds}
+    ratio = by["lgb_cell"].pred.sum() / by["lgb_cell"].obs.sum()
+    assert 0.5 <= ratio <= 2.0
+    assert wape(by["lgb_cell"].obs, by["lgb_cell"].pred) <= 1.5 * wape(
+        by["zero_cell"].obs, by["zero_cell"].pred
+    )
+
+    # rows that are not at the floor stay close to the zero-tree (offset-only) prediction
+    fold = [f for f in leave_one_year_out(d.dates, 6) if f.test_year == 2015][0]
+    tr, te = fold.train, fold.test
+    k, _ = select_k(d.src, d.tgt, d.dates, d.month_idx, tr)
+    f_tr, ok = oof_factors(d, tr, k)
+    itr, ite = np.flatnonzero((tr & ok)[rs.mi]), np.flatnonzero(te[rs.mi])
+    off_te = ml.offsets(rs, ite, fitted_factors(d, tr, k))
+    pred, _ = ml.fit_predict(
+        rs, rs.cols(BASE_FEATURES), cfg, itr, ml.offsets(rs, itr, f_tr), ite, off_te, (100,)
+    )
+    nf = rs.s_off[ite] > 0
+    assert abs(pred[100][nf].sum() / np.exp(off_te)[nf].sum() - 1) < 0.10
+
+    # MODIS blind at night: without the leaf cap the same code diverges and the guard raises
+    _, prep2 = setup(synth_grid(seed=3, ratio_by_frp=False, modis_night=0.0), "modis_to_viirs")
+    capped, _ = run_ml_cv(
+        prep2, "loyo", (cfg,), (cfg,), ablations=False, with_intervals=False, only_years={2015}
+    )
+    cell = next(f for f in capped if f.method == "lgb_cell")
+    assert 0.5 <= cell.pred.sum() / cell.obs.sum() <= 2.0
+    real = ml.lgb_params
+    monkeypatch.setattr(ml, "lgb_params", lambda *a, **kw: real(*a, **kw) | {"max_delta_step": 0.0})
+    with pytest.raises(FloatingPointError):
+        run_ml_cv(prep2, "loyo", (cfg,), (cfg,), ablations=False, with_intervals=False, only_years={2015})
