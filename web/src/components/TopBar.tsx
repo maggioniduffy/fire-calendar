@@ -1,5 +1,7 @@
 import { languageNames, languages } from "../i18n";
 import { prefs, usePrefs, useT } from "../state/prefs";
+import { areaName } from "../state/areaName";
+import { useSelection } from "../state/SelectionContext";
 import type { ThemeName } from "../theme/tokens";
 
 const themes: readonly ThemeName[] = ["light", "dark"];
@@ -7,10 +9,14 @@ const themes: readonly ThemeName[] = ["light", "dark"];
 export function TopBar() {
   const t = useT();
   const { theme, lang } = usePrefs();
+  const { state } = useSelection();
   return (
     <header className="topbar card tx" data-testid="topbar">
       <div className="brand">
-        <h1 className="app-title">{t.app.title}</h1>
+        <p className="app-title">{t.app.title}</p>
+        <h1 className="area-title" data-testid="area-name">
+          {areaName(state.area, t)}
+        </h1>
         <p className="event" title={t.app.challenge}>
           {t.app.event}
         </p>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { DeckGL, ScatterplotLayer, WebMercatorViewport, type DeckGLRef, type PickingInfo } from "deck.gl";
+import { DeckGL, Layer, PathLayer, ScatterplotLayer, WebMercatorViewport, type DeckGLRef, type PickingInfo } from "deck.gl";
 import { Map as BaseMap } from "react-map-gl/maplibre";
 import { setWorkerUrl } from "maplibre-gl";
 import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
@@ -7,6 +7,8 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import type { Hotspot, PointLayer } from "../layers/manifest";
 import { usePrefs, useT } from "../state/prefs";
 import { colors, hexToRgb } from "../theme/tokens";
+import type { LonLat } from "../state/selection";
+import { useSelection } from "../state/SelectionContext";
 
 // MapLibre resolves its worker next to its own module, which bundling breaks; point it at the copied file.
 setWorkerUrl(maplibreWorkerUrl);
@@ -49,6 +51,9 @@ export default function MapView({ layers, selected, onSelect }: Props) {
   const { theme } = usePrefs();
   const box = useRef<HTMLDivElement>(null);
   const deck = useRef<DeckGLRef>(null);
+  const { state, dispatch } = useSelection();
+  const { draw } = state;
+  const lastClick = useRef<{ t: number; x: number; y: number } | null>(null);
   const [initialView, setInitialView] = useState<ReturnType<typeof fitCordoba> | null>(null);
 
   useEffect(() => {
@@ -83,7 +88,31 @@ export default function MapView({ layers, selected, onSelect }: Props) {
     const ring = hexToRgb(c.surface);
     const accent = hexToRgb(c.accent);
     const casing = hexToRgb(c.casing);
-    return layers.map(
+    const draft: Layer[] = draw.active
+      ? [
+          new PathLayer<LonLat[]>({
+            id: "draw-path",
+            data: draw.vertices.length > 1 ? [draw.vertices] : [],
+            getPath: (d) => d,
+            widthUnits: "pixels",
+            getWidth: 2,
+            getColor: [...accent, 255],
+          }),
+          new ScatterplotLayer<LonLat>({
+            id: "draw-vertices",
+            data: draw.vertices,
+            radiusUnits: "pixels",
+            lineWidthUnits: "pixels",
+            stroked: true,
+            getPosition: (d) => d,
+            getRadius: 5,
+            getFillColor: [...accent, 255],
+            getLineColor: casing,
+            getLineWidth: 2,
+          }),
+        ]
+      : [];
+    const points = layers.map(
       (layer) =>
         new ScatterplotLayer<Hotspot>({
           id: layer.manifest.id,
@@ -105,7 +134,22 @@ export default function MapView({ layers, selected, onSelect }: Props) {
           },
         }),
     );
-  }, [layers, selected, theme]);
+    return [...points, ...draft];
+  }, [layers, selected, theme, draw.active, draw.vertices]);
+
+  /** In draw mode a click adds a vertex; a second click within 350 ms and 8 px closes the polygon. */
+  const onMapClick = (info: PickingInfo<Hotspot>) => {
+    if (!draw.active) return onSelect(info.object ?? null);
+    if (!info.coordinate) return;
+    const prev = lastClick.current;
+    const now = Date.now();
+    if (prev && now - prev.t < 350 && Math.hypot(info.x - prev.x, info.y - prev.y) < 8) {
+      lastClick.current = null;
+      return dispatch({ type: "drawFinish" });
+    }
+    lastClick.current = { t: now, x: info.x, y: info.y };
+    dispatch({ type: "drawVertex", vertex: [info.coordinate[0], info.coordinate[1]] });
+  };
 
   return (
     <div className="map" ref={box} role="region" aria-label={t.map.label} data-testid="map">
@@ -113,11 +157,13 @@ export default function MapView({ layers, selected, onSelect }: Props) {
         <DeckGL
           ref={deck}
           initialViewState={initialView}
-          controller
+          controller={{ doubleClickZoom: !draw.active }}
           layers={deckLayers}
           pickingRadius={6}
-          getCursor={({ isHovering, isDragging }) => (isDragging ? "grabbing" : isHovering ? "pointer" : "grab")}
-          onClick={(info: PickingInfo<Hotspot>) => onSelect(info.object ?? null)}
+          getCursor={({ isHovering, isDragging }) =>
+            draw.active ? "crosshair" : isDragging ? "grabbing" : isHovering ? "pointer" : "grab"
+          }
+          onClick={onMapClick}
         >
           <BaseMap mapStyle={BASEMAP[theme]} attributionControl={{ compact: true }} />
         </DeckGL>

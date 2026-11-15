@@ -115,6 +115,11 @@ dd {
   font-weight: 600;
 }
 
+.area-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
 .event,
 .author {
   color: var(--muted);
@@ -173,6 +178,80 @@ button {
 
 .btn {
   margin-top: var(--space-3);
+}
+
+.segmented.stacked {
+  display: flex;
+  flex-direction: column;
+}
+
+.segmented.stacked button {
+  text-align: left;
+}
+
+.btn.primary,
+.btn[aria-pressed="true"] {
+  background: var(--ctrl);
+  color: var(--onctrl);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.stack {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.stack .btn {
+  margin-top: 0;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.field label {
+  color: var(--muted);
+}
+
+.field input {
+  min-height: var(--control);
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-2);
+  background: var(--raised);
+  color: var(--text);
+  font: inherit;
+  font-family: var(--font-mono);
+  min-width: 0;
+}
+
+.field input[aria-invalid="true"] {
+  outline: 1px solid var(--accent);
+}
+
+.field-error {
+  color: var(--text);
+  border-left: 3px solid var(--accent);
+  padding-left: var(--space-2);
+}
+
+.data-status {
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+  display: grid;
+  gap: var(--space-1);
+  font-size: 12px;
 }
 
 /* ---------- Rows (label left, mono value right) ---------- */
@@ -247,7 +326,8 @@ button {
   background: var(--raised);
 }
 
-.inspector {
+.inspector,
+.left {
   overflow: auto;
 }
 

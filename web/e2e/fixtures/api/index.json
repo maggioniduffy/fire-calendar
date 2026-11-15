@@ -1,0 +1,18 @@
+{
+ "note": "SYNTHETIC data, not real FIRMS counts",
+ "requests": {
+  "POST /calendar area=circle:-31.42,-64.18,230 scale=modis_eq": "calendar-circle-modis_eq.json",
+  "POST /calendar area=circle:-31.42,-64.18,230 scale=viirs_eq": "calendar-circle-viirs_eq.json",
+  "POST /calendar area=polygon scale=modis_eq": "calendar-polygon-modis_eq.json",
+  "POST /calendar area=polygon scale=viirs_eq": "calendar-polygon-viirs_eq.json",
+  "POST /calendar area=preset:cordoba scale=modis_eq": "calendar-cordoba-modis_eq.json",
+  "POST /calendar area=preset:cordoba scale=viirs_eq": "calendar-cordoba-viirs_eq.json",
+  "POST /stats area=circle:-31.42,-64.18,230 scale=modis_eq": "stats-circle-modis_eq.json",
+  "POST /stats area=circle:-31.42,-64.18,230 scale=viirs_eq": "stats-circle-viirs_eq.json",
+  "POST /stats area=polygon scale=modis_eq": "stats-polygon-modis_eq.json",
+  "POST /stats area=polygon scale=viirs_eq": "stats-polygon-viirs_eq.json",
+  "POST /stats area=preset:cordoba scale=modis_eq": "stats-cordoba-modis_eq.json",
+  "POST /stats area=preset:cordoba scale=viirs_eq": "stats-cordoba-viirs_eq.json"
+ },
+ "synthetic": true
+}

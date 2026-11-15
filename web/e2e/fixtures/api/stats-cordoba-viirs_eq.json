@@ -1,0 +1,201 @@
+{
+ "anomaly": {
+  "abs_anomaly": 7.0,
+  "median": 54.0,
+  "n": 11,
+  "p10": 34.2,
+  "p90": 65.0,
+  "pct_anomaly": 0.12962962962962962,
+  "percentile": 72.72727272727273,
+  "ref": {
+   "month": 12,
+   "year": 2016
+  },
+  "ref_label_en": "latest available month (retrospective)",
+  "ref_label_es": "último mes disponible (retrospectivo)",
+  "value": 61.0
+ },
+ "area": {
+  "area_km2": 229962.9,
+  "bbox": [
+   -35.0,
+   -29.5,
+   -65.8,
+   -61.8
+  ],
+  "n_polygons": 1,
+  "n_vertices": 5,
+  "type": "polygon"
+ },
+ "climatology": {
+  "baseline_years": [
+   2005,
+   2006,
+   2007,
+   2008,
+   2009,
+   2010,
+   2011,
+   2012,
+   2013,
+   2014,
+   2015
+  ],
+  "months": [
+   {
+    "median": 34.2,
+    "month": 1,
+    "n_years": 11,
+    "p10": 21.600000000000005,
+    "p90": 44.0
+   },
+   {
+    "median": 33.0,
+    "month": 2,
+    "n_years": 11,
+    "p10": 26.0,
+    "p90": 41.39999999999999
+   },
+   {
+    "median": 30.0,
+    "month": 3,
+    "n_years": 11,
+    "p10": 23.400000000000002,
+    "p90": 36.0
+   },
+   {
+    "median": 32.400000000000006,
+    "month": 4,
+    "n_years": 11,
+    "p10": 22.0,
+    "p90": 40.0
+   },
+   {
+    "median": 32.400000000000006,
+    "month": 5,
+    "n_years": 11,
+    "p10": 18.0,
+    "p90": 44.0
+   },
+   {
+    "median": 28.800000000000004,
+    "month": 6,
+    "n_years": 11,
+    "p10": 19.8,
+    "p90": 42.0
+   },
+   {
+    "median": 28.0,
+    "month": 7,
+    "n_years": 11,
+    "p10": 23.400000000000002,
+    "p90": 35.99999999999999
+   },
+   {
+    "median": 28.8,
+    "month": 8,
+    "n_years": 11,
+    "p10": 21.6,
+    "p90": 37.0
+   },
+   {
+    "median": 117.0,
+    "month": 9,
+    "n_years": 11,
+    "p10": 88.19999999999999,
+    "p90": 169.0
+   },
+   {
+    "median": 109.8,
+    "month": 10,
+    "n_years": 11,
+    "p10": 86.39999999999999,
+    "p90": 125.0
+   },
+   {
+    "median": 85.0,
+    "month": 11,
+    "n_years": 11,
+    "p10": 66.6,
+    "p90": 99.0
+   },
+   {
+    "median": 54.0,
+    "month": 12,
+    "n_years": 11,
+    "p10": 34.2,
+    "p90": 65.0
+   }
+  ],
+  "quantile_method": "numpy linear interpolation (np.quantile, method='linear')"
+ },
+ "key_figures": {
+  "column": "viirs_eq",
+  "current_vs_median": {
+   "abs_anomaly": 7.0,
+   "median": 54.0,
+   "n": 11,
+   "p10": 34.2,
+   "p90": 65.0,
+   "pct_anomaly": 0.12962962962962962,
+   "percentile": 72.72727272727273,
+   "ref": {
+    "month": 12,
+    "year": 2016
+   },
+   "value": 61.0
+  },
+  "estimated_months": 84,
+  "includes_estimated": true,
+  "most_active_month": {
+   "month": 9,
+   "value": 171.0,
+   "year": 2013
+  },
+  "most_active_year": {
+   "value": 804.0,
+   "year": 2016
+  },
+  "partial_year_exceeds": null,
+  "peak_calendar_month": {
+   "median": 117.0,
+   "month": 9
+  },
+  "period_covered": {
+   "first": {
+    "month": 1,
+    "year": 2005
+   },
+   "last": {
+    "month": 12,
+    "year": 2016
+   }
+  },
+  "total": 7650.8
+ },
+ "meta": {
+  "alert_system": false,
+  "calibration_version": "synthetic-1",
+  "estimated_note_en": "VIIRS-eq 2000-2011 is 'estimated' from MODIS: it was not detected by VIIRS (no VIIRS detections existed in those months).",
+  "estimated_note_es": "VIIRS-eq 2000-2011 es 'estimado' a partir de MODIS: no fue detectado por VIIRS (no existían focos VIIRS en esos meses).",
+  "layer": "harmonized",
+  "method": "synthetic",
+  "notes": {
+   "en": [
+    "Synthetic test data: not real hot spots."
+   ],
+   "es": [
+    "Datos sintéticos de prueba: no son focos reales."
+   ]
+  },
+  "period": "2005-01-01/2016-12-31",
+  "retrospective": true,
+  "source": "SYNTHETIC fixture, not real FIRMS data"
+ },
+ "n_cells": 2200,
+ "period": {
+  "end": "2016-12",
+  "start": "2005-01"
+ },
+ "scale": "viirs_eq"
+}
