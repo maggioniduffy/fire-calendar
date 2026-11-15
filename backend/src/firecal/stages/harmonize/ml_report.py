@@ -78,7 +78,7 @@ def zero_tree_check(allf: list[FoldOut], pair: str) -> list[dict]:
     return rows
 
 
-def ml_section(ml: MLResult, sf_folds: list[FoldOut]) -> list[str]:
+def ml_section(ml: MLResult, sf_folds: list[FoldOut], prev: MLResult | None = None) -> list[str]:
     md_table, num, pct = _fmt()
     allml = [f for fs in ml.folds.values() for f in fs]
     allf = sf_folds + allml
@@ -130,10 +130,12 @@ def ml_section(ml: MLResult, sf_folds: list[FoldOut]) -> list[str]:
         "Las ablaciones reutilizan la configuración que eligió el modelo de celda base en el mismo pliegue.",
         "- **Intervalos:** esquema conformal anidado de SA2.2 (`intervals.py`) sobre las predicciones puntuales de LightGBM (residuos fuera de muestra de la "
         "configuración elegida); sin regresión cuantílica de LightGBM (diagnóstico opcional, no corrido).",
-        "- **Corrida descartada (divergencia numérica):** la primera corrida completa dio, en el modelo de celda de SA2.7, predicciones del orden de 1e18: "
+        "- **Corrida descartada y tope de hojas (no estaba en el diseño previo):** la primera corrida completa dio, en el modelo de celda de SA2.7, predicciones del orden de 1e18: "
         "hojas con pasos de Newton de decenas en escala log en filas sin fuente en su período día/noche (offset en el piso `eps`) pero con detecciones del objetivo. "
-        "Se agregó `max_delta_step = 1` (tope a la salida de cada hoja) y se repitió todo. El criterio, las variables y la grilla no cambiaron. "
-        "Antes del arreglo ya se habían visto los resultados de SA2.4 de esa corrida; el cambio es un tope numérico y no se midió contra ellos.",
+        "Se agregó `max_delta_step = 1` (tope a la salida de cada hoja, como máximo 0,1 en log por árbol con aprendizaje 0,1) **después** de esa primera corrida, para corregir una falla numérica; "
+        "vale para los dos sentidos y para los dos modelos, y no estaba en el diseño fijado antes de correr. El criterio, las variables, los pliegues y la grilla no cambiaron. "
+        "Antes del arreglo ya se habían visto los resultados de SA2.4 de esa corrida; el tope no se eligió midiéndolo contra ellos (valor único, sin probar otros). "
+        "Además, una guarda detiene la corrida si alguna predicción (externa o interna) es no finita o supera 100 veces lo observado.",
         f"- **Tiempo y memoria:** {ml.seconds / 60:.1f} min de reloj para esta parte, un proceso por sentido (2 hilos cada uno); memoria máxima sumada "
         f"(PSS de los procesos) {ml.peak_mb:.0f} MB.",
         "",
@@ -360,6 +362,54 @@ def ml_section(ml: MLResult, sf_folds: list[FoldOut]) -> list[str]:
         L += [f"{DIRECTION[pair]}:", ""]
         L += md_table(["Variable", "Ganancia media"], [[k, pct(v)] for k, v in mean.items()])
         L.append("")
+    low = {}
+    for dg in ml.diags:
+        if dg.scheme == "loyo":
+            low.setdefault(dg.pair, [0, 0])
+            low[dg.pair][1] += 1
+            low[dg.pair][0] += dg.cell_iters == min(ml.cell_grid[0].iters)
+    L += ["### Notas sobre el ajuste y el sesgo", ""]
+    L += [
+        f"- Árboles en el borde inferior de la grilla ({min(ml.cell_grid[0].iters)}), modelo de celda, año afuera: "
+        + "; ".join(f"{DIRECTION[p].split(':')[0]} {v[0]} de {v[1]} pliegues" for p, v in sorted(low.items()))
+        + ". Si la elección cae en el borde, la grilla pudo quedar corta hacia menos árboles.",
+        "- Cero árboles: la tabla de verificación da el número real. El piso `eps` del offset suma, como cota superior, eps x filas de celda = "
+        + "; ".join(
+            f"{DIRECTION[p].split(':')[0]} {0.001 * ml.meta[p]['cell_rows']:,.0f} detecciones en todo el período (todas las filas, años de test y de entrenamiento)"
+            for p in MAIN_PAIRS
+            if p in ml.meta
+        )
+        + ", frente a los totales por bloque de SA2.2; es la causa de la diferencia con el ~1 % del diseño en los bloques chicos. No se tocó `eps` después de ver resultados de test.",
+        "- El sesgo del modelo de celda puede ser estructural (**sin verificar**): se entrena con los objetivos dentro de las filas candidatas pero se evalúa contra todos los objetivos, "
+        "y entre 2,6 % (SA2.4) y 6,2 % (SA2.7) de las detecciones del objetivo caen fuera de las filas. Es una explicación posible, no cambia el veredicto.",
+        "",
+    ]
+    if prev is not None:
+        a = _years([f for fs in ml.folds.values() for f in fs], "viirs_to_modis", "loyo", "lgb_cell")
+        b = _years([f for fs in prev.folds.values() for f in fs], "viirs_to_modis", "loyo", "lgb_cell")
+        ys = sorted(set(a) & set(b))
+        rows = [
+            [
+                y,
+                pct(wape(b[y].obs, b[y].pred)),
+                pct(wape(a[y].obs, a[y].pred)),
+                f"{(wape(a[y].obs, a[y].pred) - wape(b[y].obs, b[y].pred)) * 100:+.2f}",
+            ]
+            for y in ys
+        ]
+        mx = max(abs(float(r[3])) for r in rows) if rows else float("nan")
+        L += ["### SA2.4 celda: cambio por el tope de hojas (primera corrida vs. esta)", ""]
+        L += md_table(["Año", "WAPE b-mes primera corrida", "WAPE b-mes con tope", "Cambio (puntos)"], rows)
+        L += [
+            "",
+            f"Cambio máximo absoluto: {mx:.2f} puntos. "
+            + (
+                "Se esperaba menos de ~0,2 puntos: **se movió más, se marca.**"
+                if mx >= 0.2
+                else "Dentro de lo esperado (< ~0,2 puntos)."
+            ),
+            "",
+        ]
     L += [
         "Notas: la causa de cualquier diferencia entre modelos está **sin verificar**; las tablas solo describen. Los resultados valen para Argentina, 2012-02 a 2025-12 "
         "(solapamiento S-NPP/MODIS) y para el conteo tras `FilterConfig` por defecto. La serie inversa estima conteos que habría registrado VIIRS por celda-mes, "

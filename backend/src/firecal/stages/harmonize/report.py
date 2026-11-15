@@ -47,6 +47,7 @@ class ReportInput:
     cfg: FilterConfig
     run_date: dt.date
     ml: "MLResult | None" = None  # SA2.4 / SA2.7 (optional, `--ml`)
+    ml_prev: "MLResult | None" = None  # earlier ML run, for the cap-shift comparison
 
 
 def md_table(headers: list[str], rows: list[list]) -> list[str]:
@@ -529,7 +530,7 @@ def build_report(inp: ReportInput) -> str:
     if inp.ml is not None:
         from firecal.stages.harmonize.ml_report import ml_section
 
-        L += ml_section(inp.ml, [f for f in folds if f.method in ("sf", "qm")])
+        L += ml_section(inp.ml, [f for f in folds if f.method in ("sf", "qm")], inp.ml_prev)
 
     L += ["## Notas", ""]
     L += [

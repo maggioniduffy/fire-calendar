@@ -20,6 +20,10 @@ def evaluate_cmd(
     / "02"
     / "baselines.md",
     ml: Annotated[bool, typer.Option("--ml/--no-ml", help="Also run SA2.4 / SA2.7 LightGBM (long).")] = False,
+    ml_prev: Annotated[
+        Path | None,
+        typer.Option(help="Pickle of an earlier MLResult, to report the shift of SA2.4 cell WAPE."),
+    ] = None,
     ml_jobs: Annotated[int, typer.Option(help="Processes for --ml (2 = one per direction).")] = 2,
     ml_cache: Annotated[
         Path | None,
@@ -29,6 +33,8 @@ def evaluate_cmd(
     ] = None,
 ) -> None:
     """Run SA2.2 / SA2.3 with leave-one-year-out and rolling origin; write the report and a per-block CSV."""
+    import pickle
+
     from firecal.stages.grid.filters import FilterConfig
     from firecal.stages.harmonize.evaluate import (
         MAIN_PAIRS,
@@ -57,8 +63,6 @@ def evaluate_cmd(
     all_folds = [f for fs in folds.values() for f in fs]
     ml_result = None
     if ml_cache is not None and ml_cache.exists():
-        import pickle
-
         ml_result = pickle.loads(ml_cache.read_bytes())
     elif ml:
         from firecal.stages.harmonize.ml import run_ml
@@ -66,8 +70,6 @@ def evaluate_cmd(
 
         ml_result = run_ml(cube, build_monthly_cell_table(), n_jobs=ml_jobs, log=typer.echo)
         if ml_cache is not None:
-            import pickle
-
             ml_cache.write_bytes(pickle.dumps(ml_result))
     inp = ReportInput(
         cube=cube,
@@ -78,6 +80,7 @@ def evaluate_cmd(
         cfg=FilterConfig(),
         run_date=dt.date.today(),
         ml=ml_result,
+        ml_prev=pickle.loads(ml_prev.read_bytes()) if ml_prev else None,
     )
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(build_report(inp))
