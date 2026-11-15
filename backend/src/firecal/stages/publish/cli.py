@@ -45,6 +45,10 @@ def export_cmd(
     out: Annotated[Path | None, typer.Option(help="Default: data/publish/static")] = None,
     only: Annotated[list[str] | None, typer.Option("--only", help="Area id(s), e.g. p-cordoba")] = None,
     workers: Annotated[int, typer.Option(min=1, help="Processes")] = 2,
+    no_detections: Annotated[bool, typer.Option("--no-detections", help="Skip raw FIRMS detections")] = False,
+    detections_tile_deg: Annotated[
+        float, typer.Option("--detections-tile-deg", min=0.000001, help="Detection tile size in degrees")
+    ] = 5,
 ) -> None:
     """Write the static tree (JSON and CSV per province and department) from the harmonized layer."""
     root = bnd.boundaries_dir()
@@ -63,7 +67,8 @@ def export_cmd(
     }
     summary = export_static(
         out or default_out(), store, built.areas, enso, boundaries_info(info), only=only,
-        workers=workers, pre_skipped=built.skipped, notes=notes,
+        workers=workers, pre_skipped=built.skipped, notes=notes, include_detections=not no_detections,
+        detections_tile_deg=detections_tile_deg,
     )  # fmt: skip
     typer.echo(
         f"areas={summary.n_areas} skipped={len(summary.skipped)} files={summary.n_files} "

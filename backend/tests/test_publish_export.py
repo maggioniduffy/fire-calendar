@@ -3,19 +3,23 @@
 import importlib.util
 import json
 import sys
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 
+import numpy as np
+import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
 from shapely.geometry import box
 
 from firecal.api.app import create_app
 from firecal.io import enso
-from firecal.stages.calendar.area import PolygonArea
+from firecal.stages.calendar.area import PolygonArea, contains
 from firecal.stages.calendar.cells import _outline
+from firecal.stages.calendar.export import _detections
+from firecal.stages.calendar.service import CalendarRequest, resolve
 from firecal.stages.publish.areas import AreaDef
-from firecal.stages.publish.export import PreloadedStore, export_static
+from firecal.stages.publish.export import PreloadedStore, export_static, national_detections
 
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 GENERATED = datetime(2026, 1, 1, tzinfo=UTC)
@@ -46,7 +50,14 @@ def world(tmp_path_factory):
     store = PreloadedStore(tmp / "harmonized")
     out = tmp / "static"
     summary = export_static(
-        out, store, AREAS, enso.read_enso(oni), {"source": "test"}, workers=1, generated_at=GENERATED
+        out,
+        store,
+        AREAS,
+        enso.read_enso(oni),
+        {"source": "test"},
+        workers=1,
+        generated_at=GENERATED,
+        detections_dir=tmp / "no-raw-detections",
     )
     client = TestClient(create_app(processed_dir=tmp, detections_dir=tmp / "none", enso_path=oni))
     return out, client, summary, store
@@ -151,7 +162,16 @@ def test_files_are_compact_and_a_parallel_run_is_identical(world, tmp_path):
     text = (out / "calendar" / "p-test" / "viirs_eq.json").read_text()
     assert text == json.dumps(json.loads(text), separators=(",", ":"), ensure_ascii=False)  # no indent
     other = tmp_path / "again"
-    export_static(other, store, AREAS, None, {"source": "test"}, workers=2, generated_at=GENERATED)
+    export_static(
+        other,
+        store,
+        AREAS,
+        None,
+        {"source": "test"},
+        workers=2,
+        generated_at=GENERATED,
+        detections_dir=other.parent / "no-raw-detections",
+    )
     for p in sorted(out.rglob("*")):
         if p.is_file() and p.relative_to(out).parts[0] in ("areas", "stats", "export", "cells"):
             assert p.read_bytes() == (other / p.relative_to(out)).read_bytes(), p
@@ -162,15 +182,130 @@ def test_files_are_compact_and_a_parallel_run_is_identical(world, tmp_path):
 def test_only_exports_those_areas_and_a_full_run_prunes_stale_ones(world, tmp_path):
     _, _, _, store = world
     out = tmp_path / "o"
-    export_static(out, store, AREAS, None, {}, only=["d-test-sur"], generated_at=GENERATED)
+    export_static(
+        out,
+        store,
+        AREAS,
+        None,
+        {},
+        only=["d-test-sur"],
+        generated_at=GENERATED,
+        detections_dir=tmp_path / "none",
+    )
     assert [a["id"] for a in read(out, "areas.json")["areas"]] == ["d-test-sur"]
     assert read(out, "manifest.json")["partial"] is True
-    export_static(out, store, AREAS, None, {}, generated_at=GENERATED)
+    export_static(out, store, AREAS, None, {}, generated_at=GENERATED, detections_dir=tmp_path / "none")
     assert (out / "calendar" / "p-test").is_dir() and read(out, "manifest.json")["partial"] is False
     stale = out / "calendar" / "d-gone"
     stale.mkdir()
     (stale / "x.json").write_text("{}")
-    export_static(out, store, AREAS, None, {}, generated_at=GENERATED)
+    export_static(out, store, AREAS, None, {}, generated_at=GENERATED, detections_dir=tmp_path / "none")
     assert not stale.exists()
     with pytest.raises(ValueError, match="unknown area ids"):
         export_static(out, store, AREAS, None, {}, only=["nope"], generated_at=GENERATED)
+
+
+@pytest.mark.parametrize(("tile_deg", "expected_key"), [(1, "-32_-65"), (5, "-35_-65")])
+def test_detection_tiles_partition_counts_and_use_shared_area_filters(
+    world, tmp_path, tile_deg, expected_key
+):
+    out, _, _, store = world
+    root = tmp_path / "raw"
+    folder = root / "product=modis" / "year=2012"
+    folder.mkdir(parents=True)
+    rows = [
+        {
+            "sensor": "modis",
+            "satellite": "terra",
+            "product": "modis",
+            "acq_datetime": datetime(2012, 1, 10, 12, tzinfo=UTC),
+            "acq_date": date(2012, 1, 10),
+            "year": 2012,
+            "daynight": "D",
+            "latitude": -31.05,
+            "longitude": -64.05,
+            "confidence_pct": 80,
+            "confidence_class": None,
+            "frp": 5.0,
+            "type": 0,
+            "version": "6.1",
+            "confidence_raw": "80",
+        },
+        {
+            "sensor": "modis",
+            "satellite": "terra",
+            "product": "modis",
+            "acq_datetime": datetime(2012, 1, 13, 12, tzinfo=UTC),
+            "acq_date": date(2012, 1, 13),
+            "year": 2012,
+            "daynight": "D",
+            "latitude": -40.05,
+            "longitude": -60.05,
+            "confidence_pct": 80,
+            "confidence_class": None,
+            "frp": 3.0,
+            "type": 0,
+            "version": "6.1",
+            "confidence_raw": "80",
+        },
+        {
+            "sensor": "modis",
+            "satellite": "terra",
+            "product": "modis",
+            "acq_datetime": datetime(2012, 1, 11, 12, tzinfo=UTC),
+            "acq_date": date(2012, 1, 11),
+            "year": 2012,
+            "daynight": "N",
+            "latitude": -31.06,
+            "longitude": -64.06,
+            "confidence_pct": 10,
+            "confidence_class": None,
+            "frp": 2.0,
+            "type": 0,
+            "version": "6.1",
+            "confidence_raw": "10",
+        },
+        {
+            "sensor": "modis",
+            "satellite": "terra",
+            "product": "modis",
+            "acq_datetime": datetime(2012, 1, 12, 12, tzinfo=UTC),
+            "acq_date": date(2012, 1, 12),
+            "year": 2012,
+            "daynight": "D",
+            "latitude": -31.07,
+            "longitude": -64.07,
+            "confidence_pct": 80,
+            "confidence_class": None,
+            "frp": 2.0,
+            "type": 2,
+            "version": "6.1",
+            "confidence_raw": "80",
+        },
+    ]
+    pd.DataFrame(rows).to_parquet(folder / "part-0.parquet")
+    n = national_detections(store, out, root, tile_deg=tile_deg)
+    assert n == 1
+    idx = read(out, "detections", "2012-01", "index.json")
+    assert idx["tile_deg"] == tile_deg
+    assert expected_key in idx["tiles"]
+    tiles = {k: read(out, "detections", "2012-01", f"{k}.json") for k in idx["tiles"]}
+    assert sum(map(len, tiles.values())) == sum(idx["tiles"].values()) == 2
+    a = AREAS[1]
+    expected = _detections(
+        resolve(store, CalendarRequest(area=PolygonArea(geojson=a.geojson), start="2012-01", end="2012-01")),
+        root,
+    )
+    tile_rows = [p for bucket in tiles.values() for p in bucket]
+    area_rows = [
+        row
+        for row in tile_rows
+        if contains(PolygonArea(geojson=a.geojson), np.array([row[0]]), np.array([row[1]]))[0]
+    ]
+    assert len(tile_rows) == 2 and len(area_rows) == len(expected) == 1
+    assert area_rows[0][:3] == [
+        round(expected.iloc[0].latitude, 4),
+        round(expected.iloc[0].longitude, 4),
+        "2012-01-10",
+    ]
+    assert read(world[0], "manifest.json")["detections"]["tile_deg"] == 5
