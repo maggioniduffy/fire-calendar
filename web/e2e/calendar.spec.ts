@@ -56,6 +56,18 @@ test("the latest month is chosen by default and clicking another one changes the
   await expect(cell(page, ym(2008, 3))).toHaveCSS("box-shadow", /rgb/);
 });
 
+test("choosing a month refetches /stats for it but not /calendar", async ({ page, api }) => {
+  await expect(cell(page, ym(last.year, last.month))).toHaveAttribute("aria-selected", "true");
+  await expect.poll(() => api.to("/stats").length).toBeGreaterThan(0);
+  const calendars = api.to("/calendar").length;
+  await cell(page, ym(2008, 3)).click();
+  await expect.poll(() => api.to("/stats").at(-1)!.body.ref).toBe("2008-03");
+  await expect(page.getByTestId("inspector-heading")).toContainText("marzo de 2008");
+  expect(api.to("/calendar").length).toBe(calendars);
+  // The calendar grid stays on screen while the month's figures load.
+  await expect(cell(page, ym(2008, 3))).toHaveAttribute("aria-selected", "true");
+});
+
 test("anomaly toggle changes colours and legend; tooltip shows the departure from the median", async ({ page }) => {
   const target = cell(page, ym(best.year, best.month));
   const countColor = await target.getAttribute("data-color");

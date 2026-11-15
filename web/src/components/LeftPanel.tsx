@@ -8,6 +8,7 @@ import {
   type AreaError,
 } from "../state/selection";
 import { useT } from "../state/prefs";
+import { SeriesSection } from "./SeriesSection";
 
 type GeoMessage = "geoDenied" | "geoUnavailable" | "geoUnsupported" | AreaError;
 
@@ -251,6 +252,8 @@ export function LeftPanel() {
             </p>
           )}
         </div>
+
+        <SeriesSection />
 
         <div className="data-status" data-testid="data-status" data-state={data.status} aria-live="polite">
           {data.status === "loading" && <p className="muted">{t.area.status.loading}</p>}

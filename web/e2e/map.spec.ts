@@ -3,11 +3,13 @@ import { join } from "node:path";
 import { expect, test } from "./api";
 
 const DIR = join(import.meta.dirname, "fixtures/api");
-const fixture = (name: string) =>
-  JSON.parse(readFileSync(join(DIR, name), "utf8")) as { total: number; cells: unknown[]; month: string };
+// One file per area + scale holds the /cells answer of every month; the tests use the latest one.
+const fixture = (name: string, month = "2016-12") =>
+  (JSON.parse(readFileSync(join(DIR, name), "utf8")) as { months: Record<string, { total: number; cells: unknown[]; month: string }> })
+    .months[month];
 
-const cordoba = fixture("cells-cordoba-viirs_eq-2016-12.json");
-const circle = fixture("cells-circle-viirs_eq-2016-12.json");
+const cordoba = fixture("cells-cordoba-viirs_eq.json");
+const circle = fixture("cells-circle-viirs_eq.json");
 
 test.beforeEach(async ({ page }) => {
   await page.route(/basemaps\.cartocdn\.com|fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());

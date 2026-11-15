@@ -5,7 +5,11 @@ import { initialSelection, selectionReducer, toRequest, toStatsRequest, type Sel
 
 export type AreaData =
   | { status: "loading" }
-  | { status: "ready"; calendar: CalendarPayload; stats: StatsPayload }
+  /**
+   * `stats` answers the chosen month only when `statsPending` is false. While a new month loads, the previous
+   * answer of the same area stays (its climatology does not depend on the month), so the calendar does not flicker.
+   */
+  | { status: "ready"; calendar: CalendarPayload; stats: StatsPayload; statsPending: boolean }
   | { status: "error"; message: string };
 
 interface Value {
@@ -16,42 +20,72 @@ interface Value {
 
 const Ctx = createContext<Value | null>(null);
 
-type Fetched = { key: string; data: AreaData };
+type Result<T> = { key: string; data: T } | { key: string; error: string };
+type Stats = Result<StatsPayload> & { base: string };
+
+const messageOf = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
 /**
- * Selection state plus the /calendar and /stats answers for it. The previous request is aborted when the area,
- * period or scale change; a result is only used when it belongs to the current request key.
+ * Selection state plus the answers for it. /calendar depends on area, period and scale only; /stats also on the
+ * chosen month (`ref`), so changing the month refetches /stats but not /calendar. Each request is aborted when its
+ * key changes, and a result is only used when it belongs to the current key.
  */
 export function SelectionProvider({ children, initial = initialSelection }: { children: ReactNode; initial?: SelectionState }) {
   const [state, dispatch] = useReducer(selectionReducer, initial);
-  const [fetched, setFetched] = useState<Fetched | null>(null);
+  const [calendar, setCalendar] = useState<Result<CalendarPayload> | null>(null);
+  const [stats, setStats] = useState<Stats | null>(null);
   const calendarBody = toRequest(state);
-  const statsBody = toStatsRequest(state);
-  const key = JSON.stringify([calendarBody, statsBody]);
+  const calendarKey = JSON.stringify(calendarBody);
+  // The latest month of the period is what the backend answers without `ref`: asking for it by name is the same
+  // request. Taken from the last calendar loaded (any area), so changing the area does not add a `ref`.
+  const latest = calendar && "data" in calendar ? calendar.data.period.end : null;
+  const statsBody = toStatsRequest(state, latest);
+  const statsKey = JSON.stringify(statsBody);
 
   useEffect(() => {
     const ctl = new AbortController();
-    Promise.all([postCalendar(calendarBody, ctl.signal), postStats(statsBody, ctl.signal)])
-      .then(([calendar, stats]) => setFetched({ key, data: { status: "ready", calendar, stats } }))
+    postCalendar(calendarBody, ctl.signal)
+      .then((data) => setCalendar({ key: calendarKey, data }))
       .catch((e: unknown) => {
-        if (ctl.signal.aborted) return;
-        setFetched({ key, data: { status: "error", message: e instanceof Error ? e.message : String(e) } });
+        if (!ctl.signal.aborted) setCalendar({ key: calendarKey, error: messageOf(e) });
       });
     return () => ctl.abort();
-    // `key` encodes both bodies.
+    // `calendarKey` encodes the body.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key]);
+  }, [calendarKey]);
+
+  useEffect(() => {
+    const ctl = new AbortController();
+    postStats(statsBody, ctl.signal)
+      .then((data) => setStats({ key: statsKey, base: calendarKey, data }))
+      .catch((e: unknown) => {
+        if (!ctl.signal.aborted) setStats({ key: statsKey, base: calendarKey, error: messageOf(e) });
+      });
+    return () => ctl.abort();
+    // `statsKey` encodes the body (and `calendarKey` is part of it apart from `ref`).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statsKey]);
 
   // The chosen month defaults to the end of the period the calendar covers, once the first data loads.
-  const loaded = fetched?.key === key && fetched.data.status === "ready" ? fetched.data.calendar.period.end : null;
+  const loadedEnd = calendar?.key === calendarKey && "data" in calendar ? calendar.data.period.end : null;
   useEffect(() => {
-    if (loaded && state.month === null) dispatch({ type: "setMonth", month: loaded });
-  }, [loaded, state.month]);
+    if (loadedEnd && state.month === null) dispatch({ type: "setMonth", month: loadedEnd });
+  }, [loadedEnd, state.month]);
 
-  const value = useMemo(() => {
-    const data: AreaData = fetched?.key === key ? fetched.data : { status: "loading" };
+  const value = useMemo<Value>(() => {
+    const cal = calendar?.key === calendarKey ? calendar : null;
+    const st = stats?.key === statsKey ? stats : null;
+    // A stats answer of the same area (other month) is usable for the calendar while the new one loads.
+    const stale = stats && stats.base === calendarKey && "data" in stats ? stats : null;
+    let data: AreaData = { status: "loading" };
+    if (cal && "error" in cal) data = { status: "error", message: cal.error };
+    else if (st && "error" in st) data = { status: "error", message: st.error };
+    else if (cal && "data" in cal) {
+      const usable = st && "data" in st ? st : stale;
+      if (usable) data = { status: "ready", calendar: cal.data, stats: usable.data, statsPending: usable !== st };
+    }
     return { state, dispatch, data };
-  }, [state, fetched, key]);
+  }, [state, calendar, stats, calendarKey, statsKey]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

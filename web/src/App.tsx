@@ -3,8 +3,6 @@ import { TopBar } from "./components/TopBar";
 import { LeftPanel } from "./components/LeftPanel";
 import { Inspector } from "./components/Inspector";
 import { CalendarStrip } from "./components/CalendarStrip";
-import { loadLayers } from "./layers/loadLayers";
-import type { Hotspot, PointLayer } from "./layers/manifest";
 import { useT } from "./state/prefs";
 
 const MapView = lazy(() => import("./components/MapView"));
@@ -15,22 +13,10 @@ const tabs: readonly Tab[] = ["map", "dashboard"];
 export function App() {
   const t = useT();
   const [tab, setTab] = useState<Tab>("map");
-  const [layers, setLayers] = useState<PointLayer[]>([]);
-  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
-  const [selected, setSelected] = useState<Hotspot | null>(null);
 
   useEffect(() => {
     document.title = `${t.app.title} · ${t.app.event}`;
   }, [t]);
-
-  useEffect(() => {
-    loadLayers()
-      .then((l) => {
-        setLayers(l);
-        setStatus("ready");
-      })
-      .catch(() => setStatus("error"));
-  }, []);
 
   return (
     <div className="shell">
@@ -61,7 +47,7 @@ export function App() {
         </div>
         <div className="tab-panel" role="tabpanel" id="panel-map" aria-labelledby="tab-map" hidden={tab !== "map"}>
           <Suspense fallback={<div className="map" />}>
-            <MapView layers={layers} selected={selected} onSelect={setSelected} />
+            <MapView />
           </Suspense>
         </div>
         <div
@@ -74,12 +60,7 @@ export function App() {
           <p className="muted">{t.dashboard.pending}</p>
         </div>
       </main>
-      <Inspector
-        layer={layers[0] ?? null}
-        status={status}
-        selected={selected}
-        onClear={() => setSelected(null)}
-      />
+      <Inspector />
       <CalendarStrip />
     </div>
   );

@@ -1,13 +1,7 @@
 import type { Page } from "@playwright/test";
 import { expect, test } from "./api";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 
-const points = JSON.parse(
-  readFileSync(join(import.meta.dirname, "fixtures/fake-hotspots/points.json"), "utf8"),
-) as { lon: number; lat: number; date: string; sensor: string; frp: number }[];
-
-// Tests run offline: the basemap is not needed to draw or pick deck.gl layers.
+// Tests run offline: the basemap is not needed to draw deck.gl layers.
 test.beforeEach(async ({ page }) => {
   await page.route(/basemaps\.cartocdn\.com|fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
   await page.goto("/");
@@ -69,29 +63,17 @@ test("language switches without a reload", async ({ page }) => {
   await expectSamePage(page);
 });
 
-test("fake hotspot layer is drawn and inspectable on click", async ({ page }) => {
-  const inspector = page.getByTestId("inspector");
-  await expect(inspector.getByTestId("layer-provenance")).toContainText("Focos de prueba (falsos)");
-  await expect(inspector).toContainText("2026-08-01 – 2026-09-30");
-  await expect(page.getByTestId("map").locator("canvas").first()).toBeVisible();
-
-  const target = points[0];
-  await page.waitForFunction(() => window.__firecal?.project(-64, -32) != null);
-  const xy = await page.evaluate(
-    ([lon, lat]) => window.__firecal!.project(lon, lat),
-    [target.lon, target.lat] as const,
-  );
-  const box = (await page.getByTestId("map").boundingBox())!;
-  await page.mouse.click(box.x + xy![0], box.y + xy![1]);
-
-  const selected = inspector.getByTestId("selected-hotspot");
-  await expect(selected).toContainText(target.date);
-  await expect(selected).toContainText(target.sensor);
-  await expect(selected).toContainText(`${target.frp.toFixed(1)} MW`);
-
-  await inspector.getByRole("button", { name: "Quitar selección" }).click();
-  await expect(selected).toHaveCount(0);
-  await expect(inspector).toContainText("Tocá un foco en el mapa");
+test("tabs switch between map and dashboard with the keyboard", async ({ page }) => {
+  const map = page.getByRole("tab", { name: "Mapa" });
+  const dash = page.getByRole("tab", { name: "Tablero" });
+  await map.focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(dash).toHaveAttribute("aria-selected", "true");
+  await expect(dash).toBeFocused();
+  await expect(page.getByTestId("map")).toBeHidden();
+  await page.keyboard.press("ArrowLeft");
+  await expect(map).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByTestId("map")).toBeVisible();
 });
 
 test.describe("phone width", () => {

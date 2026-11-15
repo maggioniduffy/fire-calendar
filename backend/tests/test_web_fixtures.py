@@ -26,12 +26,14 @@ def test_fixtures_are_labelled_synthetic_and_cover_the_cases():
     index = json.loads((COMMITTED / "index.json").read_text())
     assert index["synthetic"] is True
     keys = index["requests"]
-    assert len(keys) == 12 + 24  # /calendar + /stats, then /cells + /detections for 2 months
-    assert index["statuses"] and set(index["statuses"].values()) == {404}
-    assert all(k.startswith("POST /detections") for k in index["statuses"])
-    cells_key = "POST /cells area=preset:cordoba scale=viirs_eq month=2016-12"
-    cells = json.loads((COMMITTED / keys[cells_key]).read_text())
-    assert cells["month"] == "2016-12" and cells["cells"] and "SYNTHETIC" in cells["meta"]["source"]
+    assert len(keys) == 12 + 12  # /calendar + /stats, then /cells + /detections (every month in one file)
+    detections = {k: v for k, v in keys.items() if k.startswith("POST /detections")}
+    assert detections and {index["responses"][v]["status"] for v in detections.values()} == {404}
+    cells = json.loads((COMMITTED / keys["POST /cells area=preset:cordoba scale=viirs_eq"]).read_text())
+    months = cells["months"]
+    assert len(months) == 12 * 12  # every month of 2005-2016
+    assert months["2016-12"]["month"] == "2016-12" and months["2016-12"]["cells"]
+    assert "SYNTHETIC" in months["2005-01"]["meta"]["source"]
     assert "POST /calendar area=preset:cordoba scale=viirs_eq" in keys
     assert "POST /stats area=circle:-31.42,-64.18,230 scale=modis_eq" in keys
     assert "POST /calendar area=polygon scale=viirs_eq" in keys

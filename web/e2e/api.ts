@@ -13,11 +13,27 @@ import { join } from "node:path";
  */
 
 const DIR = join(import.meta.dirname, "fixtures/api");
-const index = JSON.parse(readFileSync(join(DIR, "index.json"), "utf8")) as {
+interface FixtureIndex {
   requests: Record<string, string>;
-  /** Non-200 answers by request key (e.g. 404 for /detections). */
-  statuses?: Record<string, number>;
-};
+  /** Status and headers per file (default: 200 JSON). */
+  responses?: Record<string, { status: number; headers: Record<string, string> }>;
+}
+const readIndex = (name: string) => JSON.parse(readFileSync(join(DIR, name), "utf8")) as FixtureIndex;
+// index.json: area calendar/stats, /cells, /detections; index-inspector.json: chosen-month stats and /export.csv.
+const indexes = [readIndex("index.json"), readIndex("index-inspector.json")];
+const index = { requests: Object.assign({}, ...indexes.map((i) => i.requests)) as Record<string, string> };
+const responses = Object.assign({}, ...indexes.map((i) => i.responses ?? {})) as NonNullable<FixtureIndex["responses"]>;
+
+/** Status, headers and body of a fixture file, as the real server answered when it was generated. */
+export function fixtureResponse(file: string) {
+  const meta = responses[file] ?? { status: 200, headers: {} };
+  const contentType = file.endsWith(".csv") ? "text/csv; charset=utf-8" : "application/json";
+  return {
+    status: meta.status,
+    headers: { ...meta.headers, "content-type": contentType },
+    body: readFileSync(join(DIR, file), "utf8"),
+  };
+}
 
 interface ApiBody {
   preset?: string;
@@ -28,7 +44,11 @@ interface ApiBody {
   ref?: string;
   month?: string;
   bbox?: number[];
+  kind?: string;
 }
+
+/** Per-month answers live in one file per area + scale: the body field that picks the month, by path. */
+const MONTH_FIELD = { "/cells": "month", "/detections": "month", "/stats": "ref" } as const;
 
 export function requestKey(path: string, body: ApiBody): string {
   let area: string;
@@ -37,7 +57,7 @@ export function requestKey(path: string, body: ApiBody): string {
     area = `circle:${body.area.lat!.toFixed(2)},${body.area.lon!.toFixed(2)},${body.area.radius_km}`;
   } else area = "polygon";
   const parts = [`POST ${path}`, `area=${area}`, `scale=${body.scale ?? "viirs_eq"}`];
-  for (const k of ["month", "start", "end", "ref"] as const) if (body[k]) parts.push(`${k}=${body[k]}`);
+  for (const k of ["month", "start", "end", "ref", "kind"] as const) if (body[k]) parts.push(`${k}=${body[k]}`);
   return parts.join(" ");
 }
 
@@ -71,12 +91,25 @@ export async function installApi(page: Page): Promise<ApiMock> {
       const body = (req.postDataJSON() ?? {}) as RecordedRequest["body"];
       const key = requestKey(path, body);
       mock.requests.push({ method: req.method(), path, body, key });
-      const file = req.method() === "POST" ? index.requests[key] : undefined;
+      // Per-month fixtures hold every month in one file: the lookup key has `*` where the month goes.
+      const field = MONTH_FIELD[path as keyof typeof MONTH_FIELD];
+      const picked = field ? body[field] : undefined;
+      const lookup = picked ? requestKey(path, { ...body, [field]: "*" }) : key;
+      const file = req.method() === "POST" ? index.requests[lookup] : undefined;
       if (!file) {
         mock.unmatched.push(`${req.method()} ${path} ${key}`);
         return route.fulfill({ status: 404, json: { detail: `no fixture for ${key}` } });
       }
-      return route.fulfill({ status: index.statuses?.[key] ?? 200, contentType: "application/json", body: readFileSync(join(DIR, file), "utf8") });
+      let answer = fixtureResponse(file);
+      if (picked && answer.status === 200) {
+        const entry = (JSON.parse(answer.body) as { months: Record<string, unknown> }).months[picked as string];
+        if (!entry) {
+          mock.unmatched.push(`${req.method()} ${path} ${key}`);
+          return route.fulfill({ status: 404, json: { detail: `no fixture month for ${key}` } });
+        }
+        answer = { ...answer, body: JSON.stringify(entry) };
+      }
+      return route.fulfill(answer);
     },
   );
   return mock;

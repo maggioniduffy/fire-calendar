@@ -10,7 +10,8 @@ export type Area =
 
 /**
  * Series choice. The API (`CalendarRequest.scale`) only knows `viirs_eq` and `modis_eq`: "reported" (per-sensor
- * counts, SA4.5) is kept in state but requests `viirs_eq` for now, which already carries the reported columns.
+ * counts, SA4.5) is kept in state and requests `viirs_eq`, whose `/calendar` months already carry both reported
+ * columns (no extra request; the inspector reads them per sensor).
  */
 export type UiScale = "viirs_eq" | "modis_eq" | "reported";
 
@@ -153,7 +154,7 @@ export function selectionReducer(state: SelectionState, action: SelectionAction)
   }
 }
 
-/** The API scale for a UI scale ("reported" requests viirs_eq until SA4.5 decides otherwise). */
+/** The API scale for a UI scale ("reported" requests viirs_eq: same answer, read per sensor). */
 export function apiScale(scale: UiScale): ApiScale {
   return scale === "modis_eq" ? "modis_eq" : "viirs_eq";
 }
@@ -172,8 +173,21 @@ export function toRequest(state: SelectionState): CalendarRequest {
   return { ...base, area: { type: "polygon", geojson: { type: "Polygon", coordinates: [ring] } } };
 }
 
-export function toStatsRequest(state: SelectionState): StatsRequest {
-  return toRequest(state); // `ref` stays unset until the chosen month drives the inspector (SA4.5)
+/**
+ * Same body plus `ref` (the chosen month) so the anomaly and key figures describe it; unset = latest month.
+ * `latest` (end of the calendar period, once known) lets the default month reuse the request without `ref`.
+ */
+export function toStatsRequest(state: SelectionState, latest?: string | null): StatsRequest {
+  const base = toRequest(state);
+  return state.month && state.month !== latest ? { ...base, ref: state.month } : base;
+}
+
+export const MONTH_PATTERN = /^\d{4}-(0[1-9]|1[0-2])$/;
+
+/** Initial state from the URL query: `?month=YYYY-MM` opens the inspector on that month (shareable; also lets e2e pick one). */
+export function selectionFromSearch(search: string): SelectionState {
+  const month = new URLSearchParams(search).get("month");
+  return month && MONTH_PATTERN.test(month) ? { ...initialSelection, month } : initialSelection;
 }
 
 /** Body of /cells and /detections: the area and scale of the selection plus the chosen month; null until set. */

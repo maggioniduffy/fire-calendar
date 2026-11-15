@@ -159,11 +159,11 @@ test.describe("my location, permission denied", () => {
 
   test("stays on Córdoba and says why", async ({ page, api }) => {
     await expect.poll(requested(api, "/calendar")).toBeGreaterThan(0);
-    const before = api.requests.length;
+    const before = dataRequests(api).length;
     await page.getByTestId("area-location").click();
     await expect(page.getByTestId("geo-message")).toHaveText("No diste permiso de ubicación: se mantiene Córdoba.");
     await expect(page.getByTestId("area-name")).toHaveText("Córdoba");
     await expect(page.getByTestId("area-preset")).toHaveAttribute("aria-pressed", "true");
-    expect(api.requests.length).toBe(before);
+    expect(dataRequests(api).length).toBe(before);
   });
 });

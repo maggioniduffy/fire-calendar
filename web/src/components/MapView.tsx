@@ -7,7 +7,6 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { ApiError, getCells, getDetections } from "../api/client";
 import type { BBox, CellsPayload, DetectionsPayload } from "../api/types";
 import { format } from "../i18n";
-import type { Hotspot, PointLayer } from "../layers/manifest";
 import { usePrefs, useT } from "../state/prefs";
 import { colors, hexToRgb } from "../theme/tokens";
 import { areaBounds, circleRing, toCellsRequest, type LonLat } from "../state/selection";
@@ -33,12 +32,6 @@ const BASEMAP = {
   light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
   dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
 } as const;
-
-interface Props {
-  layers: PointLayer[];
-  selected: Hotspot | null;
-  onSelect: (h: Hotspot | null) => void;
-}
 
 declare global {
   interface Window {
@@ -86,7 +79,7 @@ const square = (lat: number, lon: number): LonLat[] => {
   ];
 };
 
-export default function MapView({ layers, selected, onSelect }: Props) {
+export default function MapView() {
   const t = useT();
   const { theme, lang } = usePrefs();
   const box = useRef<HTMLDivElement>(null);
@@ -227,8 +220,6 @@ export default function MapView({ layers, selected, onSelect }: Props) {
 
   const deckLayers = useMemo(() => {
     const c = colors[theme];
-    const base = [...hexToRgb(c.text), 220] as [number, number, number, number];
-    const ring = hexToRgb(c.surface);
     const accent = hexToRgb(c.accent);
     const casing = hexToRgb(c.casing);
     const ctrl = hexToRgb(c.ctrl);
@@ -296,35 +287,12 @@ export default function MapView({ layers, selected, onSelect }: Props) {
           }),
         ]
       : [];
-    const points = layers.map(
-      (layer) =>
-        new ScatterplotLayer<Hotspot>({
-          id: layer.manifest.id,
-          data: layer.points,
-          pickable: true,
-          stroked: true,
-          radiusUnits: "pixels",
-          lineWidthUnits: "pixels",
-          getPosition: (d) => [d.lon, d.lat],
-          getRadius: (d) => (d.id === selected?.id ? 9 : 6),
-          getFillColor: (d) => (d.id === selected?.id ? accent : base),
-          getLineColor: (d) => (d.id === selected?.id ? casing : ring),
-          getLineWidth: (d) => (d.id === selected?.id ? 2 : 1),
-          updateTriggers: {
-            getRadius: selected?.id,
-            getFillColor: [selected?.id, theme],
-            getLineColor: [selected?.id, theme],
-            getLineWidth: selected?.id,
-          },
-        }),
-    );
-    return [cellLayer, detLayer, areaLayer, ...points, ...draft];
-  }, [layers, selected, theme, draw.active, draw.vertices, shown, dets, showDetections, outline, maxValue]);
+    return [cellLayer, detLayer, areaLayer, ...draft];
+  }, [theme, draw.active, draw.vertices, shown, dets, showDetections, outline, maxValue]);
 
   /** In draw mode a click adds a vertex; a second click within 350 ms and 8 px closes the polygon. */
-  const onMapClick = (info: PickingInfo<Hotspot>) => {
-    if (!draw.active) return onSelect(info.object ?? null);
-    if (!info.coordinate) return;
+  const onMapClick = (info: PickingInfo) => {
+    if (!draw.active || !info.coordinate) return;
     const prev = lastClick.current;
     const now = Date.now();
     if (prev && now - prev.t < 350 && Math.hypot(info.x - prev.x, info.y - prev.y) < 8) {

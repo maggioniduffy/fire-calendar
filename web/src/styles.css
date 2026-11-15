@@ -278,12 +278,6 @@ button {
   overflow-wrap: anywhere;
 }
 
-.provenance {
-  margin-top: var(--space-5);
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--border);
-}
-
 .flag {
   margin-left: var(--space-2);
   padding: 0 var(--space-1);
@@ -458,4 +452,18 @@ button {
   height: 10px;
   border-radius: 2px;
   outline: 1px solid var(--casing);
+}
+
+/* ---------- Inspector figures and downloads (SA4.5, SA4.6) ---------- */
+
+.figures .row {
+  min-height: 28px;
+}
+
+.downloads {
+  margin-top: var(--space-5);
+}
+
+.downloads .btn {
+  margin-top: 0;
 }
