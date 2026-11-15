@@ -99,3 +99,9 @@ LightGBM (the scale factor stays), NRT.
 - 2026-11-15: SA4.9 done: the calendar strip was clipped (fixed 22vh, 26 year rows). Grid turned sideways and a
   drag handle added (`StripResizer`). Arrow keys now follow the drawing: Left/Right = year, Up/Down = month.
   Checked: vitest, tsc, eslint and the calendar, shell and a11y e2e specs; the other e2e specs were not rerun.
+- 2026-11-15: SA5.2 done: `/calendar` carries an `enso` block (ONI and phase per month, NOAA CPC; medians,
+  p25 and p75 of hot spots per calendar month and phase). The session moved to the clima-ideas network and the real
+  pipeline was rebuilt (FIRMS 2000–2025, ONI to 2026-09). SA5.5 done ([reports/05/SA5.5.md](reports/05/SA5.5.md)),
+  design pre-registered with the advisor: Córdoba, VIIRS-eq, Jul–Oct season, n = 25: no association detectable
+  (max |rho| 0.35 at lag 2, family-wise p 0.30; detectable needs |rho| ≥ 0.50). Exploratory areas (NOA, Pampas,
+  Argentina) show small own p values but are not independent and are not the headline. SA5.4 (UI row) in progress.
