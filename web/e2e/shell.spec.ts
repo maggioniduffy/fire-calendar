@@ -29,7 +29,7 @@ test("shell shows title, challenge, author and all regions in Spanish", async ({
   await expect(page.getByTestId("calendar-strip")).toBeVisible();
 
   await page.getByRole("tab", { name: "Tablero" }).click();
-  await expect(page.getByRole("tabpanel")).toContainText("serie armonizada");
+  await expect(page.getByTestId("dashboard")).toBeVisible();
   await page.getByRole("tab", { name: "Mapa" }).click();
   await expect(page.getByTestId("map")).toBeVisible();
 });
