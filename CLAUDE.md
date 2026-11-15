@@ -46,3 +46,5 @@ the commands it ran with summarized output; Opus reviews `git status`, `git diff
   baseline and uncertainty. Associations (ENSO and fire) are shown as association, never as cause.
 - `data/` and `.env` stay out of git. Heavy runs happen locally with a 4 GB RAM cap
   (`systemd-run --user --scope -p MemoryMax=4G ...`) and few workers.
+- Cloud sessions run full throttle: no RAM cap, no `systemd-run`, as many workers as the machine allows. The
+  4 GB cap applies only to local runs.

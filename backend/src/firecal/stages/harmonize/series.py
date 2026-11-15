@@ -18,7 +18,9 @@ Rules per (month, cell), day and night handled separately and then summed:
 """
 
 import dataclasses
+import hashlib
 import json
+import shutil
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from pathlib import Path
@@ -29,7 +31,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from firecal.layers.manifest import LayerManifest
-from firecal.paths import interim_dir, processed_dir
+from firecal.paths import REPO_ROOT, interim_dir, processed_dir
 from firecal.stages.grid.filters import FilterConfig
 from firecal.stages.harmonize.evaluate import (
     NOMINAL,
@@ -213,11 +215,90 @@ def calibration_path(version: str, root: Path | None = None) -> Path:
     return (root or processed_dir() / LAYER_ID) / "calibration" / f"{version}.json"
 
 
+FROZEN_DIR = REPO_ROOT / "backend" / "calibrations"
+
+
+class CalibrationIntegrityError(ValueError):
+    """A frozen calibration is missing its checksum or does not match it."""
+
+
+def _sha256_hex(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def _calibration_bytes(cal: Calibration) -> bytes:
+    return json.dumps(calibration_to_dict(cal), indent=1).encode("utf-8")
+
+
 def save_calibration(cal: Calibration, root: Path | None = None) -> Path:
+    """Write the calibration of a new version; an existing version is never overwritten."""
     dest = calibration_path(cal.version, root)
+    if dest.exists():
+        raise FileExistsError(f"calibration {cal.version} already exists at {dest}; versions are frozen")
     dest.parent.mkdir(parents=True, exist_ok=True)
     tmp = dest.with_suffix(".tmp")
-    tmp.write_text(json.dumps(calibration_to_dict(cal), indent=1), encoding="utf-8")
+    tmp.write_bytes(_calibration_bytes(cal))
+    tmp.replace(dest)
+    return dest
+
+
+def frozen_paths(version: str, frozen_dir: Path | None = None) -> tuple[Path, Path]:
+    d = frozen_dir or FROZEN_DIR
+    return d / f"{version}.json", d / f"{version}.json.sha256"
+
+
+def freeze_calibration(cal: Calibration, frozen_dir: Path | None = None) -> Path:
+    """Write `{version}.json` and its `.sha256` sidecar ("<hex>  <name>") into the frozen dir."""
+    path, sidecar = frozen_paths(cal.version, frozen_dir)
+    for p in (path, sidecar):
+        if p.exists():
+            raise FileExistsError(f"frozen calibration {cal.version} already has {p}")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    data = _calibration_bytes(cal)
+    path.write_bytes(data)
+    sidecar.write_text(f"{_sha256_hex(data)}  {path.name}\n", encoding="utf-8")
+    return path
+
+
+def verified_frozen_sha(version: str, frozen_dir: Path | None = None) -> str:
+    """sha256 of the frozen file, checked against its sidecar; raises CalibrationIntegrityError."""
+    path, sidecar = frozen_paths(version, frozen_dir)
+    if not path.is_file():
+        raise CalibrationIntegrityError(f"frozen calibration {version} not found at {path}")
+    if not sidecar.is_file():
+        raise CalibrationIntegrityError(f"frozen calibration {version} has no checksum sidecar {sidecar}")
+    parts = sidecar.read_text(encoding="utf-8").split()
+    if not parts:
+        raise CalibrationIntegrityError(f"checksum sidecar {sidecar} is empty")
+    actual = _sha256_hex(path.read_bytes())
+    if parts[0].lower() != actual:
+        raise CalibrationIntegrityError(
+            f"frozen calibration {version} fails its checksum: sidecar {parts[0]}, file {actual}"
+        )
+    return actual
+
+
+def load_frozen(version: str, frozen_dir: Path | None = None) -> Calibration:
+    """Load a frozen calibration after verifying its sha256 against the sidecar."""
+    verified_frozen_sha(version, frozen_dir)
+    path, _ = frozen_paths(version, frozen_dir)
+    return calibration_from_dict(json.loads(path.read_text(encoding="utf-8")))
+
+
+def install_frozen(version: str, root: Path, frozen_dir: Path | None = None) -> Path:
+    """Copy the verified frozen file byte for byte into `root/calibration/`; never replace a different one."""
+    sha = verified_frozen_sha(version, frozen_dir)
+    src, _ = frozen_paths(version, frozen_dir)
+    dest = calibration_path(version, root)
+    if dest.exists():
+        if _sha256_hex(dest.read_bytes()) != sha:
+            raise CalibrationIntegrityError(
+                f"{dest} differs from frozen calibration {version}; not overwriting"
+            )
+        return dest
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    tmp = dest.with_suffix(".tmp")
+    shutil.copyfile(src, tmp)
     tmp.replace(dest)
     return dest
 
@@ -686,16 +767,20 @@ def publish(
     root: Path | None = None,
     years: list[int] | None = None,
     now: datetime | None = None,
+    frozen_dir: Path | None = None,
 ) -> LayerManifest:
     """Build the series of `years` (default: all in `grid_dir`) with a frozen calibration;
-    write the manifest."""
+    write the manifest. `cal` must be the frozen version (sha-verified); its file is installed
+    byte for byte under `root/calibration/`."""
+    if _sha256_hex(_calibration_bytes(cal)) != verified_frozen_sha(cal.version, frozen_dir):
+        raise CalibrationIntegrityError(f"calibration {cal.version} does not match its frozen file")
     grid_dir = grid_dir or interim_dir() / "firms" / "grid_0.1"
     root = root or processed_dir() / LAYER_ID
     files = grid_year_files(grid_dir)
     for y in sorted(files):
         if years is None or y in years:
             build_year(y, files[y], cal, root)
-    save_calibration(cal, root)
+    install_frozen(cal.version, root, frozen_dir)
     return write_manifest(root, cal, now)
 
 

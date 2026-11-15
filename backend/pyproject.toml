@@ -13,6 +13,7 @@ dependencies = [
     "typer",
     "lightgbm>=4.7.0",
     "shapely>=2.2.0",
+    "pyhdf>=0.11.7",
 ]
 
 [project.scripts]

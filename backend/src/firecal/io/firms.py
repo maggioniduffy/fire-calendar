@@ -175,7 +175,8 @@ def _write_manifest(dest: Path, results: list[DownloadResult]) -> None:
 # Verified 2026-11-14 on the Argentina files: MODIS `Terra`/`Aqua`; VIIRS `N` (S-NPP), `N20` (NOAA-20).
 # VIIRS satellite is still taken from the product, which is unambiguous.
 _MODIS_SATELLITE = {"terra": "terra", "t": "terra", "aqua": "aqua", "a": "aqua"}
-_VIIRS_SATELLITE = {"viirs-snpp": "snpp", "viirs-jpss1": "noaa20"}
+# viirs-jpss2 (NOAA-21, `N21`) only comes from the area API (SA1.6), not from country files.
+_VIIRS_SATELLITE = {"viirs-snpp": "snpp", "viirs-jpss1": "noaa20", "viirs-jpss2": "noaa21"}
 _VIIRS_CLASS = {"l": "low", "low": "low", "n": "nominal", "nominal": "nominal", "h": "high", "high": "high"}
 
 
@@ -307,6 +308,35 @@ def grid_cmd(res: float = 0.1) -> None:
         typer.echo(str(p))
 
 
+@firms_app.command("nrt-mask")
+def nrt_mask_cmd(out: Path = REPO_ROOT / "reports" / "01" / "SA1.6_nrt_mask.md") -> None:
+    """P6: select, accept and save the NRT static-source mask; writes reports/01/SA1.6_nrt_mask.md."""
+    from firecal.stages.grid.nrt_mask import build_nrt_mask, detection_note, write_report
+
+    det = interim_dir() / "firms" / "detections"
+    results = build_nrt_mask(det)
+    for fam, r in results.items():
+        typer.echo(
+            f"{fam}: cell {r.chosen[0]} k {int(r.chosen[1])} accepted={r.accepted} "
+            + " ".join(f"{k}={'PASS' if v else 'FAIL'}" for k, v in r.checks.items())
+        )
+    typer.echo(str(write_report(results, out, detection_note(det))))
+
+
+@firms_app.command("completeness")
+def completeness_cmd(
+    out: Path = REPO_ROOT / "reports" / "01" / "SA1.6_completeness.md",
+) -> None:
+    """P8: completeness per satellite x month; writes completeness.parquet and the report."""
+    from firecal.stages.grid.completeness import build_completeness
+
+    table = build_completeness(report=out)
+    g = table[table["gated"]]
+    for r in g.itertuples():
+        typer.echo(f"{r.satellite} {r.month} {r.level} days={r.days_with_detections} {r.status}")
+    typer.echo(str(out))
+
+
 @firms_app.command("profile")
 def profile_cmd(out: Path = REPO_ROOT / "reports" / "01" / "SA1.7.md") -> None:
     """Write the data profile report (SA1.7)."""
@@ -315,3 +345,90 @@ def profile_cmd(out: Path = REPO_ROOT / "reports" / "01" / "SA1.7.md") -> None:
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(profile())
     typer.echo(str(out))
+
+
+# ---------------------------------------------------------------- SA1.6 area API (see firms_area.py)
+
+
+@firms_app.command("area")
+def area_cmd(
+    source: Annotated[
+        list[str] | None, typer.Option("--source", help="Repeatable: MODIS_SP, VIIRS_NOAA21 (both levels)...")
+    ] = None,
+    date_from: Annotated[
+        str | None, typer.Option("--date-from", help="YYYY-MM-DD; replaces default ranges")
+    ] = None,
+    date_to: Annotated[str | None, typer.Option("--date-to", help="YYYY-MM-DD")] = None,
+    clip_check: Annotated[
+        bool, typer.Option("--clip-check", help="Add SP 2025 for MODIS, S-NPP, NOAA-20")
+    ] = False,
+    clip_check_only: Annotated[bool, typer.Option("--clip-check-only")] = False,
+    dry_run: Annotated[bool, typer.Option("--dry-run", help="Print the plan, no chunk requests")] = False,
+    workers: int = 4,
+) -> None:
+    """Download the area API in 5-day chunks over the Argentina bbox (needs FIRMS_MAP_KEY)."""
+    from firecal.io import firms_area as fa
+
+    key = fa.get_key()
+    geom, _ = fa.load_argentina()
+    bbox = fa.bbox_from_geometry(geom)
+    with httpx.Client(follow_redirects=True, timeout=120) as client:
+        avail = fa.fetch_availability(client, key)
+        plan = fa.build_plan(
+            avail,
+            date.today(),
+            sources=source,
+            date_from=date.fromisoformat(date_from) if date_from else None,
+            date_to=date.fromisoformat(date_to) if date_to else None,
+            clip_check=clip_check,
+            clip_check_only=clip_check_only,
+        )
+        n = 0
+        for it in plan:
+            c = len(fa.chunk_ranges(it.start, it.end))
+            n += c
+            typer.echo(f"plan {it.source} {it.start}..{it.end} chunks={c}")
+        typer.echo(f"bbox(w,s,e,n)={bbox} chunks={n}")
+        if dry_run:
+            return
+        results = fa.download_area(plan, bbox, key, client=client, workers=workers)
+    for (src, status), cnt in sorted(fa.group_summary(results).items()):
+        typer.echo(f"{src} {status} {cnt}")
+    errors = [r for r in results if r.status == "error"]
+    for r in errors:
+        typer.echo(f"ERROR {r.source} {r.start}_{r.days}: {r.detail}")
+    if errors:
+        raise typer.Exit(1)
+
+
+@firms_app.command("area-ingest")
+def area_ingest_cmd(
+    product: Annotated[list[str] | None, typer.Option("--product")] = None,
+    level: Annotated[list[str] | None, typer.Option("--level", help="api-sp | nrt")] = None,
+    year: Annotated[list[int] | None, typer.Option("--year")] = None,
+) -> None:
+    """Area API chunks -> clipped parquet per product, level and year."""
+    from firecal.io import firms_area as fa
+
+    for r in fa.area_ingest(products=product, levels=level or fa.LEVELS, years=year):
+        typer.echo(
+            f"{r['product']} {r['level']} {r['year']} rows={r['rows']} "
+            f"(clip dropped {r['clip_rows_dropped']})"
+        )
+
+
+@firms_app.command("clip-check")
+def clip_check_cmd(year: int = 2025, out: Path = REPO_ROOT / "reports" / "01" / "SA1.6_clip.md") -> None:
+    """P7: API-SP clipped vs country files; writes reports/01/SA1.6_clip.md."""
+    from firecal.io import firms_area as fa
+
+    path, checks = fa.write_clip_report(out, year)
+    for c in checks:
+        typer.echo(
+            f"{c.satellite} country={c.country_rows} api={c.api_rows} matched={c.matched} "
+            f"country_only={c.country_only.unmatched} api_only={c.api_only.unmatched} "
+            f"{'PASS' if c.ok else 'FAIL'}"
+        )
+    typer.echo(str(path))
+    if not all(c.ok for c in checks):
+        raise typer.Exit(1)
