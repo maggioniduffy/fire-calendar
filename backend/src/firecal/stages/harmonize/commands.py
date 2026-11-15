@@ -22,7 +22,10 @@ def evaluate_cmd(
     ml: Annotated[bool, typer.Option("--ml/--no-ml", help="Also run SA2.4 / SA2.7 LightGBM (long).")] = False,
     ml_jobs: Annotated[int, typer.Option(help="Processes for --ml (2 = one per direction).")] = 2,
     ml_cache: Annotated[
-        Path | None, typer.Option(help="Pickle with a finished MLResult to reuse instead of running --ml.")
+        Path | None,
+        typer.Option(
+            help="Pickle of the MLResult: loaded if it exists (skips the long run), else saved after --ml."
+        ),
     ] = None,
 ) -> None:
     """Run SA2.2 / SA2.3 with leave-one-year-out and rolling origin; write the report and a per-block CSV."""
@@ -53,7 +56,7 @@ def evaluate_cmd(
             folds[pair, "rolling"] = run_cv(cube, pair, "rolling")
     all_folds = [f for fs in folds.values() for f in fs]
     ml_result = None
-    if ml_cache is not None:
+    if ml_cache is not None and ml_cache.exists():
         import pickle
 
         ml_result = pickle.loads(ml_cache.read_bytes())
@@ -62,6 +65,10 @@ def evaluate_cmd(
         from firecal.stages.harmonize.ml_features import build_monthly_cell_table
 
         ml_result = run_ml(cube, build_monthly_cell_table(), n_jobs=ml_jobs, log=typer.echo)
+        if ml_cache is not None:
+            import pickle
+
+            ml_cache.write_bytes(pickle.dumps(ml_result))
     inp = ReportInput(
         cube=cube,
         folds=folds,

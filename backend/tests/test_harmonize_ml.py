@@ -113,6 +113,7 @@ def test_model_beats_constant_factor_when_ratio_depends_on_a_feature(world):
     pred = np.concatenate([f.pred.ravel() for f in cell])
     assert np.allclose(obs, obs_sf)  # same folds, same rows
     assert wape(obs, pred) < wape(obs_sf, pred_sf) - 0.02
+    assert 0.5 < pred.sum() / obs.sum() < 2.0  # no divergence on rows at the offset floor
 
 
 def test_zero_tree_reproduces_scale_factor_block_totals(world):
@@ -261,15 +262,42 @@ def test_report_section_renders_with_verdicts_and_ablations():
     for pair in ("viirs_to_modis", "modis_to_viirs"):
         prep = prepare(cube, long, pair)
         for scheme in ("loyo", "rolling"):
-            f, dg = run_ml_cv(
-                prep, scheme, SMALL, SMALL, ablations=scheme == "loyo", with_intervals=True
-            )
+            f, dg = run_ml_cv(prep, scheme, SMALL, SMALL, ablations=scheme == "loyo", with_intervals=True)
             folds[pair, scheme] = f
             diags += dg
             sf += [x for x in run_cv(cube, pair, scheme, with_conformal=scheme == "loyo") if x.method == "sf"]
-        meta[pair] = {"cell_rows": len(prep.cells.y), "block_rows": len(prep.block.y), "unreachable_share": 0.01}
+        meta[pair] = {
+            "cell_rows": len(prep.cells.y),
+            "block_rows": len(prep.block.y),
+            "unreachable_share": 0.01,
+        }
     text = "\n".join(ml_section(MLResult(folds, diags, meta, SMALL, SMALL, 1.0, 100.0), sf))
     assert "SA2.4 y SA2.7 vs. baseline" in text
-    assert text.count("supera al factor") >= 4  # one verdict line per direction and candidate (and the summary)
+    assert (
+        text.count("supera al factor") >= 4
+    )  # one verdict line per direction and candidate (and the summary)
     assert "Importancia de variables" in text and "LightGBM celda + proporción Terra/Aqua" in text
     assert "Cobertura" in text
+
+
+def test_rows_at_the_offset_floor_with_target_do_not_diverge():
+    """Regression: leaves of rows with no source (offset at eps) but target detections once gave raw ~ +45."""
+    from firecal.stages.harmonize.ml import fit_predict, lgb_params
+
+    rng = np.random.default_rng(0)
+    n = 4000
+    x = rng.random((n, 3)).astype(np.float32)
+    zero_src = x[:, 0] < 0.5
+    y = np.where(zero_src, rng.poisson(0.3, n), 0).astype(float)
+    off_tr = np.full(n, np.log(1e-3))
+    from firecal.stages.harmonize.ml_features import RowSet
+
+    rs = RowSet(
+        x, ("a", "b", "c"), y, np.zeros(n, int), np.zeros(n, int), np.zeros(n, int), np.zeros(n), 1, 1
+    )
+    cfg = GBMConfig("d", num_leaves=15, min_data=50, lr=0.1, iters=(100,))
+    assert lgb_params(cfg)["max_delta_step"] > 0
+    idx = np.arange(n)
+    pred, _ = fit_predict(rs, np.arange(3), cfg, idx, off_tr, idx, off_tr, (100,))
+    assert np.isfinite(pred[100]).all() and pred[100].max() < 100
+    assert pred[100][zero_src].mean() == pytest.approx(0.3, rel=0.5)  # the lift is learned, bounded

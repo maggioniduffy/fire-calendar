@@ -69,8 +69,7 @@ def zero_tree_check(allf: list[FoldOut], pair: str) -> list[dict]:
                 "method": method,
                 "total_ratio": float(zb.sum() / sb.sum()),
                 "max_rel_big": float(np.nanmax(rel[big])) if big.any() else float("nan"),
-                "n_blocks": int((sb > 0).sum()),
-                "n_over_1": int(np.nansum(rel > 0.01)),
+                "n_over_1": int(np.nansum((rel > 0.01) & big)),
                 "n_big": int(big.sum()),
                 "wape_zero": wape(o, pz),
                 "wape_sf": wape(o, p),
@@ -131,6 +130,10 @@ def ml_section(ml: MLResult, sf_folds: list[FoldOut]) -> list[str]:
         "Las ablaciones reutilizan la configuración que eligió el modelo de celda base en el mismo pliegue.",
         "- **Intervalos:** esquema conformal anidado de SA2.2 (`intervals.py`) sobre las predicciones puntuales de LightGBM (residuos fuera de muestra de la "
         "configuración elegida); sin regresión cuantílica de LightGBM (diagnóstico opcional, no corrido).",
+        "- **Corrida descartada (divergencia numérica):** la primera corrida completa dio, en el modelo de celda de SA2.7, predicciones del orden de 1e18: "
+        "hojas con pasos de Newton de decenas en escala log en filas sin fuente en su período día/noche (offset en el piso `eps`) pero con detecciones del objetivo. "
+        "Se agregó `max_delta_step = 1` (tope a la salida de cada hoja) y se repitió todo. El criterio, las variables y la grilla no cambiaron. "
+        "Antes del arreglo ya se habían visto los resultados de SA2.4 de esa corrida; el cambio es un tope numérico y no se midió contra ellos.",
         f"- **Tiempo y memoria:** {ml.seconds / 60:.1f} min de reloj para esta parte, un proceso por sentido (2 hilos cada uno); memoria máxima sumada "
         f"(PSS de los procesos) {ml.peak_mb:.0f} MB.",
         "",
@@ -175,6 +178,7 @@ def ml_section(ml: MLResult, sf_folds: list[FoldOut]) -> list[str]:
             set(_years(allf, pair, "loyo", "lgb_cell")) & set(_years(allf, pair, "loyo", "sf"))
         )
         sf_y = _years(allf, pair, "loyo", "sf")
+        ref_roll = set(_years(allf, pair, "rolling", "lgb_cell")) & set(_years(allf, pair, "rolling", "sf"))
         for method in (
             "sf",
             "lgb_cell",
@@ -192,13 +196,12 @@ def ml_section(ml: MLResult, sf_folds: list[FoldOut]) -> list[str]:
             ys = sorted(set(my) & set(sf_y))
             won = (
                 "-"
-                if method == "sf"
+                if method == "sf" or method.startswith("zero")
                 else f"{sum(wape(my[y].obs, my[y].pred) < wape(sf_y[y].obs, sf_y[y].pred) for y in ys)} de {len(ys)}"
             )
             ry, rs = _years(allf, pair, "rolling", method), _years(allf, pair, "rolling", "sf")
-            common = sorted(set(ry) & set(rs))
+            common = sorted(set(ry) & set(rs) & ref_roll)
             roll = pct(wape(*_pooled(ry, common))) if common else "-"
-            roll_sf = pct(wape(*_pooled(rs, common))) if common and method != "sf" else ""
             rows.append(
                 [
                     NAMES[method],
@@ -208,7 +211,7 @@ def ml_section(ml: MLResult, sf_folds: list[FoldOut]) -> list[str]:
                     num(a["mae"], 2),
                     num(a["deviance"], 2),
                     won,
-                    roll + (f" (SA2.2 {roll_sf})" if roll_sf else ""),
+                    roll,
                 ]
             )
         L += md_table(
@@ -226,8 +229,8 @@ def ml_section(ml: MLResult, sf_folds: list[FoldOut]) -> list[str]:
         )
         L += [
             "",
-            f"Año afuera, {len(cand_years)} años de test, todos juntos; la columna de origen móvil usa los años que tienen resultado de los dos (el primero con un solo año "
-            "de entrenamiento no admite año afuera interno y se omite en LightGBM).",
+            f"Año afuera, {len(cand_years)} años de test, todos juntos. La columna de origen móvil usa en todas las filas los mismos años (los del modelo de celda; el primero, "
+            "con un solo año de entrenamiento, no admite año afuera interno y se omite).",
             "",
         ]
         # per year
@@ -302,14 +305,16 @@ def ml_section(ml: MLResult, sf_folds: list[FoldOut]) -> list[str]:
         zt = zero_tree_check(allf, pair)
         if zt:
             L += [
-                "Verificación de cero árboles (el offset solo debe reproducir los totales por bloque de SA2.2; dentro de ~1 %):",
+                "Verificación de cero árboles (el offset solo debe reproducir los totales por bloque de SA2.2; dentro de ~1 %). "
+                "Por bloque se miran los bloques con al menos 1000 detecciones predichas por SA2.2 en los años de test juntos; "
+                "la diferencia viene del piso `eps` del offset (suma una masa chica en filas sin fuente):",
                 "",
             ]
             L += md_table(
                 [
                     "Modelo",
                     "Total / total SA2.2",
-                    "Máx. dif. relativa por bloque (bloques con >= 1000 predichas)",
+                    "Máx. dif. relativa por bloque",
                     "Bloques con dif. > 1 %",
                     "WAPE b-mes cero árboles",
                     "WAPE b-mes SA2.2",
@@ -319,7 +324,7 @@ def ml_section(ml: MLResult, sf_folds: list[FoldOut]) -> list[str]:
                         NAMES[z["method"]],
                         num(z["total_ratio"], 4),
                         pct(z["max_rel_big"]),
-                        f"{z['n_over_1']} de {z['n_blocks']} (con >= 1000: {z['n_big']})",
+                        f"{z['n_over_1']} de {z['n_big']}",
                         pct(z["wape_zero"]),
                         pct(z["wape_sf"]),
                     ]

@@ -90,6 +90,10 @@ def lgb_params(cfg: GBMConfig, seed: int = SEED, threads: int = THREADS) -> dict
         "num_leaves": cfg.num_leaves,
         "min_data_in_leaf": cfg.min_data,
         "lambda_l2": cfg.l2,
+        # Caps the leaf output at lr * max_delta_step. Rows whose offset sits at the eps floor (no source in
+        # the row) but with target detections otherwise get Newton steps of tens in log space (first real
+        # run: SA2.7 cell predictions of ~1e18).
+        "max_delta_step": 1.0,
         "max_bin": 63,
         "num_threads": threads,
         "seed": seed,
@@ -280,6 +284,14 @@ def _conformal(sel: Selection, d: PairData, test_pred: np.ndarray, test_src: np.
     return conformal_from_residuals(collect_residuals(parts, used), test_pred, test_src)
 
 
+def _guard(method: str, pred: np.ndarray, obs: np.ndarray) -> None:
+    """Fail loudly on a numerical blow-up instead of reporting it as a score."""
+    if not np.isfinite(pred).all() or pred.sum() > 100 * max(obs.sum(), 1.0):
+        raise FloatingPointError(
+            f"{method}: diverged predictions (sum {pred.sum():.3g}, observed {obs.sum():.3g})"
+        )
+
+
 def run_ml_cv(
     prep: MLPrep,
     scheme: str = "loyo",
@@ -338,6 +350,7 @@ def run_ml_cv(
                 out["lgb_cell_ta"], _, _ = fit_final(prep.cells, ta, sel_c.cfg, sel_c.iters, d, k, tr, te)
             out["lgb_cell_ll"], _, _ = fit_final(prep.cells, ll, sel_c.cfg, sel_c.iters, d, k, tr, te)
         for method, pred in out.items():
+            _guard(method, pred, tgt_tot[te])
             fo = FoldOut(method=method, pred=pred, src=src_tot[te], **common)
             if with_intervals and method in ("lgb_cell", "lgb_block"):
                 cf = _conformal(sel_c if method == "lgb_cell" else sel_b, d, fo.pred, src_tot[te])
