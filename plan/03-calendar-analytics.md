@@ -1,6 +1,6 @@
 # Fase 3 — Calendario y análisis por área
 
-Estado: activa · Depende de: 2 · Refs: `docs/architecture.md` (API)
+Estado: hecha (backend) · Depende de: 2 · Refs: `docs/architecture.md` (API)
 
 ## Objetivo
 
@@ -15,5 +15,5 @@ del mes actual y CSV.
 | SA3.2 | Matriz año×mes de focos reportados por sensor y armonizados en las dos escalas (MODIS-eq, VIIRS-eq con 2000–2011 marcado como estimado) | Sonnet | Unit sobre grilla sintética. Hecho ✅ (2026-11-15; sobre el esquema publicado de `harmonized`; banda del área = banda de bloque escalada por la fracción del área y sumada entre bloques, sin verificar. Córdoba: VIIRS-eq estimado 2000-11 a 2012-01, 135 meses) |
 | SA3.3 | Climatología: mediana y p10–p90 por mes; anomalía del mes en curso (absoluta y en percentil) | Sonnet | Unit con valores conocidos. Hecho ✅ (2026-11-15; cuantiles lineales de numpy sobre años completos, sin el año de referencia; mes de referencia = último mes disponible, retrospectivo) |
 | SA3.4 | Cifras clave: mes y año más activos, total del período, comparación del mes actual con la mediana | Sonnet | Unit. Hecho ✅ (2026-11-15; año más activo solo entre años completos; se informa cuántos meses estimados entran en el total) |
-| SA3.5 | Endpoints: `POST /calendar`, `POST /stats`, `POST /export.csv` | Sonnet | Unit de API + respuesta con fuente y período |
-| SA3.6 | CSV: focos crudos donde existen (Argentina), conteos por celda en el resto; matriz del calendario | Sonnet | Unit: columnas y filas esperadas |
+| SA3.5 | Endpoints: `POST /calendar`, `POST /stats`, `POST /export.csv` | Sonnet | Unit de API + respuesta con fuente y período. Hecho ✅ (2026-11-15; área o preset, rango recortado al período de la capa, 422/503; meta con fuente, período, método, calibración, retrospectivo; Córdoba real: 2200 celdas, /calendar 0,5 s) |
+| SA3.6 | CSV: focos crudos donde existen (Argentina), conteos por celda en el resto; matriz del calendario | Sonnet | Unit: columnas y filas esperadas. Hecho ✅ (2026-11-15; `kind` = calendar, cells o detections; los focos crudos salen de `data/interim` con los filtros de la fase 1; los meses estimados solo como conteos por celda; con selección por centro de celda, los focos MODIS coinciden con la serie) |
