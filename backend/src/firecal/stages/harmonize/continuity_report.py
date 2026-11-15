@@ -2,6 +2,7 @@
 
 import datetime as dt
 
+import numpy as np
 import pandas as pd
 
 from firecal.stages.harmonize.continuity import (
@@ -27,6 +28,13 @@ CALIBRATION_BASE = "sf-2026.11.1"
 CALIBRATION_NEW = "sf-2026.11.2"
 
 DEVIATIONS = [
+    (
+        "2026-11-15",
+        "The block-year band of the frozen calibration (calibrated on 12-month sums) is applied in P9 to a "
+        "partial sum of 4 or 6 months.",
+        "Only complete satellite-months exist for 2026 (P8); the coverage of the block-year band on partial "
+        "years is unverified.",
+    ),
     (
         "2026-11-15",
         "NOAA-21 pairs: the S-NPP / NOAA-20 side of 2023-2025 comes from the FIRMS country files and 2026 "
@@ -59,7 +67,8 @@ DEVIATIONS = [
         "2026-11-15",
         "The paired bootstrap resamples the rows of the (cut-off x test-year) block-year matrix and the "
         "blocks "
-        "separately, since forward test years are not independent of the cut-off.",
+        "separately, since forward test years are not independent of the cut-off. Cells sharing a test "
+        "year are not independent, so the interval is likely too narrow.",
         "P2 says 'years and blocks resampled separately'; here the first resampling unit is the cell "
         "(10 cells). Seed 20261114, 1000 resamples, 95 % percentile interval, as pre-registered.",
     ),
@@ -73,11 +82,17 @@ DEVIATIONS = [
     ),
 ]
 
+MODIS_REF = (
+    "MODIS-eq of the published route means MODIS as observed in 2018-05..2025-12, which includes the "
+    "drift epoch (Terra 2023+, Aqua 2024+; cause unverified). "
+    "It is not the same reference as S-NPP -> MODIS (2012-02..2025-12)."
+)
+
 UNVERIFIED = [
     "Observed MODIS from 2022 is in the drift epoch (Terra 2023+, Aqua 2024+ by P3, "
     "`reports/02/SA2.6.md`); the "
-    "cause (orbit drift) is unverified. MODIS-eq means 'MODIS as in the calibration period' (2012-2025), "
-    "so every "
+    "cause (orbit drift) is unverified. " + MODIS_REF + " "
+    "So every "
     "forward score here, and the 2026 check, measure the factor against a drifting MODIS.",
     "The clip of NOAA-21 (area API to Argentina) has no country file to compare with: unverified.",
     "Only standard-processing (SP) months enter any fit or score here. NRT months are never used; the NRT "
@@ -97,6 +112,10 @@ UNVERIFIED = [
 ]
 
 
+def _cov(x):
+    return f"{pct(x)} ({coverage_label(x)})" if np.isfinite(x) else "-"
+
+
 def _f(x, nd=3):
     return num(x, nd)
 
@@ -109,12 +128,20 @@ def _headline(res: Continuity, route: str, ext_pair, p9: pd.DataFrame | None) ->
     other = "direct" if route == "chain" else "chain"
     s_o = score(select(full, route=other))
     out = ["## Headline (P1)", ""]
+    n_ch = int((d.per_cutoff["better"] == "chain").sum())
+    n_di = int((d.per_cutoff["better"] == "direct").sum())
     label = (
         "the direct NOAA-20 -> MODIS factor" if route == "direct" else "the chain NOAA-20 -> S-NPP -> MODIS"
     )
     out.append(
         f"- **Route:** {label} is published as the MODIS-eq route after MODIS. P5 on the pooled forward "
-        f"holdouts (10 cut-off x test-year cells): {d.reason}. Robustness: {d.robust_note}."
+        f"holdouts (10 cut-off x test-year cells): {d.reason}. Robustness: {d.robust_note}. "
+        f"The difference is within noise (bootstrap {pct(d.boot['wape_diff'], True)} "
+        f"[{pct(d.boot['wape_lo'], True)}, {pct(d.boot['wape_hi'], True)}]; cut-offs split "
+        f"{n_ch}-{n_di}) and the chain has the "
+        f"{'smaller' if abs(d.chain['bias']) < abs(d.direct['bias']) else 'larger'} pooled bias "
+        f"({pct(d.chain['bias'], True)} vs {pct(d.direct['bias'], True)}): the direct factor is kept as the "
+        "baseline by the pre-registered rule, not because it was shown to be better."
     )
     out.append(
         f"- **Error (forward holdouts, cut-offs 2021-2024, test years to {LAST_FULL_YEAR}, pooled):** "
@@ -123,11 +150,22 @@ def _headline(res: Continuity, route: str, ext_pair, p9: pd.DataFrame | None) ->
         f"({other}: {pct(s_o['wape'])}, {pct(s_o['bias'], True)}); block-month WAPE {pct(bm['wape'])}. "
         f"Scored against observed MODIS, which drifts from 2022 (see unverified items)."
     )
+    cov9 = ""
+    if p9 is not None and len(p9):
+        q = p9[(p9["leg"].str.startswith("NOAA-20 -> MODIS")) & (p9["scope"].str.startswith("2026"))]
+        if len(q):
+            q = q.iloc[0]
+            cov9 = (
+                f" The frozen `{CALIBRATION_NEW}` band was tested only in P9: block-year {pct(q['cov_by'])} "
+                f"on {q['scope'].split('(')[1].rstrip(')')} (Jan-Apr 2026, n = {int(q['n_by'])} rows), "
+                f"{coverage_label(q['cov_by'])}. The band is not widened. No month of the main fire "
+                "season after 2025 is validated."
+            )
     out.append(
         f"- **Coverage (nominal 80 %, rows with source > 0):** block-year {pct(by['coverage'])} "
         f"({coverage_label(by['coverage'])}), relative width {pct(by['width'])}; block-month "
         f"{pct(bm['coverage'])} "
-        f"({coverage_label(bm['coverage'])})."
+        f"({coverage_label(bm['coverage'])}). This is the coverage of bands refitted at each cut-off." + cov9
     )
     if p9 is not None and len(p9):
         r = p9[(p9["leg"].str.startswith("NOAA-20 -> MODIS")) & (p9["scope"].str.startswith("2026"))]
@@ -209,6 +247,62 @@ def _coverage_by_year(res: Continuity) -> list[str]:
     return md_table(heads, rows)
 
 
+def seam_table(cal_ext) -> pd.DataFrame:
+    """National factor by calendar month and day/night: direct NOAA-20 -> MODIS vs the chain product."""
+    di = cal_ext.pairs["noaa20_to_modis"].f_nat
+    ch = cal_ext.pairs["noaa20_to_snpp"].f_nat * cal_ext.pairs["viirs_to_modis"].f_nat
+    rows = []
+    for m in range(12):
+        for k, dn in enumerate(("day", "night")):
+            rows.append(
+                {
+                    "month": m + 1,
+                    "dn": dn,
+                    "direct": di[m, k],
+                    "chain": ch[m, k],
+                    "ratio": di[m, k] / ch[m, k],
+                }
+            )
+    return pd.DataFrame(rows)
+
+
+def _seam(cal_ext) -> list[str]:
+    t = seam_table(cal_ext)
+    pc = {n: cal_ext.pairs[n] for n in ("noaa20_to_modis", "noaa20_to_snpp", "viirs_to_modis")}
+    top = t.loc[(t["ratio"] - 1).abs().nlargest(3).index]
+    mx = t.loc[(t["ratio"] - 1).abs().idxmax()]
+    names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    out = md_table(
+        [
+            "Month",
+            "Day/night",
+            "Direct (`noaa20_to_modis`)",
+            "Chain (`noaa20_to_snpp` x `viirs_to_modis`)",
+            "Direct / chain",
+        ],
+        [
+            [names[int(r.month) - 1], r.dn, _f(r.direct), _f(r.chain), pct(r.ratio - 1, True)]
+            for r in t.itertuples()
+        ],
+    )
+    out += [
+        "",
+        "National factors (`f_nat`) of `"
+        + CALIBRATION_NEW
+        + "`; per-pair fitted periods: "
+        + "; ".join(f"`{n}` {p.start}..{p.end}" for n, p in pc.items())
+        + ".",
+        "",
+        "When S-NPP ends the series switches from S-NPP -> MODIS to NOAA-20 -> MODIS; the national factors "
+        f"differ by up to {abs(mx['ratio'] - 1) * 100:.1f} % in {names[int(mx['month']) - 1]} ({mx['dn']}) "
+        "(largest three: "
+        + ", ".join(f"{names[int(r.month) - 1]} {r.dn} {pct(r.ratio - 1, True)}" for r in top.itertuples())
+        + "): a step in MODIS-eq at the switch is expected and is an artifact of the route, not a change "
+        "in fire.",
+    ]
+    return out
+
+
 def build_sa210_report(
     res: Continuity,
     cal_ext=None,
@@ -230,9 +324,7 @@ def build_sa210_report(
         "P8, P9 and "
         "Revision 1); nothing below uses a threshold that is not written there.",
         "",
-        "Retrospective validation, not an alert system. 'MODIS-eq' means MODIS as in the calibration period "
-        "(2012-2025); from 2022 observed MODIS is in the Terra/Aqua drift epoch (cause unverified, "
-        "`reports/02/SA2.6.md`).",
+        "Retrospective validation, not an alert system. " + MODIS_REF + " See `reports/02/SA2.6.md`.",
         "",
     ]
     out += _headline(res, route, ext_pair, p9)
@@ -584,7 +676,8 @@ def build_sa210_report(
             f"`{CALIBRATION_BASE}` (S-NPP -> MODIS and NOAA-20 -> S-NPP) and `{CALIBRATION_NEW}` (the "
             "published "
             "NOAA-20 -> MODIS route) applied unchanged to the 2026 standard-processing months with complete "
-            "satellites, scored once, by leg. 2022-2025 rows use the same calendar months: 'in-sample' "
+            "satellites, scored by leg once, as a mechanical rule of the pre-registration. 2022-2025 rows "
+            "use the same calendar months: 'in-sample' "
             "because those "
             "years are inside the fitted period of the frozen file, 'out of sample' for the forward "
             "holdouts of the "
@@ -593,6 +686,9 @@ def build_sa210_report(
             "measures MODIS as in the calibration period against a drifted MODIS.",
             "",
         ]
+        ns = p9[p9["leg"].str.startswith("NOAA-20 -> S-NPP")]
+        s26 = ns[ns["scope"].str.startswith("2026")].iloc[0]
+        sref = ns[ns["scope"] == "2022-2025 pooled"].iloc[0]
         out += md_table(
             [
                 "Leg",
@@ -603,6 +699,7 @@ def build_sa210_report(
                 "National bias",
                 "Block-month coverage",
                 "Block-year coverage",
+                "Block-year rows (n)",
             ],
             [
                 [
@@ -612,17 +709,29 @@ def build_sa210_report(
                     pct(r.wape_bm),
                     pct(r.wape_by),
                     pct(r.bias, True),
-                    pct(r.cov_bm),
-                    pct(r.cov_by),
+                    _cov(r.cov_bm),
+                    _cov(r.cov_by),
+                    int(r.n_by),
                 ]
                 for r in p9.itertuples()
             ],
         )
         out += [
             "",
+            "The block-year band is calibrated on 12-month sums and is applied here to a partial sum: its "
+            "coverage on partial years is unverified. NOAA-20 -> S-NPP bias is "
+            f"{pct(s26['bias'], True)} in 2026 against {pct(sref['bias'], True)} in the same months of "
+            "2022-2025 (association; cause unverified).",
+            "",
             "Reported as is; it changes no decision. P8 gates the 2026 months, so no secondary table is "
             "needed here.",
         ]
+    else:
+        out += [f"Pending: `{CALIBRATION_NEW}` is not frozen yet."]
+
+    out += ["", "## 10. The switch from S-NPP -> MODIS to NOAA-20 -> MODIS (national factors)", ""]
+    if cal_ext is not None:
+        out += _seam(cal_ext)
     else:
         out += [f"Pending: `{CALIBRATION_NEW}` is not frozen yet."]
 
