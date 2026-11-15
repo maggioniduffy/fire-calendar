@@ -43,6 +43,8 @@ interface ApiBody {
   end?: string;
   ref?: string;
   month?: string;
+  months?: number[];
+  years?: [number, number];
   bbox?: number[];
   kind?: string;
 }
@@ -58,6 +60,8 @@ export function requestKey(path: string, body: ApiBody): string {
   } else area = "polygon";
   const parts = [`POST ${path}`, `area=${area}`, `scale=${body.scale ?? "viirs_eq"}`];
   for (const k of ["month", "start", "end", "ref", "kind"] as const) if (body[k]) parts.push(`${k}=${body[k]}`);
+  if (body.months) parts.push(`months=${body.months.join(",")}`);
+  if (body.years) parts.push(`years=${body.years.join("..")}`);
   return parts.join(" ");
 }
 
@@ -99,7 +103,7 @@ export async function installApi(page: Page): Promise<ApiMock> {
       // Per-month fixtures hold every month in one file: the lookup key has `*` where the month goes.
       const field = MONTH_FIELD[path as keyof typeof MONTH_FIELD];
       const picked = field ? body[field] : undefined;
-      const lookup = picked ? requestKey(path, { ...body, [field]: "*" }) : key;
+      const lookup = picked || body.start || body.months ? requestKey(path, { ...body, [field ?? "month"]: "*", start: undefined, end: undefined, months: undefined, years: undefined }) : key;
       const file = req.method() === "POST" ? index.requests[lookup] : undefined;
       if (!file) {
         mock.unmatched.push(describe(req.method(), path, body));
@@ -113,6 +117,31 @@ export async function installApi(page: Page): Promise<ApiMock> {
           return route.fulfill({ status: 404, json: { detail: `no fixture month for ${key}` } });
         }
         answer = { ...answer, body: JSON.stringify(entry) };
+      }
+      if ((body.start || body.months) && answer.status === 200) {
+        const source = JSON.parse(answer.body) as { months: Record<string, Record<string, unknown>> };
+        const selected = Object.entries(source.months).filter(([ym]) => body.start ? ym >= body.start! && ym <= body.end! : body.months!.includes(Number(ym.slice(5))) && Number(ym.slice(0, 4)) >= body.years![0] && Number(ym.slice(0, 4)) <= body.years![1]).map(([, value]) => value);
+        if (path === "/cells") {
+          const cells = new Map<string, Record<string, unknown>>();
+          for (const entry of selected) for (const raw of (entry.cells as Record<string, unknown>[])) { const k = `${raw.cell_lat},${raw.cell_lon}`; const prev = cells.get(k); cells.set(k, { ...raw, value: Number(raw.value) + Number(prev?.value ?? 0), estimated: Boolean(raw.estimated || prev?.estimated) }); }
+          const payload = selected[0] ?? {};
+          answer = { ...answer, body: JSON.stringify({ ...payload, cells: [...cells.values()], total: selected.reduce((n, e) => n + Number(e.total ?? 0), 0), months: selected.length, period: { start: body.start ?? `${body.years![0]}-01`, end: body.end ?? `${body.years![1]}-12` }, selection: body.start ? { kind: "range", start: body.start, end: body.end } : { kind: "season", months: body.months, years: body.years } }) };
+        } else if (path === "/detections") {
+          const payload = selected[0] ?? {};
+          const points = selected.flatMap((e) => e.points as unknown[] ?? []);
+          answer = { ...answer, body: JSON.stringify({ ...payload, points, total: points.length, period: { start: body.start ?? `${body.years![0]}-01`, end: body.end ?? `${body.years![1]}-12`, }, selection: body.start ? { kind: "range", start: body.start, end: body.end } : { kind: "season", months: body.months, years: body.years } }) };
+        }
+      }
+      // Synthetic range fixture for the zoomed map path, where raw points replace monthly cells.
+      if (path === "/detections" && (body.start || body.months)) {
+        const selected = body.start ? { kind: "range", start: body.start, end: body.end } : { kind: "season", months: body.months, years: body.years };
+        answer = { status: 200, headers: { "content-type": "application/json" }, body: JSON.stringify({
+          meta: { layer: "synthetic", source: "SYNTHETIC fixture", period: "2016-10-01/2016-12-31", method: null, calibration_version: null, notes: { es: [], en: [] }, retrospective: true, alert_system: false, estimated_note_es: "", estimated_note_en: "" },
+          bbox: body.bbox ?? null,
+          points: [{ lat: -31.42, lon: -64.18, frp: 1, sensor: "VIIRS", acq_date: "2016-10-01", daynight: "D" }],
+          total: 10, truncated: false, sampled: true, max_points: 1, note: "synthetic", selection: selected,
+          period: body.start ? { start: body.start, end: body.end } : { start: `${body.years![0]}-01`, end: `${body.years![1]}-12` },
+        }) };
       }
       return route.fulfill(answer);
     },

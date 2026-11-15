@@ -312,6 +312,9 @@ export default function MapView() {
   };
 
   const nf = new Intl.NumberFormat(lang === "es" ? "es-AR" : "en-US", { maximumFractionDigits: 1 });
+  const seasonMonthNames = state.mapPeriod.kind === "season" ? state.mapPeriod.months.map((m) => new Intl.DateTimeFormat(lang, { month: "short", timeZone: "UTC" }).format(new Date(Date.UTC(2001, m - 1, 1)))) : [];
+  const seasonLabelMonths = seasonMonthNames.length > 1 && state.mapPeriod.kind === "season" && state.mapPeriod.months.every((m, i, all) => i === 0 || m === all[i - 1] + 1) ? `${seasonMonthNames[0]}–${seasonMonthNames.at(-1)}` : seasonMonthNames.join("–");
+  const mapPeriodLabel = state.mapPeriod.kind === "month" ? state.month ?? "—" : state.mapPeriod.kind === "range" ? format(t.map.rangeLabel, { start: state.mapPeriod.start, end: state.mapPeriod.end, n: (Number(state.mapPeriod.end.slice(0, 4)) - Number(state.mapPeriod.start.slice(0, 4))) * 12 + Number(state.mapPeriod.end.slice(5)) - Number(state.mapPeriod.start.slice(5)) + 1 }) : format(t.map.seasonLabel, { months: seasonLabelMonths, years: `${state.mapPeriod.years[0]}–${state.mapPeriod.years[1]}`, n: state.mapPeriod.months.length * (state.mapPeriod.years[1] - state.mapPeriod.years[0] + 1) });
   const total = cells?.total;
   const countText = cellsError
     ? t.map.error
@@ -352,7 +355,7 @@ export default function MapView() {
       )}
       <div className="map-overlay" data-testid="map-overlay">
         <div className="month num" data-testid="map-month">
-          {state.month ?? "—"}
+          {mapPeriodLabel}
         </div>
         <p className="count" data-testid="map-count" aria-live="polite">
           {countText}
@@ -365,6 +368,7 @@ export default function MapView() {
             {dets.truncated && (
               <p className="num">{format(t.map.legendTruncated, { shown: dets.points.length, total: dets.total })}</p>
             )}
+            {(dets.sampled || dets.truncated) && <p className="num">{format(t.map.sample, { shown: dets.points.length, total: dets.total })}</p>}
           </>
         ) : (
           <>

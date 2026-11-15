@@ -132,6 +132,9 @@
   box-shadow: 0 0 0 2px var(--casing), 0 0 0 4px var(--accent);
 }
 
+.cal-cell.period-selected { box-shadow: inset 0 0 0 1.5px var(--accent); }
+.cal-cell.chosen.period-selected { box-shadow: 0 0 0 2px var(--casing), 0 0 0 4px var(--accent), inset 0 0 0 1.5px var(--text); }
+
 .cal-cell:focus-visible {
   outline: 2px solid var(--text);
   outline-offset: 2px;

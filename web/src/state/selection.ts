@@ -37,8 +37,12 @@ export interface SelectionState {
   scale: UiScale;
   /** Chosen month "YYYY-MM" (SA4.3+). */
   month: string | null;
+  mapPeriod: MapPeriod;
+  calendarPeriod?: Period;
   draw: DrawState;
 }
+
+export type MapPeriod = { kind: "month" } | { kind: "range"; start: string; end: string } | { kind: "season"; months: number[]; years: [number, number] };
 
 // Limits copied from backend/src/firecal/stages/calendar/area.py.
 export const MIN_RADIUS_KM = 5;
@@ -107,6 +111,7 @@ export const initialSelection: SelectionState = {
   period: {},
   scale: "viirs_eq",
   month: null,
+  mapPeriod: { kind: "month" },
   draw: emptyDraw,
 };
 
@@ -125,7 +130,11 @@ export type SelectionAction =
   | { type: "drawCancel" }
   | { type: "setPeriod"; period: Period }
   | { type: "setScale"; scale: UiScale }
-  | { type: "setMonth"; month: string | null };
+  | { type: "setMonth"; month: string | null }
+  | { type: "setMapMonth" }
+  | { type: "setMapRange"; start: string; end: string }
+  | { type: "setMapSeason"; months: number[]; years: [number, number] }
+  | { type: "setCalendarPeriod"; period: Period };
 
 export function selectionReducer(state: SelectionState, action: SelectionAction): SelectionState {
   switch (action.type) {
@@ -161,6 +170,29 @@ export function selectionReducer(state: SelectionState, action: SelectionAction)
       return { ...state, scale: action.scale };
     case "setMonth":
       return { ...state, month: action.month };
+    case "setMapMonth":
+      return { ...state, mapPeriod: { kind: "month" } };
+    case "setMapRange": {
+      const a = MONTH_PATTERN.test(action.start) ? action.start : state.month;
+      const b = MONTH_PATTERN.test(action.end) ? action.end : state.month;
+      if (!a || !b) return state;
+      const clip = (value: string) => state.calendarPeriod?.start && value < state.calendarPeriod.start ? state.calendarPeriod.start : state.calendarPeriod?.end && value > state.calendarPeriod.end ? state.calendarPeriod.end : value;
+      const [start, end] = [clip(a), clip(b)].sort();
+      if (start > end) return state;
+      return { ...state, mapPeriod: { kind: "range", start, end } };
+    }
+    case "setMapSeason": {
+      const months = [...new Set(action.months.filter((m) => Number.isInteger(m) && m >= 1 && m <= 12))].sort((a, b) => a - b);
+      if (!months.length) return state;
+      let years: [number, number] = action.years[0] <= action.years[1] ? action.years : [action.years[1], action.years[0]];
+      const minYear = state.calendarPeriod?.start ? Number(state.calendarPeriod.start.slice(0, 4)) : Number.MIN_SAFE_INTEGER;
+      const maxYear = state.calendarPeriod?.end ? Number(state.calendarPeriod.end.slice(0, 4)) : Number.MAX_SAFE_INTEGER;
+      years = [Math.min(maxYear, Math.max(minYear, years[0])), Math.min(maxYear, Math.max(minYear, years[1]))].sort((a, b) => a - b) as [number, number];
+      if (years[0] > years[1]) return state;
+      return { ...state, mapPeriod: { kind: "season", months, years } };
+    }
+    case "setCalendarPeriod":
+      return { ...state, calendarPeriod: action.period };
   }
 }
 
@@ -197,8 +229,14 @@ export const MONTH_PATTERN = /^\d{4}-(0[1-9]|1[0-2])$/;
 
 /** Initial state from the URL query: `?month=YYYY-MM` opens the inspector on that month (shareable; also lets e2e pick one). */
 export function selectionFromSearch(search: string, base: SelectionState = initialSelection): SelectionState {
-  const month = new URLSearchParams(search).get("month");
-  return month && MONTH_PATTERN.test(month) ? { ...base, month } : base;
+  const params = new URLSearchParams(search);
+  const month = params.get("month");
+  let state = month && MONTH_PATTERN.test(month) ? { ...base, month } : base;
+  const range = params.get("range")?.match(/^(\d{4}-\d{2})\.\.(\d{4}-\d{2})$/);
+  if (range && MONTH_PATTERN.test(range[1]) && MONTH_PATTERN.test(range[2])) state = selectionReducer(state, { type: "setMapRange", start: range[1], end: range[2] });
+  const season = params.get("season")?.match(/^([0-9,]+)@(\d{4})\.\.(\d{4})$/);
+  if (season) state = selectionReducer(state, { type: "setMapSeason", months: season[1].split(",").map(Number), years: [Number(season[2]), Number(season[3])] });
+  return state;
 }
 
 /** Body of /cells and /detections: the area and scale of the selection plus the chosen month; null until set. */
@@ -206,7 +244,8 @@ export function toCellsRequest(state: SelectionState, bbox?: BBox): CellsRequest
   if (!state.month) return null;
   const { area, preset, region, scale } = toRequest(state);
   const where = area ? { area } : region ? { region } : { preset };
-  const body: CellsRequest = { ...where, scale, month: state.month };
+  const mode = state.mapPeriod ?? { kind: "month" as const };
+  const body: CellsRequest = mode.kind === "month" ? { ...where, scale, month: state.month } : mode.kind === "range" ? { ...where, scale, start: mode.start, end: mode.end } : { ...where, scale, months: mode.months, years: mode.years };
   return bbox ? { ...body, bbox } : body;
 }
 

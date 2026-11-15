@@ -22,6 +22,9 @@ const en: Messages = {
     area: "Area",
     open: "Show area and period",
     close: "Hide area and period",
+    mapPeriod: "Map period",
+    monthMode: "Month", rangeMode: "Range", seasonMode: "Season",
+    rangeStart: "From", rangeEnd: "To", seasonMonths: "Season months", yearFrom: "Year from", yearTo: "Year to",
   },
   area: {
     modes: "How to choose the area",
@@ -89,6 +92,10 @@ const en: Messages = {
     dashboard: "Dashboard",
   },
   map: {
+    rangeLabel: "{start} – {end} · {n} months",
+    seasonLabel: "{months} · {years} · {n} months",
+    areaTotal: "{n} hot spots in the area",
+    sample: "Sample of {shown} of {total} hot spots",
     label: "Hot spot map",
     hotspots: "{n} hot spots in the area",
     noData: "No sensor coverage this month",

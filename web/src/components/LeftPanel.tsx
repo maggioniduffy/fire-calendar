@@ -11,7 +11,7 @@ import {
   validateCircle,
   type AreaError,
 } from "../state/selection";
-import { useT } from "../state/prefs";
+import { usePrefs, useT } from "../state/prefs";
 import { SeriesSection } from "./SeriesSection";
 import { areaName } from "../state/areaName";
 
@@ -36,6 +36,7 @@ function useDrawKeys(active: boolean, finish: () => void, cancel: () => void) {
 /** Area choice (preset, coordinates + radius, drawn polygon, my location) and the state of its data. */
 export function LeftPanel() {
   const t = useT();
+  const { lang } = usePrefs();
   const { state, dispatch, data } = useSelection();
   const { area, draw } = state;
   const [open, setOpen] = useState(false);
@@ -112,6 +113,9 @@ export function LeftPanel() {
   const boundaries = STATIC_MODE ? getCatalog()?.manifest.boundaries : undefined;
   const drawError = draw.error ? t.area.errors[draw.error] : null;
   const message = geoMessage ? t.area.errors[geoMessage] : null;
+  const calendarStart = data.status === "ready" ? data.calendar.period.start : "2000-01";
+  const calendarEnd = data.status === "ready" ? data.calendar.period.end : "2000-01";
+  const defaultMapMonth = state.month ?? calendarEnd;
 
   return (
     <aside className="left card" data-testid="left-panel" data-open={open} aria-labelledby={`${bodyId}-title`}>
@@ -274,6 +278,21 @@ export function LeftPanel() {
         </div>
 
         <SeriesSection />
+
+        <section className="stack map-period" aria-labelledby={`${bodyId}-map-period`} data-testid="map-period-controls">
+          <h3 id={`${bodyId}-map-period`}>{t.panel.mapPeriod}</h3>
+          <div className="segmented" role="group" aria-label={t.panel.mapPeriod}>
+            {(["month", "range", "season"] as const).map((kind) => <button key={kind} type="button" aria-pressed={state.mapPeriod.kind === kind} onClick={() => kind === "month" ? dispatch({ type: "setMapMonth" }) : kind === "range" ? dispatch({ type: "setMapRange", start: defaultMapMonth, end: defaultMapMonth }) : dispatch({ type: "setMapSeason", months: [8, 9, 10], years: [Number(calendarStart.slice(0, 4)), Number(calendarEnd.slice(0, 4))] })}>{kind === "month" ? t.panel.monthMode : kind === "range" ? t.panel.rangeMode : t.panel.seasonMode}</button>)}
+          </div>
+          {state.mapPeriod.kind === "range" && <div className="field-row">
+            <label>{t.panel.rangeStart}<input aria-label={t.panel.rangeStart} type="month" value={state.mapPeriod.start} min={data.status === "ready" ? data.calendar.period.start : undefined} max={data.status === "ready" ? data.calendar.period.end : undefined} onChange={(e) => dispatch({ type: "setMapRange", start: e.target.value, end: state.mapPeriod.kind === "range" ? state.mapPeriod.end : e.target.value })} /></label>
+            <label>{t.panel.rangeEnd}<input aria-label={t.panel.rangeEnd} type="month" value={state.mapPeriod.end} min={data.status === "ready" ? data.calendar.period.start : undefined} max={data.status === "ready" ? data.calendar.period.end : undefined} onChange={(e) => dispatch({ type: "setMapRange", start: state.mapPeriod.kind === "range" ? state.mapPeriod.start : e.target.value, end: e.target.value })} /></label>
+          </div>}
+          {state.mapPeriod.kind === "season" && <>
+            <div className="season-months" role="group" aria-label={t.panel.seasonMonths}>{Array.from({ length: 12 }, (_, i) => i + 1).map((m) => { const active = state.mapPeriod.kind === "season" && state.mapPeriod.months.includes(m); return <button key={m} type="button" aria-pressed={active} onClick={() => { if (state.mapPeriod.kind !== "season") return; const next = active ? state.mapPeriod.months.filter((v) => v !== m) : [...state.mapPeriod.months, m]; if (next.length) dispatch({ type: "setMapSeason", months: next, years: state.mapPeriod.years }); }}>{new Intl.DateTimeFormat(lang, { month: "short", timeZone: "UTC" }).format(new Date(Date.UTC(2001, m - 1, 1)))}</button>; })}</div>
+            <div className="field-row">{([0, 1] as const).map((idx) => <label key={idx}>{idx === 0 ? t.panel.yearFrom : t.panel.yearTo}<select aria-label={idx === 0 ? t.panel.yearFrom : t.panel.yearTo} value={state.mapPeriod.kind === "season" ? state.mapPeriod.years[idx] : ""} onChange={(e) => { if (state.mapPeriod.kind !== "season") return; const years: [number, number] = [...state.mapPeriod.years]; years[idx] = Number(e.target.value); dispatch({ type: "setMapSeason", months: state.mapPeriod.months, years }); }}>{Array.from({ length: (data.status === "ready" ? Number(data.calendar.period.end.slice(0, 4)) - Number(data.calendar.period.start.slice(0, 4)) : 0) + 1 }, (_, i) => (data.status === "ready" ? Number(data.calendar.period.start.slice(0, 4)) : 2000) + i).map((y) => <option key={y}>{y}</option>)}</select></label>)}</div>
+          </>}
+        </section>
 
         <div className="data-status" data-testid="data-status" data-state={data.status} aria-live="polite">
           {data.status === "loading" && <p className="muted">{t.area.status.loading}</p>}

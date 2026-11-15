@@ -21,6 +21,9 @@ const es = {
     area: "Área",
     open: "Mostrar área y período",
     close: "Ocultar área y período",
+    mapPeriod: "Período del mapa",
+    monthMode: "Mes", rangeMode: "Rango", seasonMode: "Temporada",
+    rangeStart: "Desde", rangeEnd: "Hasta", seasonMonths: "Meses de la temporada", yearFrom: "Año desde", yearTo: "Año hasta",
   },
   area: {
     modes: "Cómo elegir el área",
@@ -88,6 +91,10 @@ const es = {
     dashboard: "Tablero",
   },
   map: {
+    rangeLabel: "{start} – {end} · {n} meses",
+    seasonLabel: "{months} · {years} · {n} meses",
+    areaTotal: "{n} focos en el área",
+    sample: "Muestra de {shown} de {total} focos",
     label: "Mapa de focos de calor",
     hotspots: "{n} focos en el área",
     noData: "Sin cobertura del sensor en este mes",
