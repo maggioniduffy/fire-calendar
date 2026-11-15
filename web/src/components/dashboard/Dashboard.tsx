@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { parseMonthKey } from "../../charts/dashboard-scales";
+import { monthlySeries, parseMonthKey } from "../../charts/dashboard-scales";
 import { format } from "../../i18n";
 import { usePrefs, useT } from "../../state/prefs";
 import { useSelection } from "../../state/SelectionContext";
@@ -39,6 +39,13 @@ export function Dashboard() {
   const d = t.dashboard;
   const source = `${d.source}: ${cal.meta.source} · ${d.period}: ${cal.meta.period.replace("/", " – ")} · ${d.series}: ${d.seriesNames[cal.scale]}`;
   const kf = stats.key_figures;
+  // Keyboard path for the linked charts: step the chosen month through the months of the period.
+  const keys = monthlySeries(cal).map((p) => p.key);
+  const at = state.month ? keys.indexOf(state.month) : -1;
+  const step = (by: number) => {
+    const next = keys[at < 0 ? keys.length - 1 : at + by];
+    if (next) dispatch({ type: "setMonth", month: next });
+  };
 
   return (
     <LinkContext.Provider value={link}>
@@ -56,6 +63,18 @@ export function Dashboard() {
               {format(d.estimatedIncluded, { n: kf.estimated_months })} {lang === "es" ? cal.meta.estimated_note_es : cal.meta.estimated_note_en}
             </p>
           )}
+        </div>
+        <div className="dash-stepper" role="group" aria-label={d.stepper.label} data-testid="month-stepper">
+          <button type="button" className="btn" onClick={() => step(-1)} disabled={at <= 0} aria-label={d.stepper.prev} data-testid="month-prev">
+            &lsaquo;
+          </button>
+          <output className="num" aria-live="polite" data-testid="month-current">
+            {state.month ?? "–"}
+          </output>
+          <button type="button" className="btn" onClick={() => step(1)} disabled={at < 0 || at >= keys.length - 1} aria-label={d.stepper.next} data-testid="month-next">
+            &rsaquo;
+          </button>
+          <span className="muted">{d.stepper.hint}</span>
         </div>
         <div className="dash-grid">
           <MonthlyChart cal={cal} source={source} />

@@ -122,7 +122,10 @@ IBM Plex Mono 400/500 with tabular numerals only for numbers, dates and units (c
 - 44 px targets, 8 px radius, no border. Neutrals on `--raised`; primary on `--ctrl` with `--on-ctrl`.
 - 18 px checkboxes with `accent-color: var(--ctrl)`; 40 px rows.
 - Segmented controls: `--raised` container with 10 px radius, active button `--ctrl` with `--on-ctrl` text.
-- Visible focus: 2 px ring in `--accent` with a 2 px offset.
+- Visible focus: 2 px ring in `--accent` with a 2 px offset and a `--casing` shadow filling the offset (the accent alone
+  has 1.9:1 against the light surface). Calendar cells use a `--text` ring because the chosen month already wears the accent.
+- Keyboard: drawing a polygon needs a pointer; the keyboard alternative is lat/lon + radius. The Dashboard has a month
+  stepper (previous / next) because its charts are pointer-selected.
 - Accent marks on the map and charts carry a `--casing` outline.
 
 ## Drag handles

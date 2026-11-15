@@ -18,7 +18,7 @@ Docs: [architecture](docs/architecture.md), [design](docs/design.md), [validatio
 | 1 | FIRMS data: download, filters, grid | [plan/01-data.md](plan/01-data.md) | 0 | active |
 | 2 | MODIS–VIIRS harmonization + ML | [plan/02-harmonization.md](plan/02-harmonization.md) | 1 | closed 2026-11-15 (part deferred) |
 | 3 | Calendar and per-area analytics | [plan/03-calendar-analytics.md](plan/03-calendar-analytics.md) | 2 | done (backend) |
-| 4 | Web app | [plan/04-web-app.md](plan/04-web-app.md) | 0, 3 | active |
+| 4 | Web app | [plan/04-web-app.md](plan/04-web-app.md) | 0, 3 | done (backend + web) |
 | 5 | ENSO and fire (ENSO-lite only) | [plan/05-enso-drought.md](plan/05-enso-drought.md) | 3, SA0.9 | active (drought deferred) |
 | 5b | Atmospheric rivers and fire | [plan/05b-atmospheric-rivers.md](plan/05b-atmospheric-rivers.md) | 4 | deferred |
 | 6 | Experimental prediction | [plan/06-ml-outlook.md](plan/06-ml-outlook.md) | 2, 5 | deferred |
@@ -86,3 +86,9 @@ LightGBM (the scale factor stays), NRT.
   `loadLayers`, `layers/manifest.ts`); `/calendar` is fetched on area, period and scale only, `/stats` also on the
   chosen month, so changing the month does not refetch the calendar. e2e fixtures hold `/cells` and per-month
   `/stats` for every month of the synthetic period; the climatology now also returns p25 and p75.
+- 2026-11-15: SA4.8 and SA4.7 done, phase 4 closed. Dashboard tab (monthly series with band, totals per year,
+  seasonality, anomaly; CSV/PNG per chart; day/night, FRP and ENSO charts deferred: no payload provides them);
+  seasonality draws the p10–p90 range and the "normal" band p25–p75 with the median and the latest year on top.
+  Accessibility: axe (WCAG 2 A/AA) with 0 violations on map, dashboard, light/dark and 360 px; keyboard tab order
+  and a month stepper for the dashboard charts; focus ring accent with casing. Keyboard-only polygon drawing is out
+  of scope: lat/lon + radius is the keyboard alternative.

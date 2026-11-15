@@ -305,3 +305,15 @@
 .dash-chart.is-pending .dash-area {
   opacity: 0.55;
 }
+
+.dash-stepper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.dash-stepper .btn {
+  margin-top: 0;
+  min-width: var(--control);
+}

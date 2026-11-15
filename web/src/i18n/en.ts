@@ -87,6 +87,7 @@ const en: Messages = {
     downloadCsv: "Download CSV: {chart}",
     downloadPng: "Download PNG: {chart}",
     exportFailed: "Could not export the chart.",
+    stepper: { label: "Chosen month", prev: "Previous month", next: "Next month", hint: "Choose the month every chart and the calendar mark." },
     readoutHint: "Hover a month or tap it to select it.",
     partialYear: "partial year",
     monthly: {

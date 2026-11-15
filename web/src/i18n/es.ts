@@ -86,6 +86,7 @@ const es = {
     downloadCsv: "Descargar CSV: {chart}",
     downloadPng: "Descargar PNG: {chart}",
     exportFailed: "No se pudo exportar el gráfico.",
+    stepper: { label: "Mes elegido", prev: "Mes anterior", next: "Mes siguiente", hint: "Elige el mes que marcan todos los gráficos y el calendario." },
     readoutHint: "Pasá el cursor sobre un mes o tocalo para elegirlo.",
     partialYear: "año parcial",
     monthly: {

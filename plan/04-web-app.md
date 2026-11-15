@@ -1,6 +1,6 @@
 # Phase 4 — Web app
 
-Status: active (SA4.8 last) · Depends on: 0, 3 · Refs: `docs/design.md`
+Status: done 2026-11-15 · Depends on: 0, 3 · Refs: `docs/design.md`
 
 ## Goal
 
@@ -18,4 +18,4 @@ it.
 | SA4.5 | Inspector: SA3.4 figures, series selector: reported per sensor, MODIS-equivalent or VIIRS-equivalent (2000–2011 marked "estimated"), calibration version, source and period | Sonnet | e2e — **done 2026-11-15** (Reported = per-sensor columns of `/calendar`; ENSO row hidden until phase 5) |
 | SA4.6 | CSV downloads (hot spots and calendar) | Sonnet | e2e: the file downloads with the SA3.6 columns — **done 2026-11-15** (hot-spot button is removed after the first 404) |
 | SA4.8 | "Dashboard" view of the selected area (tab next to the map), charts linked to each other and to the calendar: harmonized monthly series with uncertainty band and per-sensor series; totals per year; seasonality (median and p10–p90 per month with the current year on top); monthly anomaly; day/night split and FRP distribution; ENSO phase and drought (if phase 5 exists). Each chart with source and period, exportable as PNG and CSV | Sonnet | e2e: choose area → charts with the same totals as SA3.4; vitest of scales — **done 2026-11-15** (day/night, FRP and ENSO charts deferred: no payload provides them) |
-| SA4.7 | Accessibility: AA contrast, keyboard, visible focus, phone width | Sonnet | Playwright + axe with no errors |
+| SA4.7 | Accessibility: AA contrast, keyboard, visible focus, phone width | Sonnet | Playwright + axe with no errors — **done 2026-11-15** (`e2e/a11y.spec.ts`; keyboard-only polygon drawing out of scope, lat/lon + radius is the keyboard alternative) |
