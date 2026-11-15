@@ -16,7 +16,7 @@ Docs: [architecture](docs/architecture.md), [design](docs/design.md), [validatio
 |---|---|---|---|---|
 | 0 | Foundations and data access | [plan/00-foundations.md](plan/00-foundations.md) | — | active |
 | 1 | FIRMS data: download, filters, grid | [plan/01-data.md](plan/01-data.md) | 0 | active |
-| 2 | MODIS–VIIRS harmonization + ML | [plan/02-harmonization.md](plan/02-harmonization.md) | 1 | closed 2026-11-15 (part deferred) |
+| 2 | MODIS–VIIRS harmonization + ML | [plan/02-harmonization.md](plan/02-harmonization.md) | 1 | done 2026-11-15 (incl. post-MODIS continuity) |
 | 3 | Calendar and per-area analytics | [plan/03-calendar-analytics.md](plan/03-calendar-analytics.md) | 2 | done (backend) |
 | 4 | Web app | [plan/04-web-app.md](plan/04-web-app.md) | 0, 3 | done (backend + web) |
 | 5 | ENSO and fire (ENSO-lite only) | [plan/05-enso-drought.md](plan/05-enso-drought.md) | 3, SA0.9 | ENSO-lite done (drought deferred) |
@@ -123,3 +123,13 @@ LightGBM (the scale factor stays), NRT.
   (created). The cloud session cannot upload (its proxy replaces wrangler's upload token), so deploy runs from the
   manual `deploy-demo` workflow, which needs the CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID secrets and the
   workflow on the default branch.
+- 2026-11-15: phase 2 completed (branch `fm/phase-2-continuity`), pre-registered with the advisor before any
+  result. Freeze guard: calibrations live in `backend/calibrations/` with sha256, build verifies, overwrite refused.
+  SA2.6 drift (Terra 2023+, Aqua 2024+; cause unverified) and SA2.8 backward validation (no recalibration warranted
+  under the rule; `terra_to_viirs` only under the 2022+ sensitivity window, for a later version). SA1.6: FIRMS area
+  API (SP then NRT, NOAA-21), Argentina clip (P7 passes), one source per satellite-month, NRT static-source mask,
+  completeness gate. SA2.9: MCD64A1 burned area does not change the SA2.7 verdict. SA2.10: `sf-2026.11.2`, direct
+  NOAA-20 -> MODIS route (block-year WAPE 12.3 %, within noise of the chain), frozen band coverage on Jan–Apr 2026
+  unverified (72.1 %). Series to 2026-10 with provisional NRT months and web badges; static export regenerated, not
+  deployed. Open: map view does not mark provisional months; calendar rows Nov–Dec sit under the ENSO strip at
+  1440x720 (hover blocked, keyboard works); a11y tab-order test flaky (also on the base).

@@ -8,6 +8,7 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
+from test_harmonize_series import CELL, LAT, LON, _conf, const_cal  # noqa: F401
 
 from firecal.stages.calendar.service import CalendarRequest, calendar_payload, meta
 from firecal.stages.calendar.store import SeriesStore
@@ -23,7 +24,6 @@ from firecal.stages.harmonize.series import (
     sensor_months,
     wide_counts,
 )
-from tests.test_harmonize_series import CELL, LAT, LON, _conf, const_cal  # noqa: F401
 
 F_N21, F_N20M = 0.9, 0.05
 

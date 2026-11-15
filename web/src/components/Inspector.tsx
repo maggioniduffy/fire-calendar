@@ -49,6 +49,18 @@ function AreaFigures() {
       <h2 className="card-title" id="inspector-title" data-testid="inspector-heading">
         {heading(model.ref ? formatMonth(model.ref, lang) : t.inspector.noMonth)}
       </h2>
+      {status.provisional && (
+        <div className="stack" data-testid="provisional-box">
+          <p>
+            <span className="flag status-badge" data-testid="provisional-badge">
+              {t.status.provisional}
+            </span>
+          </p>
+          <p className="muted" data-testid="provisional-note">
+            {provisionalNote}
+          </p>
+        </div>
+      )}
       <p className="muted num" data-testid="inspector-range">
         {calendar.period.start} – {calendar.period.end}
       </p>
@@ -108,7 +120,15 @@ function AreaFigures() {
         )}
         <div className="row">
           <dt>{t.inspector.source}</dt>
-          <dd data-testid="fig-source">{meta.source}</dd>
+          <dd data-testid="fig-source">
+            <span lang="en">{meta.source}</span>
+            {lang === "es" && (
+              <span className="muted" data-testid="source-lang-note">
+                {" "}
+                ({t.status.sourceInEnglish})
+              </span>
+            )}
+          </dd>
         </div>
         {status.sourceText && (
           <div className="row">
@@ -129,18 +149,6 @@ function AreaFigures() {
           </dd>
         </div>
       </dl>
-      {status.provisional && (
-        <div className="stack" data-testid="provisional-box">
-          <p>
-            <span className="flag status-badge" data-testid="provisional-badge">
-              {t.status.provisional}
-            </span>
-          </p>
-          <p className="muted" data-testid="provisional-note">
-            {provisionalNote}
-          </p>
-        </div>
-      )}
       {status.drift && (
         <p className="muted" data-testid="drift-note">
           {t.status.drift}

@@ -65,6 +65,7 @@ const es = {
     provisional: "Provisorio",
     provisionalTip: "Provisorio (NRT, tiempo casi real): puede cambiar cuando llegue el procesamiento estándar",
     provisionalFallbackNote: "Provisorio: algún satélite de este mes viene de tiempo casi real (NRT) y puede cambiar con el procesamiento estándar.",
+    sourceInEnglish: "texto de la fuente, en inglés",
     sourceLevel: "Nivel de la fuente",
     drift: "MODIS observado durante deriva orbital (causa sin verificar)",
     legendProvisional: "Mes provisorio (NRT)",

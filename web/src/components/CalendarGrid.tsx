@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
-import type { CalendarPayload, EnsoBlock } from "../api/types";
+import type { EnsoBlock } from "../api/types";
 import { divergingColor, sequentialColor } from "../charts/scales";
 import { format } from "../i18n";
 import { statusView } from "../state/monthStatus";
@@ -12,7 +12,6 @@ export type CalendarMode = "count" | "anomaly";
 interface Props {
   grid: Grid;
   mode: CalendarMode;
-  meta: CalendarPayload["meta"];
   /** Scale of the payload ("viirs_eq" | "modis_eq"): MODIS drift is only noted where MODIS counts are part of the figure. */
   scale: string;
   /** ENSO block of the payload; null hides the phase strip. */
@@ -39,7 +38,7 @@ export function monthName(lang: string, month: number, style: "long" | "narrow" 
   return new Intl.DateTimeFormat(lang, { month: style, timeZone: "UTC" }).format(new Date(Date.UTC(2001, month - 1, 1)));
 }
 
-export function CalendarGrid({ grid, mode, meta, scale, enso, selected, onSelect }: Props) {
+export function CalendarGrid({ grid, mode, scale, enso, selected, onSelect }: Props) {
   const t = useT();
   const { theme, lang } = usePrefs();
   const wrap = useRef<HTMLDivElement>(null);
@@ -230,9 +229,6 @@ export function CalendarGrid({ grid, mode, meta, scale, enso, selected, onSelect
             </span>
           )}
           {tipStatus?.drift && <span data-testid="tip-drift">{t.status.drift}</span>}
-          <span className="muted">
-            {t.calendar.source}: {meta.source} · {t.calendar.period}: <span className="num">{meta.period}</span>
-          </span>
         </div>
       )}
     </div>

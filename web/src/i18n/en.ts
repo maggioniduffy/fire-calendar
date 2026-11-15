@@ -66,6 +66,7 @@ const en: Messages = {
     provisional: "Provisional",
     provisionalTip: "Provisional (NRT, near real time): may change when standard processing arrives",
     provisionalFallbackNote: "Provisional: a satellite in this month comes from near real time (NRT) and may change with standard processing.",
+    sourceInEnglish: "source text as published",
     sourceLevel: "Source level",
     drift: "MODIS observed during orbit drift (unverified cause)",
     legendProvisional: "Provisional month (NRT)",

@@ -36,8 +36,8 @@ test("hover shows count, source and period; focus does too", async ({ page }) =>
   const tip = page.getByTestId("calendar-tooltip");
   await expect(tip).toBeVisible();
   await expect(page.getByTestId("tip-count")).toHaveText(String(Math.round(row.viirs_eq * 10) / 10).replace(".", ","));
-  await expect(tip).toContainText(calendar.meta.source);
-  await expect(tip).toContainText(calendar.meta.period);
+  // The long source and period live in the inspector; the tooltip stays a short month status.
+  await expect(tip).not.toContainText(calendar.meta.source);
 
   await page.mouse.move(0, 0);
   await expect(tip).toBeHidden();
