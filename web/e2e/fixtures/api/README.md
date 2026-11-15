@@ -11,6 +11,7 @@ specs request (`KEY_MONTHS`) for the rest, one file per area + scale: the reques
 `api.ts` picks the
 month entry (`/stats` with `ref` works the same, `ref=*`, for the Cordoba preset). The view window `bbox` is
 not part of the key, so each answer holds every cell of the area.
+`/calendar` answers carry the `enso` block built from a SYNTHETIC ONI (`ONI_RUNS`, all three phases).
 `/detections` answers 404 for every month: the synthetic server has no raw detections.
 A polygon request (any vertices) maps to the one polygon fixture.
 `index-inspector.json` adds the chosen-month stats (`ref`) and the `/export.csv` answers (status and

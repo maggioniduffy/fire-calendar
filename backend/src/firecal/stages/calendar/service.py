@@ -23,6 +23,7 @@ from firecal.stages.calendar.area import (
     describe,
 )
 from firecal.stages.calendar.climatology import anomaly, climatology, last_available
+from firecal.stages.calendar.enso_split import enso_block
 from firecal.stages.calendar.matrix import BAND_METHOD, annual, area_band, calendar_matrix
 from firecal.stages.calendar.stats import key_figures
 from firecal.stages.calendar.store import BLOCK_DEG, YM, SeriesStore
@@ -222,7 +223,8 @@ def area_matrix(store: SeriesStore, r: Resolved) -> tuple[pd.DataFrame, pd.DataF
     return rows, calendar_matrix(rows, store.coverage(), r.start, r.end)
 
 
-def calendar_payload(store: SeriesStore, req: CalendarRequest) -> dict:
+def calendar_payload(store: SeriesStore, req: CalendarRequest, enso: pd.DataFrame | None = None) -> dict:
+    """`enso`: the ONI table (`firecal.io.enso.read_enso`), or None when it is not built (`enso: null`)."""
     r = resolve(store, req)
     rows, matrix = area_matrix(store, r)
     blocks = r.blocks
@@ -249,6 +251,7 @@ def calendar_payload(store: SeriesStore, req: CalendarRequest) -> dict:
                 "note_es": BAND_NOTE_ES,
                 "note_en": BAND_NOTE_EN,
             },
+            "enso": None if enso is None else enso_block(enso, matrix, r.scale, r.start, r.end),
         }
     )
 
