@@ -92,3 +92,53 @@ def evaluate_cmd(
     typer.echo(f"runtime {time.time() - t0:.1f} s, peak RSS (main process) {peak_mb:.0f} MB")
     if ml_result is not None:
         typer.echo(f"ML: {ml_result.seconds / 60:.1f} min, peak summed PSS {ml_result.peak_mb:.0f} MB")
+
+
+def _reports_dir(name: str) -> Path:
+    return REPO_ROOT / "reports" / "02" / name
+
+
+@harmonize_app.command("drift")
+def drift_cmd(
+    out: Annotated[Path, typer.Option(help="Markdown report path.")] = REPO_ROOT
+    / "reports"
+    / "02"
+    / "SA2.6.md",
+) -> None:
+    """SA2.6: Terra/Aqua drift diagnostics (P3 epochs, ratios, placebo, factors with/without, P8)."""
+    from firecal.stages.harmonize.drift import run_drift
+    from firecal.stages.harmonize.drift_report import build_sa26_report
+
+    t0 = time.time()
+    res = run_drift()
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(build_sa26_report(run_date=dt.date.today(), **res["report_args"]))
+    res["blocks_csv"].to_csv(out.with_name("SA2.6_by_block.csv"), index=False)
+    typer.echo(str(out))
+    peak_mb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+    typer.echo(f"runtime {time.time() - t0:.1f} s, peak RSS {peak_mb:.0f} MB")
+    for sat, e in res["epochs"].items():
+        typer.echo(f"drift epoch {sat}: {e.start}")
+
+
+@harmonize_app.command("backward")
+def backward_cmd(
+    out: Annotated[Path, typer.Option(help="Markdown report path.")] = REPO_ROOT
+    / "reports"
+    / "02"
+    / "SA2.8.md",
+) -> None:
+    """SA2.8: train 2016+, test 2012-2015, with and without the drift years; P4 condition 2 gate."""
+    from firecal.stages.harmonize.backward import run_backward
+    from firecal.stages.harmonize.backward_report import build_sa28_report
+
+    t0 = time.time()
+    results, windows, blocks = run_backward()
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(build_sa28_report(results, windows, dt.date.today()))
+    blocks.to_csv(out.with_name("SA2.8_by_block.csv"), index=False)
+    typer.echo(str(out))
+    peak_mb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+    typer.echo(f"runtime {time.time() - t0:.1f} s, peak RSS {peak_mb:.0f} MB")
+    for k, r in results.items():
+        typer.echo(f"{k}: {r['verdict']}")
