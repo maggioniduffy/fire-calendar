@@ -69,3 +69,7 @@ LightGBM (the scale factor stays), NRT.
 - 2026-11-15: LightGBM cell-model bias verified
   ([reports/02/ml_bias_check.md](reports/02/ml_bias_check.md)): structural in the total (it comes from detections
   outside its rows), not in individual years. The verdict does not change.
+- 2026-11-15: phase 4 started. SA4.1 done: data client (`VITE_DATA_URL` or `/api`), selection state, area by
+  Córdoba preset, lat/lon + radius, drawn polygon and "Use my location" (230 km; denied stays on Córdoba). E2E run
+  on synthetic API fixtures generated from the real app (`backend/scripts/web_fixtures.py`, drift test). The API
+  has no "reported" scale yet (SA4.5).

@@ -11,7 +11,7 @@ it.
 
 | ID | Task | Agent | Done when |
 |---|---|---|---|
-| SA4.1 | Area: draw on the map, enter lat/lon + radius, "Use my location" (asks permission; default radius ~230 km); initial view: Córdoba province | Sonnet | e2e of each mode; without permission it stays on Córdoba |
+| SA4.1 | Area: draw on the map, enter lat/lon + radius, "Use my location" (asks permission; default radius ~230 km); initial view: Córdoba province | Sonnet | e2e of each mode; without permission it stays on Córdoba — **done 2026-11-15** (keyboard-only drawing open for SA4.7) |
 | SA4.2 | deck.gl map with hot spots (raw or cells depending on zoom) and the selected area | Sonnet | e2e: changes when the area moves |
 | SA4.3 | Calendar: year × month heatmap with a colorblind-safe sequential ramp; tooltip with count and source | Sonnet | e2e + vitest of the color scale |
 | SA4.4 | Anomalies: year × month vs. median with a blue/orange diverging ramp; current month highlighted with the accent | Sonnet | e2e |

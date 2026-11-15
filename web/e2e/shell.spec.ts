@@ -1,4 +1,5 @@
-import { expect, test, type Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
+import { expect, test } from "./api";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -23,7 +24,8 @@ async function expectSamePage(page: Page) {
 test("shell shows title, challenge, author and all regions in Spanish", async ({ page }) => {
   await expect(page.locator("html")).toHaveAttribute("lang", "es");
   const top = page.getByTestId("topbar");
-  await expect(top.getByRole("heading", { level: 1 })).toHaveText("Calendario de fuego");
+  await expect(top.getByRole("heading", { level: 1 })).toHaveText("Córdoba");
+  await expect(top).toContainText("Calendario de fuego");
   await expect(top).toContainText("NASA Space Apps 2026 · Desafío CONAE");
   await expect(top).toContainText("Faustino Maggioni Duffy");
   await expect(page.getByRole("heading", { name: "Área y período" })).toBeVisible();
@@ -58,7 +60,7 @@ test("language switches without a reload", async ({ page }) => {
   await markPage(page);
   await page.getByTestId("lang-en").click();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Fire calendar");
+  await expect(page.getByTestId("topbar")).toContainText("Fire calendar");
   await expect(page.getByTestId("topbar")).toContainText("NASA Space Apps 2026 · CONAE challenge");
   await expect(page.getByRole("tab", { name: "Map" })).toBeVisible();
   await expect(page.getByRole("tab", { name: "Dashboard" })).toBeVisible();
