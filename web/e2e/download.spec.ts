@@ -12,7 +12,7 @@ test.beforeEach(async ({ page }) => {
 // backend/tests/test_web_export_fixtures.py ties these lists to export.py.
 const CALENDAR_HEADER = [
   "year", "month", "modis_reported", "viirs_reported", "modis_eq", "viirs_eq", "cells", "modis_eq_status",
-  "viirs_eq_status", "source", "period", "method", "calibration_version",
+  "viirs_eq_status", "provisional", "source_level", "source_levels", "modis_drift", "source", "period", "method", "calibration_version",
 ]; // prettier-ignore
 const DETECTIONS_HEADER = [
   "acq_datetime", "acq_date", "sensor", "satellite", "product", "daynight", "latitude", "longitude",
