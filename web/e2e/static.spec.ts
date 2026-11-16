@@ -119,3 +119,21 @@ test("static mode: provisional month shows marker, tooltip, legend and inspector
   await cell("2014-05").hover();
   await expect(page.getByTestId("tip-drift")).toHaveText("MODIS observed during orbit drift (unverified cause)");
 });
+
+test("left panel (selects and note) has no horizontal crop at the minimum width, both languages and themes", async ({ page }) => {
+  await open(page);
+  await page.getByTestId("panel-resizer").focus();
+  await page.keyboard.press("Home");
+  const noOverflow = () =>
+    page.getByTestId("left-panel").evaluate((el) => {
+      const box = el.getBoundingClientRect();
+      const inner = [...el.querySelectorAll("*")].every((c) => c.getBoundingClientRect().right <= box.right + 0.5);
+      return el.scrollWidth <= el.clientWidth && inner;
+    });
+  expect(await noOverflow()).toBe(true);
+  for (const id of ["lang-en", "theme-light", "theme-dark"] as const) {
+    await setPreference(page, id);
+    expect(await noOverflow()).toBe(true);
+  }
+  await expect(page.getByTestId("area-province")).toBeVisible();
+});

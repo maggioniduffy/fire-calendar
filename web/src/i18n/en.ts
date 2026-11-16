@@ -18,6 +18,7 @@ const en: Messages = {
     language: "Language",
   },
   panel: {
+    resize: "Resize left panel",
     title: "Area and period",
     area: "Area",
     open: "Show area and period",

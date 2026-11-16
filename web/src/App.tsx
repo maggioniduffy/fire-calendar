@@ -4,6 +4,7 @@ import { SettingsButton } from "./components/Settings";
 import { LeftPanel } from "./components/LeftPanel";
 import { Inspector } from "./components/Inspector";
 import { CalendarStrip } from "./components/CalendarStrip";
+import { PanelResizer, usePanelWidth } from "./components/PanelResizer";
 import { StripResizer, useStripHeight } from "./components/StripResizer";
 import { Dashboard } from "./components/dashboard/Dashboard";
 import { useT } from "./state/prefs";
@@ -17,16 +18,18 @@ export function App() {
   const t = useT();
   const [tab, setTab] = useState<Tab>("map");
   const { height, setHeight } = useStripHeight();
+  const { width, setWidth } = usePanelWidth();
 
   useEffect(() => {
     document.title = `${t.app.title} · ${t.app.event}`;
   }, [t]);
 
   return (
-    <div className="shell" style={{ "--cal-h": `${height}px` } as CSSProperties}>
+    <div className="shell" style={{ "--cal-h": `${height}px`, "--left-w": `${width}px` } as CSSProperties}>
       <HoverHeader />
       <SettingsButton />
       <LeftPanel />
+      <PanelResizer width={width} onChange={setWidth} />
       <main className="center card" data-testid="center">
         <div className="tabs" role="tablist" aria-label={t.tabs.label}>
           {tabs.map((id) => (

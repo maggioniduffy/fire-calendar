@@ -84,7 +84,7 @@ for (const theme of ["light", "dark"] as const) {
 async function focused(page: Page) {
   return page.evaluate(() => {
     const el = document.activeElement as HTMLElement;
-    const region = ["settings-button", "left-panel", "center", "inspector", "strip-resizer", "calendar-strip"].find((id) => el.closest(`[data-testid="${id}"]`));
+    const region = ["settings-button", "left-panel", "panel-resizer", "center", "inspector", "strip-resizer", "calendar-strip"].find((id) => el.closest(`[data-testid="${id}"]`));
     const cs = getComputedStyle(el);
     return {
       region: region ?? "none",
@@ -95,7 +95,7 @@ async function focused(page: Page) {
   });
 }
 
-test("keyboard: tab order includes settings, left panel, tabs, inspector, resizer and calendar with a visible ring", async ({ page }) => {
+test("keyboard: tab order includes settings, left panel, its resizer, tabs, inspector, resizer and calendar with a visible ring", async ({ page }) => {
   await ready(page, "light");
   // Preference setup closes the dialog and restores focus to the gear; reload to reset
   // the browser's sequential focus starting point before measuring the page order.
@@ -111,7 +111,7 @@ test("keyboard: tab order includes settings, left panel, tabs, inspector, resize
     if (f.region === "none") break; // left the app (browser chrome / body)
   }
   const first = (region: string) => stops.findIndex((s) => s.region === region);
-  const order = ["settings-button", "left-panel", "center", "inspector", "strip-resizer", "calendar-strip"].map(first);
+  const order = ["settings-button", "left-panel", "panel-resizer", "center", "inspector", "strip-resizer", "calendar-strip"].map(first);
   expect(order.every((i) => i >= 0), `regions reached: ${JSON.stringify(stops.map((s) => s.region))}`).toBe(true);
   expect(order, "regions in order").toEqual([...order].sort((a, b) => a - b));
   const bad = stops.filter((s) => s.region !== "none" && s.ring === null);
