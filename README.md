@@ -1,8 +1,8 @@
 # fire-calendar
 
 Harmonized MODIS + VIIRS fire calendar for Argentina. Built around the CONAE challenge of the NASA Space Apps
-Challenge 2026, "Harmonization of MODIS and VIIRS Hot Spots" (COR-CAT-08, Córdoba venue). It is not competing:
-no hackathon deadline applies. Author: Faustino Maggioni Duffy.
+Challenge 2026, "Harmonization of MODIS and VIIRS Hot Spots" (COR-CAT-08, Córdoba venue). Submitted to the
+challenge. Author: Faustino Maggioni Duffy.
 
 Status: phases 0 to 5 (ENSO-lite) are implemented; publication (phase 7) is in progress. See [plan.md](plan.md).
 

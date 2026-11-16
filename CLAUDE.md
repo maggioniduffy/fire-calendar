@@ -1,8 +1,8 @@
 # fire-calendar
 
 Harmonized MODIS + VIIRS fire calendar. Born for the CONAE challenge of the NASA Space Apps Challenge 2026,
-"Harmonization of MODIS and VIIRS Hot Spots" (COR-CAT-08 at the Córdoba venue). It is not competing: the hackathon
-deadline does not apply. Author: Faustino Maggioni Duffy. Guided by [plan.md](plan.md).
+"Harmonization of MODIS and VIIRS Hot Spots" (COR-CAT-08 at the Córdoba venue). It is a competing submission to that
+challenge. Author: Faustino Maggioni Duffy. Guided by [plan.md](plan.md).
 
 Architecture and practices taken from [clima-ideas](https://github.com/maggioniduffy/clima-ideas); what is needed
 is copied into `docs/` so this repo reads on its own.

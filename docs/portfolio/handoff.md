@@ -9,7 +9,7 @@ repo; keep them as written (each has a source and period). Last checked: 2026-11
 |---|---|
 | Name | fire-calendar (UI: "Calendario de fuego") |
 | One-liner | A harmonized MODIS + VIIRS fire calendar for Argentina, 2000 to today |
-| Context | Built for the CONAE challenge "Harmonization of MODIS and VIIRS Hot Spots", NASA Space Apps Challenge 2026 (COR-CAT-08, Córdoba) |
+| Context | Submitted to the CONAE challenge "Harmonization of MODIS and VIIRS Hot Spots", NASA Space Apps Challenge 2026 (COR-CAT-08, Córdoba) |
 | Role | Solo author: problem framing, method, validation design, data pipeline, web app, deployment |
 | How it was built | With an AI coding assistant (Claude Code). The author planned each task and reviewed and validated the results; disclosed in the README |
 | Dates | 2026-11-14 to 2026-11-16 (git history) |
@@ -79,8 +79,7 @@ Playwright (e2e, accessibility), GitHub Actions pipeline that rebuilds the data 
 
 - Not an alert or forecasting system: everything is retrospective.
 - ENSO is an association, not a cause.
-- No award or ranking unless one is announced. The README says the project is not competing; check that this is
-  still accurate before you call it a hackathon submission.
+- It is a NASA Space Apps Challenge 2026 submission; claim no award or ranking unless one is announced.
 - Unverified in the repo: exact FIRMS and NOAA CPC terms, the CARTO attribution wording, the exact MODIS
   shutdown date, the official Córdoba boundary (the app uses geoBoundaries ADM2).
 - No code license file yet; add one before inviting reuse.
