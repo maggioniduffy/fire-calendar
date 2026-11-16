@@ -8,7 +8,7 @@ Status: active · Depends on: 4 · Refs: `docs/architecture.md` (Static publishi
 |---|---|---|---|
 | SA7.1 | README in English: problem, harmonization method with its error table, sources and licenses, how to run | Sonnet | Reviewed by Opus. Done ✅ (2026-11-15; error tables copied from `reports/02/baselines.md`; FIRMS/CPC terms and CARTO attribution text marked unverified; no code license yet) |
 | SA7.2 | Deployed demo: static web + JSON precomputed per province and department on Cloudflare Pages (R2 dropped: one Pages project serves web and data) | Sonnet | Public URL responds and shows Córdoba. Built and tested locally; deploy pending (`deploy-demo` workflow) |
-| SA7.3 | (deferred) Video and slides | user, with Opus draft | — |
+| SA7.3 | Slides (7, Space Apps demo limit) and submission form text | user, with Opus draft | Draft deck done (Slides artifact, export to PDF); form text in `docs/submission.md`. Public demo link pending (user uploads the PDF) |
 | SA7.4 | (deferred) Project page on the Space Apps site: not competing | user | — |
 
 ## SA7.2 design (static export)

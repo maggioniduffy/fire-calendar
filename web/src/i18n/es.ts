@@ -17,6 +17,7 @@ const es = {
     language: "Idioma",
   },
   panel: {
+    resize: "Redimensionar panel izquierdo",
     title: "Área y período",
     area: "Área",
     open: "Mostrar área y período",

@@ -31,6 +31,24 @@ carries its source, period and an uncertainty band; years before VIIRS (2000-201
 (cut-offs 2021-2024: block-year WAPE 12.3 %), drift checks on Terra and Aqua, and a pre-registered comparison
 against baselines. Machine learning was tried and did not beat the factor, so it is not used.
 
+**Machine learning, tested and reported.** LightGBM models (Poisson/Tweedie) were trained on 0.1° cell × month ×
+day/night rows in both directions, starting from the scale factor as an offset so they could only add corrections.
+Features: hot-spot count, fire radiative power (FRP) and FRP per detection, count over the 3×3 neighbourhood, the
+day/night share, the count of the other half of the day, the block total and the month (lat/lon and the Terra/Aqua
+share only as ablations). The most used features were FRP per detection (47 % of gain) toward MODIS and the 3×3
+neighbourhood count (67 %) toward VIIRS. MODIS MCD64A1 burned area was added as a further variable and changed
+nothing (+0.08 points). The rule for publishing ML was fixed before the run. VIIRS→MODIS came close (block-month
+WAPE 15.9 % vs 17.2 %) but failed on bias (−2.5 % vs +0.9 %), so the published series uses the factor.
+
+**What comes next.** (1) Validate the factor on the first full fire season after MODIS and S-NPP (2026), since
+the frozen bands have only been checked on January–April 2026. (2) An experimental outlook: the probability that
+next month has more hot spots than the area's median, up to 6 months ahead, from ENSO (ONI and its forecast),
+drought (SPEI), fire weather (FWI) and the previous month's anomaly. Logistic regression and LightGBM would be
+scored (RPS, Brier) against climatology, persistence and ENSO-analog years, with predictions frozen in a
+registry and shown as "Experimental, not an alert"; if they do not beat climatology, the app says so. (3) Atmospheric
+rivers and fire in the Andes and Patagonia: whether a very wet season relieves fire right away or grows fuel for
+the next dry one. (4) Land cover as a variable and the official Córdoba boundary.
+
 **Benefits and impact.** Researchers, fire brigades and provincial agencies can read trends and anomalies across
 the sensor change instead of mistaking a satellite switch for a change in fire activity, and keep a series going
 after MODIS ends.

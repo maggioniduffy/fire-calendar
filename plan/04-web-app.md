@@ -1,6 +1,6 @@
 # Phase 4 — Web app
 
-Status: done 2026-11-15 (SA4.10–SA4.14 added the same day) · Depends on: 0, 3 · Refs: `docs/design.md`
+Status: done 2026-11-15 (SA4.10–SA4.14 added the same day; SA4.15 on 2026-11-16) · Depends on: 0, 3 · Refs: `docs/design.md`
 
 ## Goal
 
@@ -25,3 +25,4 @@ it.
 | SA4.12 | API `/cells` and `/detections` over a range (start→end) or a season (months × year span); single-month answers unchanged | Codex | pytest: range = sum of months, season filter, total = `/calendar` sum, month regression — **done 2026-11-15** (detections over the cap are an evenly spaced sample for ranges and seasons) |
 | SA4.13 | Static export: raw detections as 1° tiles per month; static client sums cells and loads detections for ranges and seasons | Codex | pytest of the tile writer + vitest of the static client; export size reported — **done 2026-11-15** (5° tiles by default: ~22 files per month instead of ~233, to stay under the Pages file limit) |
 | SA4.14 | Period selection UI: month, range (shift-click or pickers), season; map overlay shows period and summed total | Codex | vitest of reducer/request + e2e on API and static fixtures — **done 2026-11-15** (shift-click or Shift+Enter for a range; season = month chips + year span; `?range=` and `?season=` in the URL) |
+| SA4.15 | Left panel: no horizontal crop (selects, notes) at narrow widths, plus a drag/keyboard resizer on its right edge (min 240 px, max 40% of the viewport or 560 px, width remembered) | Sonnet | vitest of the clamp/key helpers + e2e of drag, keyboard, persistence and no overflow (es/en, light/dark, API and static) — **done 2026-11-16** |

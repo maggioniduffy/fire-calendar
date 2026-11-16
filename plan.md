@@ -141,3 +141,7 @@ LightGBM (the scale factor stays), NRT.
   locally: 963 MB, 10,453 files; detections 442 MB, 6,256 files (2000-11 to 2025-12), largest file 6.4 MB. The
   Cloudflare Pages per-deployment file limit (20,000) is unverified. Checks: e2e 91/91, backend pytest 409 passed,
   vitest 108/109 (the static CSV test fails under Node's Blob in jsdom; also failing before this branch).
+- 2026-11-16: SA7.3 drafted. Space Apps form text in `docs/submission.md` (summary, details, SI use, NASA and other
+  data links) and a "Use of AI tools" section in the README. Seven-slide demo deck drafted as a Slides artifact;
+  the user exports it to PDF and hosts it publicly. Its app screenshot was taken before deploy run #4 finished
+  (shows data to 2025-12, `sf-2026.11.1`). Project link: `https://fire-calendar.pages.dev/`.

@@ -2,7 +2,7 @@ name: Deploy demo
 
 # Manual: rebuilds data/ from FIRMS, NOAA CPC and geoBoundaries, exports per province and department, builds the
 # static web and deploys it to Cloudflare Pages (project fire-calendar). Secrets: CLOUDFLARE_API_TOKEN (Pages edit)
-# and CLOUDFLARE_ACCOUNT_ID.
+# and CLOUDFLARE_ACCOUNT_ID; FIRMS_MAP_KEY (FIRMS area API, for the months after the per-country files).
 on:
   workflow_dispatch:
 
@@ -34,7 +34,11 @@ jobs:
           cache-dependency-path: web/pnpm-lock.yaml
       - run: make install
       - name: Data pipeline
-        run: make data
+        run: |
+          test -n "$FIRMS_MAP_KEY" || { echo "::error::FIRMS_MAP_KEY secret missing: the site would have no 2026 months"; exit 1; }
+          make data
+        env:
+          FIRMS_MAP_KEY: ${{ secrets.FIRMS_MAP_KEY }}
       - name: Static export
         run: make static-export
         env:
@@ -43,6 +47,10 @@ jobs:
         run: make static-site
       - name: Check that Córdoba is in the site
         run: test -s data/publish/site/data/calendar/p-cordoba/viirs_eq.json && test -s data/publish/site/index.html
+      - name: Check that the series reaches 2026
+        run: >-
+          python3 -c "import json,sys; e=json.load(open('data/publish/site/data/calendar/p-cordoba/viirs_eq.json'))['period']['end'];
+          print('series ends', e); sys.exit(0 if e >= '2026-01' else 1)"
       - name: Deploy to Cloudflare Pages
         run: >-
           npx -y wrangler@4.40.0 pages deploy data/publish/site --project-name fire-calendar --branch main
